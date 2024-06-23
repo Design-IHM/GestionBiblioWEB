@@ -1,0 +1,105 @@
+
+
+
+
+.log>h1{
+    margin-top: 2%;
+    margin-left: 220px; 
+    
+    
+}
+
+.auth-form-container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: rgb(231, 218, 193);
+    border-radius: 5px;
+    margin-top: 50px;
+    margin-right: 50%;
+    margin-bottom: 40%;
+       
+    
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 20px;
+    font-weight: bold;
+    color: black;
+}
+
+.login-form label {
+    display: block;
+    margin-bottom: 10px;
+    color: black;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.login-form input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background-color: #ccc;
+}
+
+.error-message {
+    color: red;
+    margin-top: 10px;
+}
+
+.login-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.link-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 20px;
+    color: blue;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: underline;
+    margin-top: 10px;
+}
+
+
+@media screen and (min-width: 280px) and (max-width: 1080px) {
+
+    .log>h1 {
+         
+            margin-left: 200px;
+    
+    
+        }
+    .auth-form-container {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: rgb(231, 218, 193);
+        border-radius: 5px;
+        margin-top: 50px;
+    }
+
+}
+@media screen and (min-width: 1000px) and (max-width: 4080px) {
+    .body{
+        background-image: url(../assets/bio.webp);
+        background-size:cover;
+    }
+}

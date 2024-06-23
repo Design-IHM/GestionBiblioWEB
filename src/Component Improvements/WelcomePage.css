@@ -1,0 +1,58 @@
+main {
+
+    margin: 5px;
+    margin-top: 40px;
+    padding: 15%;
+    background-image: url("../assets/bio.webp");
+    background-size: cover;
+    border-radius: 10px;
+    
+    height: 68vh;
+}
+main>button{
+    width: 200px;
+    height: 100px;
+    background-color: #fe7a3f;
+    color: white;
+    border-radius: 25px;
+    margin-top: 8%;
+   
+    
+    margin-right: 25px;
+}
+main p{
+    font-size: 25px;
+    margin-top: -18%; 
+    font-weight: bold;
+    
+}
+main :nth-child(2){
+    margin-top: 2%;
+}
+main button :hover{
+    background-color: aliceblue;
+  
+    opacity: 1;
+    box-shadow:  0 0 10px rgba(0, 0, 0, 0.2) none;
+    transform: scale(1.05)scale(1);
+}
+main :nth-child(4){
+    width: 200px;
+    height: 100px;
+    background-color: #fe7a3f;;
+    color: white;
+    margin-left: 400px;
+    
+margin-top: 8%;
+    
+    
+    
+}
+
+
+
+@media screen and (min-width: 280px) and (max-width: 1080px) {
+    main {
+        height: 70vh;
+    }
+}

@@ -1,0 +1,22 @@
+.error-404 {
+    background-color: #f8f8f8;
+}
+
+.no-page-container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 40px;
+    text-align: center;
+}
+
+.no-page-heading {
+    font-size: 28px;
+    color: #ff0000;
+    margin-bottom: 20px;
+}
+
+.no-page-message {
+    font-size: 18px;
+    color: #333333;
+    margin-bottom: 20px;
+}

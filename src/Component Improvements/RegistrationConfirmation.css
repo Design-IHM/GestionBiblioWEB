@@ -1,0 +1,53 @@
+.registration-confirmation-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: rgb(231, 218, 193);
+    border-radius: 5px;
+    text-align: center;
+    margin-top: 225px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-left: 150px;
+}
+
+h2 {
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+p {
+    color: black;
+    font-size: 20px;
+}
+
+.login-link {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #4caf50;
+    color: white;
+    text-decoration: none;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+.link-btn {
+    color: blue;
+    font-size: 20px;
+    text-decoration: underline;
+    margin-top: 15px;
+}
+
+@media screen and (min-width: 280px) and (max-width: 1080px) {
+    .registration-confirmation-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: rgb(231, 218, 193);
+        border-radius: 5px;
+        text-align: center;
+        margin-top: 100px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+    }
+}
