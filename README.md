@@ -1,10 +1,10 @@
-## Projet Parc de Vehicules
+## Gestion bibliothèque 
 
-Ce Projet est celui de la mise sur pied d'un parc automobile de vehicule, dans le cadre de notre unité d'enseignement Administration Reseau, à l'ecole nationale superieure polytechnique de Yaoundé. Le code est une application React, developpée en FrontEnd, et le backend une application nodejs via un serveur distant sur firebase.
+Ce Projet est celui de la mise sur pied d'une application web de gestion de bibliothèque, dans le cadre de notre unité d'enseignement IHM, à l'ecole nationale superieure polytechnique de Yaoundé. Le code est une application React, developpée en FrontEnd, et le backend une application nodejs via un serveur distant sur firebase.
 
 ## Lancement du projet 
 
-Pour lancer le projet, aller dans le repertoire du projet "Parc_Automobile" et executer les commandes:
+Pour lancer le projet, aller dans le repertoire du projet "GestionBiblioWEB" et executer les commandes:
 
 ### `npm install`
 
