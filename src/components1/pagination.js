@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, {} from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 // import { Card, Button } from "react-bootstrap";
 // import Slider from "react-slick";
@@ -12,27 +12,27 @@ const Pagenation = () => {
             <nav aria-label="Page navigation example">
                 <ul className="pagination justify-content-center">
                     <li className="page-item disabled">
-                        <a className="page-link">Previous</a>
+                        <button className="page-link">Previous</button>
                     </li>
                     <li className="page-item">
-                        <a className="page-link" href="#">
+                        <button className="page-link">
                             1
-                        </a>
+                        </button>
                     </li>
                     <li className="page-item">
-                        <a className="page-link" href="#">
+                        <button className="page-link" >
                             2
-                        </a>
+                        </button>
                     </li>
                     <li className="page-item">
-                        <a className="page-link" href="#">
+                        <button className="page-link" >
                             3
-                        </a>
+                        </button>
                     </li>
                     <li className="page-item">
-                        <a className="page-link" href="#">
+                        <button className="page-link" >
                             Next
-                        </a>
+                        </button>
                     </li>
                 </ul>
             </nav>

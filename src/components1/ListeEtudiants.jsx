@@ -1,11 +1,10 @@
-import React,{useState,useEffect,useContext, useRef} from "react";
+import React,{useState,useEffect,useContext, useCallback} from "react";
 import styled from "styled-components";
 import firebase from '../metro.config'
 import { UserContext } from "../App";
 import Modal from 'react-modal';
-import ReactJsAlert from "reactjs-alert";
 import { GrFormClose } from "react-icons/gr";
-import {Table, Button} from 'react-bootstrap';
+import {Table} from 'react-bootstrap';
 import Loading from "./Loading";
 
 import Sidebar from '../components1/Sidebar';
@@ -56,7 +55,7 @@ const [matricule, setMatricule] = useState('')
 const [tel, setTel] = useState('')
 const [image, setImage] = useState('')
 const [stat, setStat] = useState('')
-const [email, setEmail] = useState('')
+const [setEmail] = useState('')
   
   const customStyles = {
       content: {
@@ -103,7 +102,7 @@ const [email, setEmail] = useState('')
     let subtitle;
   
     
-     function getData(){
+     const getData = useCallback( () =>{
       ref.onSnapshot((querySnapshot) => {
         const items = []
         querySnapshot.forEach((doc) => {
@@ -113,17 +112,17 @@ const [email, setEmail] = useState('')
         setData(items)
         
       })
-     }
+     },[ref])
     
      useEffect(() =>{
       getData()
   //    console.log('mes dataaaaaaa aaaaaaaa dans Ccformationnnn',data)
-     },[])
+     },[getData])
 
       //update
  function updates(dos){
   const ref = firebase.firestore().collection("BiblioUser")
-  if( dos.etat == 'bloc'){
+  if( dos.etat === 'bloc'){
   ref
   .doc(dos.email)
   .update({etat:'ras'})
@@ -131,7 +130,7 @@ const [email, setEmail] = useState('')
     console.log(err)
   })}
 
-  if( dos.etat != 'bloc'){
+  if( dos.etat !== 'bloc'){
     ref
     .doc(dos.email)
     .update({etat:'bloc'})
@@ -181,17 +180,17 @@ const [email, setEmail] = useState('')
             <td onClick={()=>openModal(etudiant)} style={{cursor:'pointer'}}>{etudiant.etat}</td>
             <td>
               <div className="btn-bloc-etudiant">
-                <a
+                <button
                     onClick={()=>{updates(etudiant)}}
-                    style={{color:'white', backgroundColor: etudiant.etat == 'bloc' ? 'red' : 'green', fontWeight:"bold" }}
+                    style={{color:'white', backgroundColor: etudiant.etat === 'bloc' ? 'red' : 'green', fontWeight:"bold" }}
                   >
                   {etudiant.etat === 'bloc' ? 'Débloquer' : 'Bloquer'}
-                </a>
+                </button>
               </div>
             </td>
             
           </tr>
-         )} })}
+         )} return null; })}
         </tbody>
       </Table> 
       </div>
@@ -205,7 +204,7 @@ const [email, setEmail] = useState('')
                     style={customStyles}
                     contentLabel="Example Modal"
                 >
-                  <a onClick={closeModal} style={closeStyle}><GrFormClose /></a>
+                  <button onClick={closeModal} style={closeStyle}><GrFormClose /></button>
                   <h2 ref={(_subtitle) => (subtitle = _subtitle)}>Informations personnelles sur l'étudiant: {name}</h2>
                   <div style={modalDiv}>
                       <div>

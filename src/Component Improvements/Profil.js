@@ -1,29 +1,28 @@
 import React, { useState, useRef } from "react";
-import { Button, Form } from "react-bootstrap";
+import { Form } from "react-bootstrap";
 import ReactJsAlert from "reactjs-alert";
 import "../components1/AjoutDoc.css";
 import firebase from '../metro.config';
 import { storage } from "../firebase-config";
-import { ref, uploadBytes, getDownloadURL, getStorage, uploadBytesResumable } from "firebase/storage"
+import { ref, uploadBytes, getDownloadURL} from "firebase/storage"
 import { v4 } from "uuid"
 import Avatar from '@mui/material/Avatar';
 import { useNavigate } from "react-router-dom";
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
-import { margin } from "@mui/system";
 
 export default function Profil(props) {
     //   const [email, setEmail] = useState('');
     const [name, setName] = useState('')
-    const [catégorie, setCatégorie] = useState('')
-    const [cathegorie, setCathegorie] = useState('');
+   // const [catégorie, setCatégorie] = useState('')
+    const [cathegorie] = useState('');
     const [desc, setDesc] = useState('')
-    const [etagere, setEtagere] = useState('')
+    const [etagere] = useState('')
     const [Email, setEmail] = useState("")
     const [image, setImage] = useState(null)
-    const [pdf, setPdf] = useState(null)
+    //const [pdf, setPdf] = useState(null)
     const [url, setUrl] = useState(null)
-    const [salle, setSalle] = useState('')
+    const [salle] = useState('')
     const [typ, setTyp] = useState('')
     const formRef = useRef()
 
@@ -37,7 +36,7 @@ export default function Profil(props) {
     const handleSumit = (e) => {
 
         const imageRef = ref(storage, `images/${image.name + v4()}`)
-        const pdfRef = ref(storage, `files/${image.name}`)
+        //const pdfRef = ref(storage, `files/${image.name}`)
 
         uploadBytes(imageRef, image).then(() => {
             getDownloadURL(imageRef).then((url) => {
@@ -95,22 +94,22 @@ export default function Profil(props) {
 
     //debut formulaire
 
-    const [inputs, setInputs] = useState({});
+    //const [inputs, setInputs] = useState({});
 
-    const handleChange = (event) => {
+   /* const handleChange = (event) => {
         const name = event.target.name;
         const value = event.target.value;
 
 
         setInputs(values => ({ ...values, [name]: value }))
-    }
+    }*/
 
 
 
 
     //fin formulaire
 
-    const [validation, setValidation] = useState("")
+    //const [validation, setValidation] = useState("")
 
 
 
@@ -126,7 +125,7 @@ export default function Profil(props) {
 
 
     //ajouter
-    function ajouter() {
+   /* function ajouter() {
         const ref = firebase.firestore().collection("BiblioInformatique")
 
         ref
@@ -137,7 +136,7 @@ export default function Profil(props) {
             })
 
         console.log("ajouter", inputs)
-    }
+    }*/
 
     /*const [imageUpload, setImageUpload] = useState(null)
   

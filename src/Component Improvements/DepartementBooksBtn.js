@@ -1,14 +1,9 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Avatar from '@mui/material/Avatar';
 import { Button, Modal, Form } from 'react-bootstrap';
 import { FaBook, FaPlus } from 'react-icons/fa';
-import img1 from '../assets/img1.jpg';
 import firebase from '../metro.config';
-import { storage } from "../firebase-config";
-import { ref, uploadBytes, getDownloadURL, getStorage, uploadBytesResumable } from "firebase/storage"
-import { v4 } from "uuid"
 import ReactJsAlert from "reactjs-alert";
 
 export default function DepartementMemoriesBtn(props) {
@@ -54,10 +49,10 @@ export default function DepartementMemoriesBtn(props) {
     setShowModal(false);
   };
 
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setFormValues({ ...formValues, [name]: value });
-  };
+  //const handleInputChange = (event) => {
+    //const { name, value } = event.target;
+    //setFormValues({ ...formValues, [name]: value });
+  //};
 
   const handleMouseEnter = () => {
     setIsHovered(true);
@@ -67,29 +62,29 @@ export default function DepartementMemoriesBtn(props) {
     setIsHovered(false);
   };
   const [name, setName] = useState('')
-  const [catégorie, setCatégorie] = useState('')
-  const [cathegorie, setCathegorie] = useState('');
+  //const [catégorie, setCatégorie] = useState('')
+  const [setCathegorie] = useState('');
   const [desc, setDesc] = useState('')
   const [etagere, setEtagere] = useState('')
   const [exemplaire, setExemplaire] = useState(0)
   const [image, setImage] = useState(null)
-  const [pdf, setPdf] = useState(null)
-  const [url, setUrl] = useState(null)
-  const [salle, setSalle] = useState('')
-  const [typ, setTyp] = useState('')
-  const formRef = useRef()
+ // const [pdf, setPdf] = useState(null)
+  //const [setUrl] = useState(null)
+  const [salle] = useState('')
+  const [typ] = useState('')
+  //const formRef = useRef()
 
-  const handleChangeImage = (e) => {
+ /* const handleChangeImage = (e) => {
       if (e.target.files[0]) {
           setImage(e.target.files[0])
           handleSumit()
       }
-  }
+  }*/
 
-  const handleSumit = (e) => {
+  /*const handleSumit = (e) => {
 
       const imageRef = ref(storage, `images/${image.name + v4()}`)
-      const pdfRef = ref(storage, `files/${image.name}`)
+      //const pdfRef = ref(storage, `files/${image.name}`)
 
       uploadBytes(imageRef, image).then(() => {
           getDownloadURL(imageRef).then((url) => {
@@ -103,7 +98,7 @@ export default function DepartementMemoriesBtn(props) {
           console.log(error.message)
       })
 
-  }
+  }*/
 
  
   
@@ -174,21 +169,21 @@ export default function DepartementMemoriesBtn(props) {
     
   };
   
-  const [inputs, setInputs] = useState({});
+  //const [setInputs] = useState({});
 
-  const handleChange = (event) => {
+  /*const handleChange = (event) => {
       const name = event.target.name;
       const value = event.target.value;
 
 
       setInputs(values => ({ ...values, [name]: value }))
-  }
+  }*/
 
   const [status, setStatus] = useState(false);
     const [type, setType] = useState("");
     const [title, setTitle] = useState("");
 
-  function ajouter() {
+  /*function ajouter() {
     const ref = firebase.firestore().collection("BiblioInformatique")
 
     ref
@@ -199,7 +194,7 @@ export default function DepartementMemoriesBtn(props) {
         })
 
     console.log("ajouter", inputs)
-}
+}*/
 
 const res = async function () {
   await firebase.firestore().collection('BiblioInformatique').doc(name).set({

@@ -1,4 +1,4 @@
-import {React,useState,useEffect,useContext,useRef} from "react";
+import {React,useState,useEffect,useContext,useRef, useCallback} from "react";
 import styled from "styled-components";
 import { cardStyles } from "./ReusableStyles";
 import firebase from '../metro.config'
@@ -13,7 +13,7 @@ import { useLocation } from 'react-router-dom';
 import { FaBook } from "react-icons/fa";
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
-import { Button, Form, Row } from "react-bootstrap";
+import { Button, Row } from "react-bootstrap";
 
 export default function CatalogueMemoire() {
 
@@ -80,10 +80,10 @@ function openModal(e) {
     setImage(e.image)
 }
 
-function openModal1() {
+/*function openModal1() {
   setIsOpens1(true);
   setIsOpens(false);
-}
+}*/
 
 function afterOpenModal() {
     // references are now sync'd and can be accessed.
@@ -163,7 +163,7 @@ const formRef = useRef()
     const [loader,setLoader] = useState(false)
 
 
-    function getData() {
+    const getData = useCallback(()=>{
       if (isDepartementNonNull) {
         ref.where('département', '==', departement).onSnapshot((querySnapshot) => {
           const items = [];
@@ -183,11 +183,11 @@ const formRef = useRef()
           setData(items);
         });
       }
-    }
+    },[ref,departement,isDepartementNonNull]) 
     
     useEffect(() => {
       getData();
-    }, []);
+    }, [getData]);
     
 
     /*function getData(){
@@ -290,11 +290,13 @@ const  deleteDoc = async function(){
             </div>
             <div className="logo">
             <a href={doc.image}>
-              <img src={doc.image} />
+              <img src={doc.image}  alt="logo"/>
             </a> 
             </div>
           </div>
-         )} }) ) :<Loading />    }
+         )}
+           return null;
+          }) ) :<Loading />    }
           <div>
                 <Modal
                     isOpen={modalIsOpens}
@@ -303,7 +305,7 @@ const  deleteDoc = async function(){
                     style={customStyles}
                     contentLabel="Example Modal"
                 >
-                  <a onClick={closeModal} style={closeStyle}><GrFormClose /></a>
+                  <button onClick={closeModal} style={closeStyle}><GrFormClose /></button>
                     <h2 ref={(_subtitle) => (subtitle = _subtitle)}>Modifier le document</h2>
                     
                     <form ref={formRef}  style={formClass}>

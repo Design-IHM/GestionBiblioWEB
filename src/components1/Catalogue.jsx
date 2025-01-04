@@ -1,4 +1,4 @@
-import React,{useState,useEffect,useContext,useRef} from "react";
+import React,{useState,useEffect,useContext,useRef, useCallback} from "react";
 import styled from "styled-components";
 import { cardStyles } from "./ReusableStyles";
 import firebase from '../metro.config'
@@ -17,7 +17,7 @@ import Navbar from '../components1/Navbar';
 
 export default function Catalogue() {
   const location = useLocation();
-  const { state } = location;
+  //const { state } = location;
   const departement = location.state.departement;
  // const  departement  = state ? state.departement: null;
 
@@ -98,8 +98,8 @@ const customStyles = {
   const [exemplaire, setExemplaire] = useState(0)
   const [image, setImage] = useState(null)
   const [comment, setComment] = useState(null)
-  const [pdf, setPdf] = useState(null)
-  const [url, setUrl] = useState(null)
+ // const [pdf, setPdf] = useState(null)
+  //const [url, setUrl] = useState(null)
   const [salle, setSalle] = useState('')
 const formRef = useRef()
   //fin modal 2
@@ -117,7 +117,7 @@ const formRef = useRef()
  
  
    
-    function getData(){
+    const getData= useCallback(() =>{
      ref.where('cathegorie', '==', departement).onSnapshot((querySnapshot) => {
        const items = []
        querySnapshot.forEach((doc) => {
@@ -127,8 +127,8 @@ const formRef = useRef()
        setData(items)
        
        
-     })
-    }
+     });
+    },[ref, departement]);
 
     
 
@@ -137,7 +137,7 @@ const formRef = useRef()
     useEffect(() =>{
      getData()
    //  console.log('listDocModal',search)
-    },[])
+    },[getData])
    //firebase fin
    
 
@@ -188,19 +188,20 @@ const  deleteDoc = async function(){
       {loader ? ( data.map((doc, index) =>{
        if(doc.name.toUpperCase().includes(searchWord.toUpperCase())){
         return(
-      <div className="analytic " key={index}>
-        <div className="content" onClick={()=>openModal(doc)}>
-          <h3>{doc.name}</h3>
-          <h6>Departement : {doc.cathegorie}</h6>
-          <h6>Exemplaire disponible: {doc.exemplaire}</h6>
-        </div>
-        <div className="logo">
-        <a href={doc.image}>
-          <img src={doc.image} />
-        </a> 
-        </div>
-      </div>
-         )} }) ) :<Loading />    }
+                <div className="analytic " key={index}>
+                  <div className="content" onClick={()=>openModal(doc)}>
+                    <h3>{doc.name}</h3>
+                    <h6>Departement : {doc.cathegorie}</h6>
+                    <h6>Exemplaire disponible: {doc.exemplaire}</h6>
+                  </div>
+                  <div className="logo">
+                  <a href={doc.image}>
+                    <img src={doc.image} alt="logo" />
+                  </a> 
+                  </div>
+                </div>
+         )}
+          return null; }) ) :<Loading />    }
           <div>
                 <Modal
                     isOpen={modalIsOpens}
@@ -209,7 +210,7 @@ const  deleteDoc = async function(){
                     style={customStyles}
                     contentLabel="Example Modal"
                 >
-                  <a onClick={closeModal} style={closeStyle}><GrFormClose /></a>
+                  <button onClick={closeModal} style={closeStyle}><GrFormClose /></button>
                     <h2 ref={(_subtitle) => (subtitle = _subtitle)}>Modifier le document</h2>
                     
                     <form ref={formRef}  style={formClass}>

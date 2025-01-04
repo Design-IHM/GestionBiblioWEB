@@ -3,10 +3,6 @@ import { Button, Form, Row } from "react-bootstrap";
 import ReactJsAlert from "reactjs-alert";
 import "./AjoutDoc.css";
 import firebase from '../metro.config';
-import { storage } from "../firebase-config";
-import { ref, uploadBytes, getDownloadURL, getStorage, uploadBytesResumable } from "firebase/storage"
-import { v4 } from "uuid"
-import Avatar from '@mui/material/Avatar';
 import { useNavigate } from "react-router-dom";
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
@@ -15,26 +11,26 @@ import { FaBook } from "react-icons/fa";
 export default function AjoutDoc(props) {
     //   const [email, setEmail] = useState('');
     const [name, setName] = useState('')
-    const [catégorie, setCatégorie] = useState('')
+    //const [catégorie, setCatégorie] = useState('')
     const [cathegorie, setCathegorie] = useState('');
     const [desc, setDesc] = useState('')
     const [etagere, setEtagere] = useState('')
     const [exemplaire, setExemplaire] = useState(1)
     const [image, setImage] = useState(null)
-    const [pdf, setPdf] = useState(null)
-    const [url, setUrl] = useState(null)
+   // const [pdf, setPdf] = useState(null)
+   // const [setUrl] = useState(null)
     const [salle, setSalle] = useState('')
-    const [typ, setTyp] = useState('')
+    const [typ] = useState('')
     const formRef = useRef()
 
-    const handleChangeImage = (e) => {
+   /* const handleChangeImage = (e) => {
         if (e.target.files[0]) {
             setImage(e.target.files[0])
             handleSumit()
         }
-    }
+    }*/
 
-    const handleSumit = (e) => {
+    /*const handleSumit = (e) => {
 
         const imageRef = ref(storage, `images/${image.name + v4()}`)
         const pdfRef = ref(storage, `files/${image.name}`)
@@ -51,7 +47,7 @@ export default function AjoutDoc(props) {
             console.log(error.message)
         })
 
-    }
+    }*/
 
     const navigate = useNavigate();
 
@@ -103,22 +99,22 @@ export default function AjoutDoc(props) {
 
     //debut formulaire
 
-    const [inputs, setInputs] = useState({});
+   // const [inputs, setInputs] = useState({});
 
-    const handleChange = (event) => {
+    /*const handleChange = (event) => {
         const name = event.target.name;
         const value = event.target.value;
 
 
         setInputs(values => ({ ...values, [name]: value }))
-    }
+    }*/
 
 
 
 
     //fin formulaire
 
-    const [validation, setValidation] = useState("")
+    //const [validation, setValidation] = useState("")
 
 
 
@@ -134,7 +130,7 @@ export default function AjoutDoc(props) {
 
 
     //ajouter
-    function ajouter() {
+   /* function ajouter() {
         const ref = firebase.firestore().collection("BiblioInformatique")
 
         ref
@@ -145,7 +141,7 @@ export default function AjoutDoc(props) {
             })
 
         console.log("ajouter", inputs)
-    }
+    }*/
 
     /*const [imageUpload, setImageUpload] = useState(null)
   
@@ -184,7 +180,7 @@ export default function AjoutDoc(props) {
         
     
       };
-      const buttonContainerStyle = {
+      /*const buttonContainerStyle = {
         display: 'flex',
         justifyContent: 'space-between',
         position: 'absolute',
@@ -194,7 +190,7 @@ export default function AjoutDoc(props) {
         padding: '10px',
         fontSize: '20px',
         fontWeight: 'bold',
-      };
+      };*/
 
     return (
         <>

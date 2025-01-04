@@ -1,10 +1,9 @@
 import React, {useRef, useState,useContext} from "react";
-import { Button, Form } from "react-bootstrap";
-import styled from "styled-components";
+import { Form } from "react-bootstrap";
 import { UserContext } from "../App";
 import firebase from '../metro.config'
 import ReactJsAlert from "reactjs-alert";
-import { doc, updateDoc, arrayUnion, arrayRemove,serverTimestamp,Timestamp  } from "firebase/firestore";
+import { arrayUnion,Timestamp  } from "firebase/firestore";
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
 
@@ -62,7 +61,7 @@ const  res = async function(){
     }
 
 
-    const {messages, setMessages,email, setEmail,nom, setNom} = useContext(UserContext)
+    const {email, setEmail,nom, setNom} = useContext(UserContext)
 
 
  

@@ -1,4 +1,4 @@
-# Projet Parc de Vehicules
+## Projet Parc de Vehicules
 
 Ce Projet est celui de la mise sur pied d'un parc automobile de vehicule, dans le cadre de notre unité d'enseignement Administration Reseau, à l'ecole nationale superieure polytechnique de Yaoundé. Le code est une application React, developpée en FrontEnd, et le backend une application nodejs via un serveur distant sur firebase.
 
@@ -13,6 +13,6 @@ Ensuite
 
 ### `npm start`
 
-Pou executer le projet dans un environnement de development. L'application sera visible dans votre naviateur en :
+Pou executer le projet dans un environnement de development. L'application sera visible dans votre navigateur en :
 [http://localhost:3000](http://localhost:3000) .
 

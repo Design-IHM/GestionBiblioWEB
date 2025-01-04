@@ -1,13 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Avatar from '@mui/material/Avatar';
 import { Button, Modal, Form } from 'react-bootstrap';
 import { FaBook, FaPlus } from 'react-icons/fa';
-import img1 from '../assets/img1.jpg';
 import firebase from '../metro.config';
-import { storage } from "../firebase-config";
-import { ref, uploadBytes, getDownloadURL, getStorage, uploadBytesResumable } from "firebase/storage"
-import { v4 } from "uuid"
 import ReactJsAlert from "reactjs-alert";
 export default function DepartementMemoriesBtn(props) {
   const [isHovered, setIsHovered] = useState(false);
@@ -30,8 +25,8 @@ export default function DepartementMemoriesBtn(props) {
     const [theme, setTheme] = useState('')
     const [département, setDépartement] = useState('');
     const [annee, setAnnee] = useState('')
-    const [etagere, setEtagere] = useState('')
-    const [url, setUrl] = useState(null);
+    const [etagere] = useState('')
+    //const [url, setUrl] = useState(null);
     const [image, setImage] = useState('');
   const res = async function () {
     await firebase.firestore().collection('Memoire').doc(matricule).set({
@@ -92,10 +87,10 @@ export default function DepartementMemoriesBtn(props) {
     setShowModal(false);
   };
 
-  const handleInputChange = (event) => {
+  /*const handleInputChange = (event) => {
     const { name, value } = event.target;
     setFormValues({ ...formValues, [name]: value });
-  };
+  };*/
 
   const handleMouseEnter = () => {
     setIsHovered(true);

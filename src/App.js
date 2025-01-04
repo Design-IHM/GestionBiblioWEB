@@ -27,7 +27,7 @@ import Profil from "./Component Improvements/Profil";
 import Cat from "./Component Improvements/catlivre";
 import Dept from "./Component Improvements/AdminBooksHome";
 import AdminMemoriesHome from "./components1/AdminMemoriesHome";
-import Ajoutermémoire from "./components1/ajouterm├®moire";
+import Ajoutermémoire from "./components1/ajouterMemoire";
 import CatalogueMemoire from "./components1/CatalogueMemoire";
 import DepartementMemoriesBtn from "./Component Improvements/DepartementBooksBtn";
 import DepartementsList from "./Component Improvements/AdminBooksHome";

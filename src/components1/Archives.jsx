@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from "react";
+import React, {useState, useEffect, useContext, useCallback} from "react";
 import {Table} from 'react-bootstrap';
 import firebase from '../metro.config';
 import styled from "styled-components";
@@ -14,14 +14,14 @@ function Archives() {
    const ref = firebase.firestore().collection("ArchivesBiblio")
 
    const [data,setData]=useState([])
-   const [dataArchi,setDataArchi]=useState([])
+   //const [dataArchi,setDataArchi]=useState([])
    const [loader,setLoader] = useState(false)
 
    
   const {searchWord} = useContext(UserContext)
 
   
-   function getData(){
+   const getData = useCallback(() => {
     ref.onSnapshot((querySnapshot) => {
       const items = []
       querySnapshot.forEach((doc) => {
@@ -30,13 +30,13 @@ function Archives() {
       })
       setData(items)
       
-    })
-   }
+    });
+   },[ref]);
   
    useEffect(() =>{
     getData()
   //  console.log('listDocModal',search)
-   },[])
+   },[getData])
   //firebase fin
   const { darkMode } = useContext(UserContext);
 
@@ -70,7 +70,9 @@ function Archives() {
                          
                     <td>{e.heure}</td>
                     <td>Remis</td>
-                </tr>)}
+                </tr>);
+                }
+                return null;
 
               }))
          

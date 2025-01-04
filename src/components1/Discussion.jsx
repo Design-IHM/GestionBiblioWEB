@@ -1,8 +1,7 @@
-import React,{useState,useEffect,useContext, useRef} from "react";
+import React,{useState,useEffect,useContext, useRef, useCallback} from "react";
 import "./Discussion.css";
 import { UserContext } from "../App";
 import { IoMdSend } from "react-icons/io";
-import { FaArchive } from "react-icons/fa";
 import firebase from '../metro.config'
 import { arrayUnion,Timestamp  } from "firebase/firestore";
 import Loading from "./Loading";
@@ -12,7 +11,7 @@ import Navbar from '../components1/Navbar';
 export default function  Discussion(){
 
 
-  const {messages, setMessages,email, setEmail,setNom,nom} = useContext(UserContext)
+  const {email, nom} = useContext(UserContext)
 
   const [datUserTest, setDatUserTest]= useState(true)
   useEffect(() => {
@@ -24,21 +23,21 @@ export default function  Discussion(){
 
     const [dat, setDat] = useState([])
     
-    function subscriber (){ 
-      if(email.length!=0){
+    const subscriber =useCallback (() =>{ 
+      if(email.length !== 0){
         firebase.firestore()
         .collection('BiblioUser')
         .doc(email)
         .onSnapshot(documentSnapshot => {
        //   console.log('User exists: ', documentSnapshot._firestore)   
             setDat(documentSnapshot.data())
-       })}}
+       })}},[email])
 
        console.log(email)
 
        useEffect(() =>{
         subscriber()
-       },[])
+       },[subscriber])
 
     var dt =Timestamp.fromDate(new Date())
     function ajouter(){
@@ -65,7 +64,7 @@ export default function  Discussion(){
     
        }
 
-       const [objet, setObjet] = useState('');
+       //const [objet, setObjet] = useState('');
     const [message, setMessage] = useState('');
     const formRef = useRef();
     const handleSubmit = (e) => {
@@ -82,7 +81,7 @@ export default function  Discussion(){
       <Navbar />
       <div>
         {
-          email.length!=0?
+          email.length !== 0?
         <div className="messag-div">
             <div className="discussion">
             <div className="namerecep">{nom}</div>
@@ -90,7 +89,7 @@ export default function  Discussion(){
             {datUserTest ? 
             <Loading /> :
               (dat.messages.map((dev,index)=>
-                    dev.recue == "R" ?<Send heure={dev.heure} texte={dev.texte} key={index}/>
+                    dev.recue === "R" ?<Send heure={dev.heure} texte={dev.texte} key={index}/>
                       :<Receiv heure={dev.heure} texte={dev.texte} key={index}/>
             ))
             }
@@ -111,8 +110,8 @@ export default function  Discussion(){
 
 const Receiv =({heure, texte})=>{
     var date = new Date(heure.seconds*1000)
-    var forma = date.toLocaleString()
-    var format = date.toJSON(10)
+    //var forma = date.toLocaleString()
+    //var format = date.toJSON(10)
     var formatDate = date.toDateString()
     var formatHeure = date.toTimeString()
   
@@ -130,8 +129,8 @@ const Receiv =({heure, texte})=>{
 
   const Send=({heure, texte})=>{
     var date = new Date(heure.seconds*1000)
-    var forma = date.toLocaleString()
-    var format = date.toJSON(10)
+    //var forma = date.toLocaleString()
+    //var format = date.toJSON(10)
     var formatDate = date.toDateString()
     var formatHeure = date.toTimeString()
       return(

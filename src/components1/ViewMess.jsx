@@ -7,7 +7,7 @@ import Navbar from '../components1/Navbar';
 
 export default function  ViewMess(){
 
-const {messages, setMessages,email, setEmail,nom} = useContext(UserContext)
+const {messages} = useContext(UserContext)
 
 
     return(

@@ -3,9 +3,6 @@ import { Button, Form, Row } from "react-bootstrap";
 import ReactJsAlert from "reactjs-alert";
 import "./AjoutDoc.css";
 import firebase from '../metro.config';
-import { storage } from "../firebase-config";
-import { ref, uploadBytes, getDownloadURL, getStorage, uploadBytesResumable } from "firebase/storage"
-import { v4 } from "uuid"
 import { useNavigate } from "react-router-dom";
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
@@ -19,22 +16,22 @@ export default function Ajoutermémoirec () {
     const [département, setDépartement] = useState('');
     const [annee, setAnnee] = useState('')
     const [etagere, setEtagere] = useState('')
-    const [url, setUrl] = useState(null);
+    //const [setUrl] = useState(null);
     const [image, setImage] = useState('');
 
     const formRef = useRef()
 
-    const handleChangeImage = (e) => {
+   /* const handleChangeImage = (e) => {
         if (e.target.files[0]) {
             setImage(e.target.files[0])
             handleSumit()
         }
-    }
+    }*/
 
-    const handleSumit = (e) => {
+    /*const handleSumit = (e) => {
 
         const imageRef = ref(storage, `images/${image.name + v4()}`)
-        const pdfRef = ref(storage, `files/${image.name}`)
+       // const pdfRef = ref(storage, `files/${image.name}`)
 
         uploadBytes(imageRef, image).then(() => {
             getDownloadURL(imageRef).then((url) => {
@@ -48,7 +45,7 @@ export default function Ajoutermémoirec () {
             console.log(error.message)
         })
 
-    }
+    }*/
 
     const navigate = useNavigate();
 
@@ -95,15 +92,15 @@ export default function Ajoutermémoirec () {
 
     //debut formulaire
 
-    const [inputs, setInputs] = useState({});
+   // const [inputs, setInputs] = useState({});
 
-    const handleChange = (event) => {
+    /*const handleChange = (event) => {
         const name = event.target.name;
         const value = event.target.value;
 
 
         setInputs(values => ({ ...values, [name]: value }))
-    }
+    }*/
 
 
     
@@ -119,7 +116,7 @@ export default function Ajoutermémoirec () {
 
     //fin formulaire
 
-    const [validation, setValidation] = useState("")
+    //const [validation, setValidation] = useState("")
 
 
 
@@ -135,7 +132,7 @@ export default function Ajoutermémoirec () {
 
 
     //ajouter
-    function ajouter() {
+    /*function ajouter() {
         const ref = firebase.firestore().collection("Memoire")
 
         ref
@@ -146,7 +143,7 @@ export default function Ajoutermémoirec () {
             })
 
         console.log("ajouter", inputs)
-    }
+    }*/
 
     /*const [imageUpload, setImageUpload] = useState(null)
   
@@ -185,7 +182,7 @@ export default function Ajoutermémoirec () {
         
     
       };
-      const buttonContainerStyle = {
+      /*const buttonContainerStyle = {
         display: 'flex',
         justifyContent: 'space-between',
         position: 'absolute',
@@ -195,7 +192,7 @@ export default function Ajoutermémoirec () {
         padding: '10px',
         fontSize: '20px',
         fontWeight: 'bold',
-      };
+      };*/
 
     return (
         <>

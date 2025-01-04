@@ -1,10 +1,8 @@
-import React,{useState,useEffect,useContext} from "react";
+import React,{useState,useEffect,useContext, useCallback} from "react";
 import styled from "styled-components";
-import {Table, Button} from 'react-bootstrap';
 import { NavLink } from "react-router-dom";
 import firebase from '../metro.config'
 import { UserContext } from "../App";
-import { GiTriquetra } from "react-icons/gi";
 import Loading from "./Loading";
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
@@ -13,14 +11,14 @@ export default function Messages(){
 
         //debut firebase
 
-  const {messages, setMessages,email, setEmail,setNom} = useContext(UserContext)
+  const {setMessages,setEmail,setNom} = useContext(UserContext)
 
 
    
 
 
 
-        const ref = firebase.firestore().collection("MessagesEnvoyé")
+        //const ref = firebase.firestore().collection("MessagesEnvoyé")
         const refUser = firebase.firestore().collection("BiblioUser")
         const [data,setData]=useState([])
        // const [dataMes,setDataMes]=useState([])
@@ -28,7 +26,7 @@ export default function Messages(){
      
 
 
-        function getDataUser(){
+        const getDataUser= useCallback(() =>{
             refUser.onSnapshot((querySnapshot) => {
               const items = []
            //   const itemsMes = []
@@ -43,13 +41,13 @@ export default function Messages(){
          //   console.log(items[8].messages)
               
             })
-           }
+           },[refUser])
        
         useEffect(() =>{
     //     getData()
          getDataUser()
      //    console.log('mes dataaaaaaa aaaaaaaa dans Ccformationnnn',data)
-        },[])
+        },[getDataUser])
 
         const changerCat =(mes,mail,nom)=>{
             setMessages(mes)
@@ -81,14 +79,14 @@ export default function Messages(){
             {data.map((msg, index) =>{
                 if(1){
                     return(
-            <div className="horizon-div" key={index} onClick={()=>changerCat(msg.messages,msg.email,msg.name)}>
+                         <div className="horizon-div" key={index} onClick={()=>changerCat(msg.messages,msg.email,msg.name)}>
                 
-                <NavLink className="lin" to="/discuss" end>
-                <div className="mess-name">{msg.name} : </div>
-                <div className="mess-mess">{msg.messages[msg.messages.length-1].texte}  </div>
-                </NavLink>
-            </div>
-            )} }
+                            <NavLink className="lin" to="/discuss" end>
+                            <div className="mess-name">{msg.name} : </div>
+                            <div className="mess-mess">{msg.messages[msg.messages.length-1].texte}  </div>
+                            </NavLink>
+                        </div>
+            )}return null; }
             )}
             </>: <Loading /> }
             <NavLink onClick={()=>newMessage()} className="new-message-link" to="/sendMessage" end> 
