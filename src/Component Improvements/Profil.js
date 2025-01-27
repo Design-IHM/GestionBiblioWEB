@@ -10,6 +10,7 @@ import Avatar from '@mui/material/Avatar';
 import { useNavigate } from "react-router-dom";
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
+import "./profil.css"
 
 export default function Profil(props) {
     //   const [email, setEmail] = useState('');
