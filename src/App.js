@@ -6,6 +6,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import styled from "styled-components";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import scrollreveal from "scrollreveal";
+
+// Routes
 import ListeEtudiants from "./components1/ListeEtudiants";
 import AjoutDoc from "./components1/AjoutDoc";
 import Emprunts from "./components1/Emprunts";
@@ -31,6 +33,8 @@ import Ajoutermémoire from "./components1/ajouterMemoire";
 import CatalogueMemoire from "./components1/CatalogueMemoire";
 import DepartementMemoriesBtn from "./Component Improvements/DepartementBooksBtn";
 import DepartementsList from "./Component Improvements/AdminBooksHome";
+
+
 export const UserContext = createContext();
 
 export default function App() {
@@ -144,7 +148,7 @@ const Div = styled.div`
 `;
 
 const Section = styled.section`
-  margin-left: 18vw;
+  //margin-left: 18vw;
   background-color: #ececec;
   padding: 2rem;
   height: 100%;

@@ -65,7 +65,7 @@ export default function Messages(){
 
 
     return(
-         <>
+         <div className="content-box">
     <Sidebar />
     <Navbar />
         <Section>
@@ -97,7 +97,7 @@ export default function Messages(){
             Aller à Accueil
             </NavLink>
              </Section>
-             </>
+             </div>
     );
 }
 

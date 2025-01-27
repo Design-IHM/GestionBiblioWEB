@@ -222,7 +222,7 @@ function ListeEtudiants() {
 
   return (
     
-      <>
+      <div className="content-box">
   
       <Sidebar />
       <Navbar />
@@ -327,7 +327,7 @@ function ListeEtudiants() {
           </Modal>
         </div>
       </Section>
-    </>
+    </div>
     
     
   );

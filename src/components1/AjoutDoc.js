@@ -127,32 +127,6 @@ export default function AjoutDoc(props) {
     //fin   Alert
 
 
-
-
-    //ajouter
-   /* function ajouter() {
-        const ref = firebase.firestore().collection("BiblioInformatique")
-
-        ref
-            .doc('anna')
-            .set({ name: inputs.name, exemplaires: inputs.exemplaire, cathegorie: inputs.cathegorie, salle: inputs.salle, etagere: inputs.etagere, description: inputs.desc, image: inputs.image })
-            .catch((err) => {
-                console.log(err)
-            })
-
-        console.log("ajouter", inputs)
-    }*/
-
-    /*const [imageUpload, setImageUpload] = useState(null)
-  
-    const uploadImage=()=>{
-      if (imageUpload = null) return;
-      const imageRef = ref(storage,`images/${imageUpload.name + v4()}`)
-      uploadBytes(imageRef, imageUpload).then(()=>{
-          alert("Image uploader")
-      })
-    }*/
-
     const buttonAjouterStyle = {
         width: '120px',
         backgroundColor:  '#28a745' ,
@@ -180,20 +154,9 @@ export default function AjoutDoc(props) {
         
     
       };
-      /*const buttonContainerStyle = {
-        display: 'flex',
-        justifyContent: 'space-between',
-        position: 'absolute',
-        bottom: '0',
-        left: '0',
-        right: '0',
-        padding: '10px',
-        fontSize: '20px',
-        fontWeight: 'bold',
-      };*/
 
     return (
-        <>
+        <div className="content-box">
             <Sidebar />
             <Navbar />
             
@@ -268,6 +231,6 @@ export default function AjoutDoc(props) {
 
 
             </Form>
-        </>
+        </div>
     )
 }
