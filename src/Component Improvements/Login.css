@@ -1,5 +1,5 @@
 :root {
-    --primary-color: orangered;
+    --primary-color: chocolate;
     --background-color: rgb(231, 218, 193);
     --error-color: red;
     --success-color: green;
@@ -68,9 +68,9 @@
     max-width: 400px;
     width: 100%;
     padding: 30px;
-    background-color: var(--background-color);
+    /*background-color: var(--background-color);*/
     border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    /*box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);*/
     text-align: left;
   }
   
@@ -131,35 +131,70 @@
     text-align: center;
     font-size: 0.9rem;
   }
-  
+
+  .biblio-title {
+    margin-left: 20px;
+    font-family: "DynaPuff", serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 60px;
+    font-variation-settings:
+            "wdth" 100;
+    color: chocolate;
+  }
+
+  .book-icon {
+    color: chocolate;
+    font-size: 3.5rem;
+    fill: chocolate;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: row;
+    width: 90%;
+    align-content: center;
+    border-radius: 20px;
+    box-shadow: 10px 10px 15px rgb(211, 211, 211);
+    justify-content: space-between;
+    padding-left: 20px;
+    background-color: #FFFFFF;
+    padding-right: 0;
+  }
+
+  .login-img {
+    width: 530px;
+    height: auto;
+    border-radius: 20px;
+  }
+
   .login-button {
-    width: 100%;
-    padding: 7px;
-    background-color: var(--button-color);
+    width: 100px;
+    padding: 10px;
+    background-color: chocolate;
     color: white;
     border: none;
     border-radius: 5px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 15px;
     font-weight: bold;
-    transition: background-color 0.3s ease;
+  }
+
+  .link-button {
+    display: block;
+    width: 100%;
+    color: #751616;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    margin-top: 10px;
   }
   
   .login-button:hover {
     background-color: var(--button-hover-color);
-  }
-  
-  .link-button {
-    display: block;
-    width: 100%;
-    padding: 7px;
-    font-size: 1rem;
-    color: blue;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    text-decoration: underline;
-    margin-top: 15px;
   }
   
   .link-button:hover {
@@ -170,10 +205,18 @@
     .login-title {
       font-size: 2rem;
     }
+
+    .biblio-title {
+      font-size: 40px; /* Smaller title for tablets */
+    }
   
     .auth-form-container {
       margin: 0 15px;
       padding: 20px;
+    }
+
+    .content {
+      width: 95%; /* Adjust content width */
     }
   }
   
@@ -191,6 +234,29 @@
   
     .login-form input {
       padding-left: 30px;
+    }
+
+    .book-icon {
+      display: none;
+    }
+
+    .biblio-title {
+      margin-left: 0;
+      font-size: 30px; /* Even smaller title for phones */
+    }
+
+    .content {
+      width: 100%; /* Full width for small screens */
+      flex-direction: column;
+      padding-left: 0;
+      margin-left: 0;
+    }
+
+    .login-img {
+      width: 100%;
+      height: auto;
+      justify-content: flex-end;
+      border-radius: 10px; /* Smaller border radius for phones */
     }
   }
   

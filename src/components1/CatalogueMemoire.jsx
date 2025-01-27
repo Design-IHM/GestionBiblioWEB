@@ -264,7 +264,7 @@ const  deleteDoc = async function(){
 
 
   return (
-<>
+<div className="content-box">
     <Sidebar />
     <Navbar />
     <Row style={{display: 'flex',
@@ -389,7 +389,7 @@ const  deleteDoc = async function(){
      <Pagination.Next />
  </Pagination>
     </Section>
-    </>    
+    </div>
   );
 }
 const Section = styled.section`

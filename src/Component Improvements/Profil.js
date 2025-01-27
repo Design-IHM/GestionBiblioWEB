@@ -74,7 +74,7 @@ export default function Profil() {
     };
 
     return (
-        <Container>
+        <div className="content-box">
             <Sidebar />
             <Navbar />
             <Content>
@@ -164,7 +164,7 @@ export default function Profil() {
                     Close={() => setStatus(false)}
                 />
             </Content>
-        </Container>
+        </div>
     );
 }
 

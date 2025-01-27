@@ -11,7 +11,7 @@ const {messages} = useContext(UserContext)
 
 
     return(
-        <>
+        <div className="content-box">
         <Sidebar />
         <Navbar />
         <Section>
@@ -21,7 +21,7 @@ const {messages} = useContext(UserContext)
             </div>
             <div className="btn"><NavLink className="request"  to="/sendMessage" style={{display:'flex',borderRadius:5,textAlign:'center', padding:10,color:'white',background:'rgb(219, 153, 29)',width:100, fontWeight:"bold", textDecoration:"none"}} end >Repondre</NavLink></div>
         </Section>
-        </>
+        </div>
     );
 }
 

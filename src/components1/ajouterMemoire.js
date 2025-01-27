@@ -195,7 +195,7 @@ export default function Ajoutermémoirec () {
       };*/
 
     return (
-        <>
+        <div className="content-box">
             <Sidebar />
             <Navbar />
             
@@ -263,6 +263,6 @@ export default function Ajoutermémoirec () {
 
 
             </Form>
-        </>
+        </div>
     )
 }

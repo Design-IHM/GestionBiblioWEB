@@ -76,7 +76,7 @@ export default function  Discussion(){
 
 
     return(
-      <>
+      <div className="content-box">
       <Sidebar />
       <Navbar />
       <div>
@@ -104,7 +104,7 @@ export default function  Discussion(){
         </div> :<div></div>
         }
         </div>
-        </>
+        </div>
     );
 }
 

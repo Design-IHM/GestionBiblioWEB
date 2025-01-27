@@ -28,7 +28,7 @@ const LogoutPage = () => {
   }, [navigate, countdown]);
 
   return (
-    <>
+    <div className="content-box">
       <Sidebar />
       <Navbar />
       <div className="logout-page-container">
@@ -47,7 +47,7 @@ const LogoutPage = () => {
           </>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

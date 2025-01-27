@@ -68,7 +68,7 @@ const  res = async function(){
 
 
   return (
-    <>
+    <div className="content-box">
     <Sidebar />
     <Navbar />
     <div>
@@ -96,6 +96,6 @@ const  res = async function(){
             /> 
         </Form>
     </div>
-    </>
+    </div>
   );
 }
