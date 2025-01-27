@@ -34,50 +34,58 @@ const RegistrationValidation = () => {
     const navigate = useNavigate();
 
     return (
+        <div className="registration-wrapper">
+            <div className="registration-backgroud">
+            <div className="registration-overlay">
+                <div className="registration-validation-container">
+                    <h2>Registration Validation</h2>
+                    <form className="registration-validation-form" onSubmit={handleSubmit}>
+                        <label htmlFor="name">Name</label>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                        />
+                        <label htmlFor="email">Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                        />
+                        <label htmlFor="password">Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                        />
+                        <label htmlFor="confirmPassword">Confirm Password</label>
+                        <input
+                            type="password"
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                        />
+                        {validationError && (
+                            <p className="error-message">{validationError}</p>
+                        )}
+                        <button type="submit" className="submit-button" >Validate Registration</button>
+                        <button className="link-btn" onClick={() => navigate("/")}>Already have an account? Login here.</button>
 
-        <div className="registration-validation-container">
-            <h2>Registration Validation</h2>
-            <form className="registration-validation-form" onSubmit={handleSubmit}>
-                <label htmlFor="name">Name</label>
-                <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                />
-                <label htmlFor="email">Email</label>
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                />
-                <label htmlFor="password">Password</label>
-                <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                />
-                <label htmlFor="confirmPassword">Confirm Password</label>
-                <input
-                    type="password"
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                />
-                {validationError && (
-                    <p className="error-message">{validationError}</p>
-                )}
-                <button type="submit" className="submit-button" >Validate Registration</button>
-                <button className="link-btn" onClick={() => navigate("/")}>Already have an account? Login here.</button>
-
-            </form>
+                    </form>
+                </div>
+            </div>
         </div>
+        </div>
+        
+            
+        
     );
 };
 
