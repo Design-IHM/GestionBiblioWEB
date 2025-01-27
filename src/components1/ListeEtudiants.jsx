@@ -8,6 +8,7 @@ import { Table } from 'react-bootstrap';
 import Loading from "./Loading";
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
+import { FaLock, FaUnlock } from "react-icons/fa";
 
 Modal.setAppElement('#root');
 
@@ -26,7 +27,11 @@ function ListeEtudiants() {
   const [tel, setTel] = useState('');
   const [image, setImage] = useState('');
   const [stat, setStat] = useState('');
-  const [ setEmail] = useState('');
+  const [setEmail] = useState('');
+
+  const [tooltipText, setTooltipText] = useState('');
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
   const customStyles = {
     content: {
@@ -46,7 +51,7 @@ function ListeEtudiants() {
   const closeStyle = {
     position: "absolute",
     right: '10px',
-    left: 'auto',
+    top: '10px',
     cursor: 'pointer',
   };
 
@@ -120,12 +125,109 @@ function ListeEtudiants() {
     }
   }
 
+  const handleMouseEnter = (e, text) => {
+    const rect = e.target.getBoundingClientRect();
+    setTooltipPosition({ x: rect.left + rect.width / 2, y: rect.top - 10 });
+    setTooltipText(text);
+    setShowTooltip(true);
+  };
+
+  const handleMouseLeave = () => {
+    setShowTooltip(false);
+  };
+
+  
+  
+  const Section = styled.section`
+  overflow: auto;
+  padding: 20px;
+  background-color: ${(props) => (props.darkMode ? "#333333" : "#ffffff")};
+  color: ${(props) => (props.darkMode ? "#ffffff" : "#000000")};
+  transition: background-color 0.3s ease, color 0.3s ease;
+
+  .img-pfl {
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+  }
+
+  .btn-bloc-etudiant a {
+    padding: 8px;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+
+  .btn-bloc-etudiant {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+  .table {
+    margin-top: 40px;
+    margin-bottom: 20px;
+    flex:1;
+    overflow-y:auto;
+  }
+
+  th,
+  td {
+    text-align: center;
+  }
+
+  @media screen and (max-width: 768px) {
+    padding: 10px;
+    .table {
+      margin-top: 20px;
+      margin-bottom: 10px;
+    }
+    th,
+    td {
+      font-size: 14px;
+    }
+    .btn-bloc-etudiant {
+      margin-top: 5px;
+      margin-bottom: 5px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    padding: 5px;
+    .table {
+      margin-top: 10px;
+      margin-bottom: 5px;
+    }
+    th,
+    td {
+      font-size: 12px;
+    }
+    .btn-bloc-etudiant {
+      margin-top: 3px;
+      margin-bottom: 3px;
+    }
+  }
+  `;
+
+  const TooltipContainer = styled.div`
+  position: absolute;
+  background-color: black;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  transform: translate(-50%, -100%);
+  z-index: 999;
+  `;
+
+
   return (
-    <>
+    
+      <>
+  
       <Sidebar />
       <Navbar />
       <Section>
-        {loader ?
+        {loader ? (
           <div className="table">
             <Table variant={darkMode ? "dark" : undefined} striped bordered hover>
               <thead>
@@ -158,9 +260,19 @@ function ListeEtudiants() {
                           <div className="btn-bloc-etudiant">
                             <button
                               onClick={() => updates(etudiant)}
-                              style={{ color: 'white', backgroundColor: etudiant.etat === 'bloc' ? 'red' : 'green', fontWeight: "bold" }}
+                              onMouseEnter={(e) =>
+                                handleMouseEnter(
+                                  e,
+                                  etudiant.etat === "bloc" ? "Débloquer" : "Bloquer"
+                                )
+                              }
+                              onMouseLeave={handleMouseLeave}
                             >
-                              {etudiant.etat === 'bloc' ? 'Débloquer' : 'Bloquer'}
+                              {etudiant.etat === "bloc" ? (
+                                <FaUnlock color="green" size="20" />
+                              ) : (
+                                <FaLock color="red" size="20" />
+                              )}
                             </button>
                           </div>
                         </td>
@@ -172,7 +284,20 @@ function ListeEtudiants() {
               </tbody>
             </Table>
           </div>
-          : <Loading />}
+        ) : (
+          <Loading />
+        )}
+
+        {showTooltip && (
+          <TooltipContainer
+            style={{
+              top: tooltipPosition.y,
+              left: tooltipPosition.x,
+            }}
+          >
+            {tooltipText}
+          </TooltipContainer>
+        )}
 
         <div className="resp-modal">
           <Modal
@@ -182,8 +307,12 @@ function ListeEtudiants() {
             style={customStyles}
             contentLabel="Example Modal"
           >
-            <button onClick={closeModal} style={closeStyle}><GrFormClose /></button>
-            <h2 ref={(_subtitle) => (subtitle = _subtitle)}>Informations personnelles sur l'étudiant: {name}</h2>
+            <button onClick={closeModal} style={closeStyle}>
+              <GrFormClose />
+            </button>
+            <h2 ref={(_subtitle) => (subtitle = _subtitle)}>
+              Informations personnelles sur l'étudiant: {name}
+            </h2>
             <div style={modalDiv}>
               <div>
                 <img style={imgP} src={image} alt="profil" />
@@ -199,46 +328,11 @@ function ListeEtudiants() {
         </div>
       </Section>
     </>
+    
+    
   );
 }
 
 export default ListeEtudiants;
 
-const Section = styled.section`
-  overflow: auto;
-  .img-pfl {
-    width: 50px;
-    height: 50px;
-    border-radius: 5px;
-  }
-  .btn-bloc-etudiant a {
-    padding: 8px;
-    border-radius: 10px;
-    cursor: pointer;
-  }
-  .btn-bloc-etudiant {
-    margin-top: 10px;
-    margin-bottom: 10px;
-  }
-  .table {
-    margin-top: 40px;
-    margin-bottom: 20px;
-  }
-  th, td {
-    text-align: center;
-  }
-  .modal_div {
-    display: flex;
-    .img_p {
-      display: block;
-      background-color: black;
-      width: 100px;
-      height: 100px;
-      border-radius: 50px;
-    }
-    .infor {
-      display: flex;
-      flex-direction: column;
-    }
-  }
-`;
+

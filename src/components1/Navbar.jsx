@@ -65,6 +65,9 @@ const Nav = styled.nav`
   color: black;
   background-color: #ececec;
   padding: 1rem;
+  
+  
+
 
   .backButton {
     display: flex;

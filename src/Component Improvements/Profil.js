@@ -1,204 +1,258 @@
 import React, { useState, useRef } from "react";
 import { Form } from "react-bootstrap";
 import ReactJsAlert from "reactjs-alert";
-import "../components1/AjoutDoc.css";
 import firebase from '../metro.config';
 import { storage } from "../firebase-config";
-import { ref, uploadBytes, getDownloadURL} from "firebase/storage"
-import { v4 } from "uuid"
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { v4 } from "uuid";
 import Avatar from '@mui/material/Avatar';
 import { useNavigate } from "react-router-dom";
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
-import "./profil.css"
+import styled from 'styled-components';
 
-export default function Profil(props) {
-    //   const [email, setEmail] = useState('');
-    const [name, setName] = useState('')
-   // const [catégorie, setCatégorie] = useState('')
+export default function Profil() {
+    const [name, setName] = useState('');
     const [cathegorie] = useState('');
-    const [desc, setDesc] = useState('')
-    const [etagere] = useState('')
-    const [Email, setEmail] = useState("")
-    const [image, setImage] = useState(null)
-    //const [pdf, setPdf] = useState(null)
-    const [url, setUrl] = useState(null)
-    const [salle] = useState('')
-    const [typ, setTyp] = useState('')
-    const formRef = useRef()
-
-    const handleChangeImage = (e) => {
-        if (e.target.files[0]) {
-            setImage(e.target.files[0])
-            handleSumit()
-        }
-    }
-
-    const handleSumit = (e) => {
-
-        const imageRef = ref(storage, `images/${image.name + v4()}`)
-        //const pdfRef = ref(storage, `files/${image.name}`)
-
-        uploadBytes(imageRef, image).then(() => {
-            getDownloadURL(imageRef).then((url) => {
-                setUrl(url)
-            })
-                .catch((error) => {
-                    console.log(error.message, "error getting the image url")
-                })
-            setImage(null)
-        }).catch((error) => {
-            console.log(error.message)
-        })
-
-    }
-
+    const [desc, setDesc] = useState('');
+    const [etagere] = useState('');
+    const [Email, setEmail] = useState("");
+    const [image, setImage] = useState(null);
+    const [url, setUrl] = useState(null);
+    const [salle] = useState('');
+    const [typ, setTyp] = useState('');
+    const formRef = useRef();
     const navigate = useNavigate();
 
-
-
-
-    // Add a new document in collection "cities" with ID 'LA'
-    const res = async function () {
-        await firebase.firestore().collection('BiblioInformatique').doc(name).set({
-            name: name,
-            Email: (Email),
-            etagere: etagere,
-            salle: salle,
-            image: url,
-            type: typ,
-            nomBD: name,
-            cathegorie: cathegorie,
-            desc: desc,
-            commentaire: [
-                {
-                    heure: new Date(),
-                    nomUser: '',
-                    texte: '',
-                    note: 0
-                }
-            ]
-        })
-        setStatus(true);
-        setType("success");
-        setTitle("Document ajouté avec succes");
-
-    }
-
-
-
-
-
-    //fin addData
-
-
-
-    //debut formulaire
-
-    //const [inputs, setInputs] = useState({});
-
-   /* const handleChange = (event) => {
-        const name = event.target.name;
-        const value = event.target.value;
-
-
-        setInputs(values => ({ ...values, [name]: value }))
-    }*/
-
-
-
-
-    //fin formulaire
-
-    //const [validation, setValidation] = useState("")
-
-
-
-    //Alert 
-
+    // Alert states
     const [status, setStatus] = useState(false);
     const [type, setType] = useState("");
     const [title, setTitle] = useState("");
 
-    //fin   Alert
+    const handleChangeImage = (e) => {
+        if (e.target.files[0]) {
+            setImage(e.target.files[0]);
+            handleSubmit();
+        }
+    };
 
+    const handleSubmit = () => {
+        const imageRef = ref(storage, `images/${image.name + v4()}`);
+        uploadBytes(imageRef, image).then(() => {
+            getDownloadURL(imageRef).then((url) => {
+                setUrl(url);
+            }).catch((error) => {
+                console.log(error.message, "error getting the image url");
+            });
+            setImage(null);
+        }).catch((error) => {
+            console.log(error.message);
+        });
+    };
 
-
-
-    //ajouter
-   /* function ajouter() {
-        const ref = firebase.firestore().collection("BiblioInformatique")
-
-        ref
-            .doc('anna')
-            .set({ name: inputs.name, Emails: inputs.Email, cathegorie: inputs.cathegorie, salle: inputs.salle, etagere: inputs.etagere, description: inputs.desc, image: inputs.image })
-            .catch((err) => {
-                console.log(err)
-            })
-
-        console.log("ajouter", inputs)
-    }*/
-
-    /*const [imageUpload, setImageUpload] = useState(null)
-  
-    const uploadImage=()=>{
-      if (imageUpload = null) return;
-      const imageRef = ref(storage,`images/${imageUpload.name + v4()}`)
-      uploadBytes(imageRef, imageUpload).then(()=>{
-          alert("Image uploader")
-      })
-    }*/
+    const res = async () => {
+        await firebase.firestore().collection('BiblioInformatique').doc(name).set({
+            name,
+            Email,
+            etagere,
+            salle,
+            image: url,
+            type: typ,
+            nomBD: name,
+            cathegorie,
+            desc,
+            commentaire: [{
+                heure: new Date(),
+                nomUser: '',
+                texte: '',
+                note: 0
+            }]
+        });
+        setStatus(true);
+        setType("success");
+        setTitle("Document ajouté avec succès");
+    };
 
     return (
-        <>
+        <Container>
             <Sidebar />
             <Navbar />
-            <Form ref={formRef} onSubmit={res} className="rounded p-4 p-sm-3">
+            <Content>
+                <FormContainer>
+                    <Form ref={formRef} onSubmit={res}>
+                        <AvatarSection>
+                            <Avatar
+                                src={url}
+                                sx={{ width: 150, height: 150 }}
+                                style={{ marginBottom: '1rem' }}
+                            />
+                            <UploadButton type="button" onClick={handleSubmit}>
+                                Changer la photo de profil
+                            </UploadButton>
+                            <Form.Control
+                                className="image-input"
+                                type="file"
+                                onChange={handleChangeImage}
+                                style={{ marginTop: '1rem' }}
+                                required
+                            />
+                        </AvatarSection>
 
-                <Form.Group className='mb-3' controlId='formBasicName'>
-                    <button type='button' onClick={handleSumit} style={{ borderRadius: 5, textAlign: 'center', margin: 10, padding: 10, color: 'white', backgroundColor: 'grey' }}>Photo de profil</button>
-                    <Avatar style={{ marginTop: 10, marginBottom: 10 }} src={url} sx={{ width: 150, height: 150 }} />
-                    <Form.Label className="labelForm">Sélection de la photo :</Form.Label>
-                    <Form.Control className="image-input" type="file" placeholder="Image" onChange={handleChangeImage} name='image' required></Form.Control>
-                </Form.Group>
-                <Form.Group className='mb-3' controlId='formBasicName'>
-                    <Form.Label className="labelForm">Entrer votre nom :</Form.Label>
-                    <Form.Control className="name-input" type="text" placeholder="eg :Jason Derulo" name="name" value={name} onChange={(e) => setName(e.target.value)} required></Form.Control>
-                </Form.Group>
+                        <FormGroup>
+                            <Label>Nom</Label>
+                            <Form.Control
+                                type="text"
+                                placeholder="ex: Jason Derulo"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                required
+                            />
+                        </FormGroup>
 
-                <Form.Group className='mb-3' controlId='formBasicNumber'>
-                    <Form.Label className="labelForm">Entrer votre adresse e-mail:</Form.Label>
-                    <Form.Control className="price-input" type="e-mail" placeholder=" eg: mbengivan63@gmail.com" name="Email" value={Email} onChange={(e) => setEmail(e.target.value)} ></Form.Control>
-                </Form.Group>
+                        <FormGroup>
+                            <Label>E-mail</Label>
+                            <Form.Control
+                                type="email"
+                                placeholder="ex: exemple@email.com"
+                                value={Email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                        </FormGroup>
 
+                        <FormGroup>
+                            <Label>Genre</Label>
+                            <Form.Select
+                                value={typ}
+                                onChange={(e) => setTyp(e.target.value)}
+                                required
+                            >
+                                <option value="">Sélectionnez votre genre</option>
+                                <option value="Homme">Homme</option>
+                                <option value="Femme">Femme</option>
+                            </Form.Select>
+                        </FormGroup>
 
-                <Form.Group className='mb-3' controlId='formBasicName'>
-                    <Form.Label className="labelForm">Entrez le genre: <i>(homme/femme)</i></Form.Label>
-                    <Form.Select className="name-input" aria-label="Default select example" type="text" name='cathegorie' onChange={(e) => setTyp(e.target.value)} required>
-                        <option value='Homme'>Homme</option>
-                        <option value='Femme'>Femme</option>
-                    </Form.Select>
-                </Form.Group>
+                        <FormGroup>
+                            <Label>Description</Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={3}
+                                placeholder="Description"
+                                value={desc}
+                                onChange={(e) => setDesc(e.target.value)}
+                            />
+                        </FormGroup>
 
-
-                <Form.Group className='mb-3' controlId='formBasicName'>
-                    <Form.Label className="labelForm">Entrer une brève description de vous même:</Form.Label>
-                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" placeholder="Desciption" value={desc} onChange={(e) => setDesc(e.target.value)} name='desc'></textarea>
-                </Form.Group>
+                        <ButtonGroup>
+                            <Button type="submit" primary>
+                                Enregistrer
+                            </Button>
+                            <Button type="button" onClick={() => navigate("/")}>
+                                Annuler
+                            </Button>
+                        </ButtonGroup>
+                    </Form>
+                </FormContainer>
 
                 <ReactJsAlert
-                    status={status} // true or false
-                    type={type} // success, warning, error, info
+                    status={status}
+                    type={type}
                     title={title}
                     quotes={true}
                     quote=""
                     Close={() => setStatus(false)}
                 />
-                {/* <button type='button' onClick={res} className='btn-btn-primary' style={{borderRadius:5,textAlign:'center', padding:10,color:'white',backgroundColor:'red'}}>Ajouter</button> */}
-                <button type='button' onClick={() => navigate("/")} className='btn-btn-primary' style={{ borderRadius: 5, textAlign: 'center', padding: 10, color: 'white', backgroundColor: 'green' }}>Valider</button>
-
-
-            </Form>
-        </>
-    )
+            </Content>
+        </Container>
+    );
 }
+
+const Container = styled.div`
+    min-height: 100vh;
+    background-color: #f5f5f5;
+`;
+
+const Content = styled.div`
+    padding: 2rem;
+    margin-top: 60px; // Pour la navbar fixe
+    margin-left: 250px; // Pour la sidebar
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+
+    @media (max-width: 768px) {
+        margin-left: 0;
+        padding: 1rem;
+    }
+`;
+
+const FormContainer = styled.div`
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+`;
+
+const AvatarSection = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+`;
+
+const FormGroup = styled.div`
+    margin-bottom: 1.5rem;
+`;
+
+const Label = styled.label`
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+`;
+
+const ButtonGroup = styled.div`
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+
+    @media (max-width: 480px) {
+        flex-direction: column;
+    }
+`;
+
+const Button = styled.button`
+    padding: 0.5rem 2rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    background-color: ${props => props.primary ? '#4CAF50' : '#9e9e9e'};
+    color: white;
+    transition: opacity 0.2s;
+
+    &:hover {
+        opacity: 0.9;
+    }
+
+    @media (max-width: 480px) {
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+`;
+
+const UploadButton = styled.button`
+    padding: 0.5rem 1rem;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: #e0e0e0;
+    }
+`;
