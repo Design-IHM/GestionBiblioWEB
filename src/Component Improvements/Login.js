@@ -91,6 +91,7 @@ const Login = () => {
                           id="email"
                           name="email"
                           value={email}
+                          style={{width: "300px"}}
                           onChange={(e) => setEmail(e.target.value)}
                           aria-required="true"
                         />
@@ -106,6 +107,7 @@ const Login = () => {
                           id="password"
                           name="password"
                           value={password}
+                          style={{width: "300px"}}
                           onChange={(e) => setPassword(e.target.value)}
                           aria-required="true"
                         />
@@ -126,6 +128,7 @@ const Login = () => {
                           id="name"
                           name="name"
                           value={formData.name}
+                          style={{width: "300px"}}
                           onChange={handleRegisterChange}
                           aria-required="true"
                         />
@@ -140,6 +143,7 @@ const Login = () => {
                           id="email"
                           name="email"
                           value={formData.email}
+                          style={{width: "300px"}}
                           onChange={handleRegisterChange}
                           aria-required="true"
                         />
@@ -154,6 +158,7 @@ const Login = () => {
                           id="password"
                           name="password"
                           value={formData.password}
+                          style={{width: "300px"}}
                           onChange={handleRegisterChange}
                           aria-required="true"
                         />
@@ -168,6 +173,7 @@ const Login = () => {
                           id="confirmPassword"
                           name="confirmPassword"
                           value={formData.confirmPassword}
+                          style={{width: "300px"}}
                           onChange={handleRegisterChange}
                           aria-required="true"
                         />
