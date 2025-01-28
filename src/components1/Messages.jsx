@@ -65,7 +65,11 @@ export default function Messages(){
 
 
     return(
+<<<<<<< HEAD
          <>
+=======
+         <div className="content-box">
+>>>>>>> cabe8f3d1de6f3e9ca11bf9340f5336c9452ae46
     <Sidebar />
     <Navbar />
         <Section>
@@ -97,7 +101,11 @@ export default function Messages(){
             Aller à Accueil
             </NavLink>
              </Section>
+<<<<<<< HEAD
              </>
+=======
+             </div>
+>>>>>>> cabe8f3d1de6f3e9ca11bf9340f5336c9452ae46
     );
 }
 

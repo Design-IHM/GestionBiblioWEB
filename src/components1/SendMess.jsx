@@ -68,7 +68,11 @@ const  res = async function(){
 
 
   return (
+<<<<<<< HEAD
     <>
+=======
+    <div className="content-box">
+>>>>>>> cabe8f3d1de6f3e9ca11bf9340f5336c9452ae46
     <Sidebar />
     <Navbar />
     <div>
@@ -96,6 +100,10 @@ const  res = async function(){
             /> 
         </Form>
     </div>
+<<<<<<< HEAD
     </>
+=======
+    </div>
+>>>>>>> cabe8f3d1de6f3e9ca11bf9340f5336c9452ae46
   );
 }

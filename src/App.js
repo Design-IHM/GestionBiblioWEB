@@ -6,6 +6,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import styled from "styled-components";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import scrollreveal from "scrollreveal";
+<<<<<<< HEAD
+=======
+
+// Routes
+>>>>>>> cabe8f3d1de6f3e9ca11bf9340f5336c9452ae46
 import ListeEtudiants from "./components1/ListeEtudiants";
 import AjoutDoc from "./components1/AjoutDoc";
 import Emprunts from "./components1/Emprunts";
@@ -31,6 +36,11 @@ import Ajoutermémoire from "./components1/ajouterMemoire";
 import CatalogueMemoire from "./components1/CatalogueMemoire";
 import DepartementMemoriesBtn from "./Component Improvements/DepartementBooksBtn";
 import DepartementsList from "./Component Improvements/AdminBooksHome";
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> cabe8f3d1de6f3e9ca11bf9340f5336c9452ae46
 export const UserContext = createContext();
 
 export default function App() {
@@ -144,7 +154,11 @@ const Div = styled.div`
 `;
 
 const Section = styled.section`
+<<<<<<< HEAD
   margin-left: 18vw;
+=======
+  //margin-left: 18vw;
+>>>>>>> cabe8f3d1de6f3e9ca11bf9340f5336c9452ae46
   background-color: #ececec;
   padding: 2rem;
   height: 100%;

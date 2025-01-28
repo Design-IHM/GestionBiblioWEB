@@ -51,7 +51,7 @@ const Accueil = () => {
   };
 
   return (
-    <>
+    <div className="content-box">
       <Sidebar />
       <Navbar />
       <main style={mainStyle}>
@@ -86,7 +86,7 @@ const Accueil = () => {
           </button>
         </div>
       </main>
-    </>
+    </div>
   );
 };
 

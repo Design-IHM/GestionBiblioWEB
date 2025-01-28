@@ -23,7 +23,7 @@ export default function Navbar() {
 `;
 
   return (
-    <Nav style={{ backgroundColor: darkMode ? "#333333" : "transparent", color: darkMode ? "#ffffff" : "#000000" }}>
+    <Nav style={{backgroundColor: darkMode ? "#333333" : "transparent", color: darkMode ? "#ffffff" : "#000000" }}>
     <div className="backButton" onClick={goBack}>
       <IoIosArrowBack />
     </div>
@@ -130,6 +130,5 @@ const Nav = styled.nav`
           margin: 1rem 0;
         }
       }
-    }
   }
 `;

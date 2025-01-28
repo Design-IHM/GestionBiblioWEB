@@ -5,7 +5,7 @@ import "./catlivres.css";
 
 const catlivre = () => {
     return (
-        <div className='livre'>
+        <div className='livre content-box'>
            
             <Sidebar />
             <Navbar />

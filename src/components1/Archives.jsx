@@ -41,7 +41,7 @@ function Archives() {
   const { darkMode } = useContext(UserContext);
 
     return (
-      <>
+      <div className="content-box">
       <Sidebar />
       <Navbar />
       <Section>
@@ -80,7 +80,7 @@ function Archives() {
         </tbody>
       </Table> : <Loading /> }
       </Section>
-      </>
+      </div>
     );
   }
   

@@ -179,7 +179,7 @@ const  deleteDoc = async function(){
 
 
   return (
-<>
+  <div className="content-box">
     <Sidebar />
     <Navbar />
     <h1 style={{textAlign: 'center', color: 'gray', marginTop:'10px', marginBottom:'20px' }}>Liste des Livres du {departement}</h1>
@@ -279,7 +279,7 @@ const  deleteDoc = async function(){
      <Pagination.Next />
  </Pagination>
     </Section>
-    </>    
+    </div>
   );
 }
 const Section = styled.section`
