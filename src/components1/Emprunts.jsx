@@ -28,12 +28,6 @@ function Emprunts() {
     getData();
   }, [getData]);
 
-  //const d = new Date();
-
-  // Date
-  //const jour = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
-  //const mois = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
-
   function ajouter(nomEtudiant, nomDoc) {
     const washingtonRef = firebase.firestore().collection("ArchivesBiblio").doc("Arch");
     let date = new Date();
@@ -87,7 +81,7 @@ function Emprunts() {
   const { darkMode } = useContext(UserContext);
 
   return (
-    <div className="md:content-box">
+    <div className="content-box">
       <Sidebar />
       <Navbar />
       <Section>
@@ -167,7 +161,10 @@ function Emprunts() {
                 return null; // Ajoute cette ligne pour retourner quelque chose même si la condition n'est pas remplie
               })}
             </tbody>
-          </Table> : <Loading />}
+          </Table>
+          :
+          <Loading />
+        }
       </Section>
     </div>
   );
@@ -184,3 +181,5 @@ const Section = styled.section`
     text-align: center;
   }
 `;
+
+
