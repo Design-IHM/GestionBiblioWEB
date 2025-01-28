@@ -316,14 +316,14 @@ const Section = styled.section`
                     }
                 }
 
-                //.active {
-                //    background-color: #ececec;
-                //
-                //    .linkin {
-                //        color: #fe7a3f;
-                //        border-radius: 0.6rem;
-                //    }
-                //}
+                .active {
+                    background-color: #ececec;
+
+                    .linkin {
+                        color: #fe7a3f;
+                        border-radius: 0.6rem;
+                    }
+                }
             }
         }
     }
