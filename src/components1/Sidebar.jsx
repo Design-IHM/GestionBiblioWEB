@@ -5,7 +5,7 @@ import { FaUser } from "react-icons/fa";
 import { GrCatalog } from "react-icons/gr";
 import { FaArchive } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
-import { MdPostAdd } from "react-icons/md";
+import { MdPostAdd, MdRuleFolder } from "react-icons/md";
 import { GiHamburgerMenu, GiBookPile } from "react-icons/gi";
 import { VscChromeClose } from "react-icons/vsc";
 import { HiUsers } from "react-icons/hi";
@@ -107,9 +107,19 @@ export default function Sidebar() {
                 className={currentLink === 6 ? "active" : "none"}
                 onClick={() => changerCat()}
               >
-                <NavLink className="linkin" to="/catalogue" end>
+                <NavLink className="linkin" to="/departement" end>
                   <GrCatalog/>
-                  <span>Catalogue</span>
+                  <span>Gestion de Livres</span>
+                </NavLink>
+              </li>
+
+              <li
+                className={currentLink === 15 ? "active" : "none"}
+                onClick={() => changerCat()}
+              >
+                <NavLink className="linkin" to="/departementMem" end>
+                  <MdRuleFolder/>
+                  <span>Gestion de Memoires</span>
                 </NavLink>
               </li>
 
@@ -173,9 +183,9 @@ export default function Sidebar() {
               className={currentLink === 6 ? "active" : "none"}
               onClick={() => changerCat()}
             >
-              <NavLink className="linkin" to="/catalogue" end>
+              <NavLink className="linkin" to="/departement" end>
                 <GrCatalog />
-                <span>Catalogue</span>
+                <span>Gestion de Livres</span>
               </NavLink>
             </li>
 
