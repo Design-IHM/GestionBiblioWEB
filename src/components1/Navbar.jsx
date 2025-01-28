@@ -107,8 +107,7 @@ const Nav = styled.nav`
   }
 
   @media screen and (min-width: 280px) and (max-width: 1080px) {
-    flex-direction: column;
-    margin-top: 0;
+    margin:5px 10px;
 
     .title {
       h1 {

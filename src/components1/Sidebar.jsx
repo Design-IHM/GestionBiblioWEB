@@ -7,7 +7,6 @@ import { FaArchive } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
 import { MdPostAdd } from "react-icons/md";
 import { GiHamburgerMenu, GiBookPile } from "react-icons/gi";
-import { RiSunFill, RiMoonFill } from "react-icons/ri";
 import { VscChromeClose } from "react-icons/vsc";
 import { HiUsers } from "react-icons/hi";
 import { AiFillMessage } from "react-icons/ai";
@@ -61,7 +60,7 @@ export default function Sidebar() {
     setSearchPage("archives")
   }
 
-  const { darkMode, toggleDarkMode } = useContext(UserContext);
+  const { darkMode } = useContext(UserContext);
 
   return (
     <>
@@ -75,9 +74,6 @@ export default function Sidebar() {
           </div>
 
           <div className="toggle">
-            <div className="darkModeToggle" onClick={toggleDarkMode}>
-              {darkMode ? <RiSunFill/> : <RiMoonFill/>}
-            </div>
             {navbarState ? (
               <VscChromeClose className="menu" onClick={() => setNavbarState(false)}/>
             ) : (
@@ -251,6 +247,9 @@ const Section = styled.section`
     padding-bottom: 2rem;
     padding-top: 2rem;
     gap: 2rem;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 
     .top {
         display: flex;
