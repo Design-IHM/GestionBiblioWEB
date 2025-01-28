@@ -13,61 +13,58 @@ export default function Navbar() {
   };
 
   const { darkMode, toggleDarkMode } = useContext(UserContext);
+
   const DarkModeButton = styled.button`
-  background-color: ${(props) => (props.darkMode ? "#ffffff" : "#333333")};
-  color: ${(props) => (props.darkMode ? "#000000" : "#ffffff")};
-  border: none;
-  padding: 8px 16px;
-  margin-bottom: 16px;
-  cursor: pointer;
-`;
+    background-color: ${(props) => (props.darkMode ? "#ffffff" : "#333333")};
+    color: ${(props) => (props.darkMode ? "#000000" : "#ffffff")};
+    border: none;
+    border-radius: 30px;
+    padding: 5px 10px;
+    cursor: pointer;
+  `;
 
   return (
-    <Nav style={{backgroundColor: darkMode ? "#333333" : "transparent", color: darkMode ? "#ffffff" : "#000000" }}>
-    <div className="backButton" onClick={goBack}>
-      <IoIosArrowBack />
-    </div>
-    <div className="titleNav">
-      <DarkModeButton className="darkModeButton" darkMode={darkMode} onClick={toggleDarkMode}>
-        {darkMode ? <RiSunFill /> : <RiMoonFill />}
-      </DarkModeButton>
-      <h1 className="pageTitle">
-        Welcome to <span>BIBLIO ENSPY</span>
-      </h1>
-    </div>
-    {searchPage && (
-      <div className="search">
-        <BiSearch className="searchIcon" />
-        <input
-          className="searchInput"
-          onChange={(e) => setSearchWord(e.target.value)}
-          value={searchWord}
-          type="text"
-          placeholder={
-            searchPage === "etudiant"
-              ? "Search Student"
-              : searchPage === "document"
-              ? "Search Document"
-              : "Search Document"
-          }
-        />
+    <Nav style={{backgroundColor: darkMode ? "#333333" : "transparent", color: darkMode ? "#ffffff" : "#000000"}}>
+      <div className="backButton" onClick={goBack}>
+        <IoIosArrowBack/>
       </div>
-    )}
-  </Nav>
+      {searchPage && (
+        <div className="search">
+          <BiSearch className="searchIcon"/>
+          <input
+            className="searchInput"
+            onChange={(e) => setSearchWord(e.target.value)}
+            value={searchWord}
+            type="text"
+            placeholder={
+              searchPage === "etudiant"
+                ? "Search Student"
+                : searchPage === "document"
+                  ? "Search Document"
+                  : "Search Document"
+            }
+          />
+        </div>
+      )}
+
+      <div className="titleNav">
+        <DarkModeButton className="darkModeButton" darkMode={darkMode} onClick={toggleDarkMode}>
+          {darkMode ? <RiSunFill/> : <RiMoonFill/>}
+        </DarkModeButton>
+      </div>
+    </Nav>
 
   );
 }
 
 const Nav = styled.nav`
   display: flex;
+  margin-top: -25px;
+  margin-bottom: 5px;
   justify-content: space-between;
   align-items: center;
   color: black;
   background-color: #ececec;
-  padding: 1rem;
-  
-  
-
 
   .backButton {
     display: flex;
@@ -76,20 +73,8 @@ const Nav = styled.nav`
     cursor: pointer;
     svg {
       color: black;
-      font-size: 1.5rem;
+      font-size: 1rem;
     }
-  }
-
-  .titleNav {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1.2rem;
-    font-weight: bold;
-  }
-
-  .titleNav span {
-    color: #fe7a3f;
   }
 
   .search {
@@ -99,11 +84,12 @@ const Nav = styled.nav`
     background-color: #fff;
     border-radius: 1rem;
     padding: 0.5rem;
+    border-color: #6c757d;
   }
 
   .searchIcon {
     color: #000;
-    font-size: 1.5rem;
+    font-size: 1rem;
   }
 
   .searchInput {
@@ -119,9 +105,9 @@ const Nav = styled.nav`
       color: gray;
     }
   }
-}
+
   @media screen and (min-width: 280px) and (max-width: 1080px) {
-    flex-direction: column;
+    margin:5px 10px;
 
     .title {
       h1 {

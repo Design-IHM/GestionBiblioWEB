@@ -168,11 +168,6 @@ export default function Profil() {
     );
 }
 
-const Container = styled.div`
-    min-height: 100vh;
-    background-color: #f5f5f5;
-`;
-
 const Content = styled.div`
     padding: 2rem;
     margin-top: 60px; // Pour la navbar fixe
