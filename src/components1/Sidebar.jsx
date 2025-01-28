@@ -91,57 +91,67 @@ export default function Sidebar() {
             <ul>
               <li className={currentLink === 14 ? "active" : "none"} onClick={() => changerAc()}>
                 <NavLink className="linkin" to="/accueil" end>
-                  <GrCatalog />
+                  <GrCatalog/>
                   <span>Accueil</span>
                 </NavLink>
               </li>
 
               <li className={currentLink === 10 ? "active" : "none"} onClick={() => changerProfil()}>
                 <NavLink className="linkin" to="/profil" end>
-                  <FaUser />
+                  <FaUser/>
                   <span>Profil bibliothécaire</span>
+                </NavLink>
+              </li>
+
+              <li
+                className={currentLink === 6 ? "active" : "none"}
+                onClick={() => changerCat()}
+              >
+                <NavLink className="linkin" to="/catalogue" end>
+                  <GrCatalog/>
+                  <span>Catalogue</span>
                 </NavLink>
               </li>
 
 
               <li className={currentLink === 2 ? "active" : "none"} onClick={() => changer()}>
                 <NavLink className="linkin" to="/listeEtudiant" end>
-                  <HiUsers />
+                  <HiUsers/>
                   <span>Etudiants inscrits</span>
                 </NavLink>
               </li>
 
               <li className={currentLink === 3 ? "active" : "none"} onClick={() => setCurrentLink(3)}>
                 <NavLink className="linkin" to="/ajouterDoc" end>
-                  <MdPostAdd />
+                  <MdPostAdd/>
                   <span>Ajouter documents</span>
                 </NavLink>
               </li>
 
               <li className={currentLink === 4 ? "active" : "none"} onClick={() => changerReserv()}>
                 <NavLink className="linkin" to="/listeReservation" end>
-                  <BsListUl />
+                  <BsListUl/>
                   <span>Liste de réservations</span>
                 </NavLink>
               </li>
 
               <li className={currentLink === 5 ? "active" : "none"} onClick={() => changerEmprunt()}>
                 <NavLink className="linkin" to="/emprunts" end>
-                  <BsListUl />
+                  <BsListUl/>
                   <span>Documents empruntés</span>
                 </NavLink>
               </li>
 
               <li className={currentLink === 7 ? "active" : "none"} onClick={() => changerMsg()}>
                 <NavLink className="linkin" to="/messages" end>
-                  <AiFillMessage />
+                  <AiFillMessage/>
                   <span>Messages</span>
                 </NavLink>
               </li>
 
               <li className={currentLink === 8 ? "active" : "none"} onClick={() => changerArch()}>
                 <NavLink className="linkin" to="/archives" end>
-                  <FaArchive />
+                  <FaArchive/>
                   <span>Archives</span>
                 </NavLink>
               </li>
@@ -151,7 +161,7 @@ export default function Sidebar() {
 
         <div className="logout">
           <NavLink className="linkin" to="/logoutPage">
-            <span className="logout"><FiLogOut />  Déconnexion</span>
+            <span className="logout"><FiLogOut/>  Déconnexion</span>
           </NavLink>
         </div>
       </Section>
