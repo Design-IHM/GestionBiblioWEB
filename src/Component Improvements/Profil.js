@@ -10,8 +10,10 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
 import styled from 'styled-components';
+import { FaCamera } from 'react-icons/fa';
 
 export default function Profil() {
+    // ... [Tout le code des states et des fonctions reste identique] ...
     const [name, setName] = useState('');
     const [cathegorie] = useState('');
     const [desc, setDesc] = useState('');
@@ -21,10 +23,10 @@ export default function Profil() {
     const [url, setUrl] = useState(null);
     const [salle] = useState('');
     const [typ, setTyp] = useState('');
+    const fileInputRef = useRef();
     const formRef = useRef();
     const navigate = useNavigate();
 
-    // Alert states
     const [status, setStatus] = useState(false);
     const [type, setType] = useState("");
     const [title, setTitle] = useState("");
@@ -48,6 +50,10 @@ export default function Profil() {
         }).catch((error) => {
             console.log(error.message);
         });
+    };
+
+    const triggerFileInput = () => {
+        fileInputRef.current.click();
     };
 
     const res = async () => {
@@ -74,78 +80,77 @@ export default function Profil() {
     };
 
     return (
-        <div className="content-box">
+        <Container>
             <Sidebar />
             <Navbar />
             <Content>
                 <FormContainer>
                     <Form ref={formRef} onSubmit={res}>
                         <AvatarSection>
-                            <Avatar
-                                src={url}
-                                sx={{ width: 150, height: 150 }}
-                                style={{ marginBottom: '1rem' }}
-                            />
-                            <UploadButton type="button" onClick={handleSubmit}>
-                                Changer la photo de profil
-                            </UploadButton>
-                            <Form.Control
-                                className="image-input"
+                            <AvatarWrapper>
+                                <StyledAvatar src={url} />
+                                <UploadOverlay onClick={triggerFileInput}>
+                                    <FaCamera size={24} />
+                                    <span>Modifier</span>
+                                </UploadOverlay>
+                            </AvatarWrapper>
+                            <input
+                                ref={fileInputRef}
                                 type="file"
                                 onChange={handleChangeImage}
-                                style={{ marginTop: '1rem' }}
-                                required
+                                style={{ display: 'none' }}
                             />
                         </AvatarSection>
 
-                        <FormGroup>
-                            <Label>Nom</Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="ex: Jason Derulo"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                required
-                            />
-                        </FormGroup>
+                        <FormGrid>
+                            <FormGroup>
+                                <Label>Nom</Label>
+                                <StyledInput
+                                    type="text"
+                                    placeholder="ex: Jason Derulo"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    required
+                                />
+                            </FormGroup>
 
-                        <FormGroup>
-                            <Label>E-mail</Label>
-                            <Form.Control
-                                type="email"
-                                placeholder="ex: exemple@email.com"
-                                value={Email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
-                        </FormGroup>
+                            <FormGroup>
+                                <Label>E-mail</Label>
+                                <StyledInput
+                                    type="email"
+                                    placeholder="ex: exemple@email.com"
+                                    value={Email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                            </FormGroup>
 
-                        <FormGroup>
-                            <Label>Genre</Label>
-                            <Form.Select
-                                value={typ}
-                                onChange={(e) => setTyp(e.target.value)}
-                                required
-                            >
-                                <option value="">Sélectionnez votre genre</option>
-                                <option value="Homme">Homme</option>
-                                <option value="Femme">Femme</option>
-                            </Form.Select>
-                        </FormGroup>
+                            <FormGroup>
+                                <Label>Genre</Label>
+                                <StyledSelect
+                                    value={typ}
+                                    onChange={(e) => setTyp(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Sélectionnez votre genre</option>
+                                    <option value="Homme">Homme</option>
+                                    <option value="Femme">Femme</option>
+                                </StyledSelect>
+                            </FormGroup>
 
-                        <FormGroup>
-                            <Label>Description</Label>
-                            <Form.Control
-                                as="textarea"
-                                rows={3}
-                                placeholder="Description"
-                                value={desc}
-                                onChange={(e) => setDesc(e.target.value)}
-                            />
-                        </FormGroup>
+                            <FormGroup>
+                                <Label>Description</Label>
+                                <StyledTextarea
+                                    rows={3}
+                                    placeholder="Description"
+                                    value={desc}
+                                    onChange={(e) => setDesc(e.target.value)}
+                                />
+                            </FormGroup>
+                        </FormGrid>
 
                         <ButtonGroup>
-                            <Button type="submit" primary>
+                            <Button type="submit" $primary>
                                 Enregistrer
                             </Button>
                             <Button type="button" onClick={() => navigate("/")}>
@@ -164,19 +169,24 @@ export default function Profil() {
                     Close={() => setStatus(false)}
                 />
             </Content>
-        </div>
+        </Container>
     );
 }
 
+// Tous les styles restent identiques
+const Container = styled.div`
+    min-height: 100vh;
+    background-color: #f5f5f5;
+`;
+
 const Content = styled.div`
     padding: 2rem;
-    margin-top: 60px; // Pour la navbar fixe
-    margin-left: 250px; // Pour la sidebar
+    margin-top: 60px;
+    margin-left: 250px;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
 
-    @media (max-width: 768px) {
+    @media (max-width: 1024px) {
         margin-left: 0;
         padding: 1rem;
     }
@@ -184,35 +194,119 @@ const Content = styled.div`
 
 const FormContainer = styled.div`
     background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 600px;
+    max-width: 800px;
 `;
 
 const AvatarSection = styled.div`
     display: flex;
+    justify-content: center;
+    margin-bottom: 3rem;
+`;
+
+const AvatarWrapper = styled.div`
+    position: relative;
+    cursor: pointer;
+    
+    &:hover div {
+        opacity: 1;
+    }
+`;
+
+const StyledAvatar = styled(Avatar)`
+    width: 150px !important;
+    height: 150px !important;
+    border: 3px solid #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+`;
+
+const UploadOverlay = styled.div`
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 2rem;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+    color: white;
+    
+    span {
+        font-size: 14px;
+        margin-top: 4px;
+    }
+`;
+
+const FormGrid = styled.div`
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
 `;
 
 const FormGroup = styled.div`
-    margin-bottom: 1.5rem;
+    &:nth-last-child(1) {
+        grid-column: 1 / -1;
+    }
 `;
 
 const Label = styled.label`
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
+    color: #374151;
+`;
+
+const inputStyles = `
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background-color: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    
+    &:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    &::placeholder {
+        color: #9ca3af;
+    }
+`;
+
+const StyledInput = styled.input`
+    ${inputStyles}
+`;
+
+const StyledSelect = styled.select`
+    ${inputStyles}
+`;
+
+const StyledTextarea = styled.textarea`
+    ${inputStyles}
+    resize: vertical;
+    min-height: 100px;
 `;
 
 const ButtonGroup = styled.div`
     display: flex;
     gap: 1rem;
     justify-content: center;
-    margin-top: 2rem;
+    margin-top: 3rem;
 
     @media (max-width: 480px) {
         flex-direction: column;
@@ -220,34 +314,27 @@ const ButtonGroup = styled.div`
 `;
 
 const Button = styled.button`
-    padding: 0.5rem 2rem;
+    padding: 0.75rem 2rem;
     border: none;
-    border-radius: 4px;
-    cursor: pointer;
+    border-radius: 6px;
     font-weight: 500;
-    background-color: ${props => props.primary ? '#4CAF50' : '#9e9e9e'};
+    cursor: pointer;
+    transition: all 0.2s;
+    background-color: ${props => props.$primary ? '#3b82f6' : '#9ca3af'};
     color: white;
-    transition: opacity 0.2s;
+    min-width: 150px;
 
     &:hover {
-        opacity: 0.9;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        background-color: ${props => props.$primary ? '#2563eb' : '#6b7280'};
+    }
+
+    &:active {
+        transform: translateY(0);
     }
 
     @media (max-width: 480px) {
         width: 100%;
-        margin: 0.5rem 0;
-    }
-`;
-
-const UploadButton = styled.button`
-    padding: 0.5rem 1rem;
-    background-color: #f0f0f0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-
-    &:hover {
-        background-color: #e0e0e0;
     }
 `;

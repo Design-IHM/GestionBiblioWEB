@@ -57,7 +57,7 @@ export default function DepartementMemoriesBtn(props) {
     backgroundSize: 'cover',
     width: '200px',
     height: '200px',
-    
+
     cursor: 'pointer',
     position: 'relative',
     transition: 'box-shadow 0.3s ease',
@@ -111,7 +111,7 @@ export default function DepartementMemoriesBtn(props) {
 
   return (
     <div
-      className="card"
+      className="card "
       style={cardStyle}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
