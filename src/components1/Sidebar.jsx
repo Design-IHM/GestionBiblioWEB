@@ -14,10 +14,9 @@ import { AiFillMessage } from "react-icons/ai";
 import scrollreveal from "scrollreveal";
 import { NavLink } from "react-router-dom";
 import { UserContext } from "../App";
-//import { IoIosArrowBack } from "react-icons/io";
 
 export default function Sidebar() {
-  const [currentLink, setCurrentLink] = useState();
+  const [currentLink, setCurrentLink] = useState(0);
   const [navbarState, setNavbarState] = useState(false);
   const html = document.querySelector("html");
   html.addEventListener("click", () => setNavbarState(false));
@@ -31,7 +30,7 @@ export default function Sidebar() {
 
   const changerProfil =()=>{
     setCurrentLink(10)
-  
+
   }
 
   const changerAc =()=>{
@@ -57,228 +56,196 @@ export default function Sidebar() {
     setCurrentLink(7)
     setSearchPage("ras")
   }
-  
+
   const changerArch =()=>{
     setCurrentLink(8)
     setSearchPage("archives")
   }
 
-  useEffect(() => {
-    const sr = scrollreveal({
-      origin: "left",
-      distance: "80px",
-      duration: 1000,
-      reset: false,
-    });
 
-    sr.reveal(
-      `
-          .brand,
-          .links>ul>li:nth-of-type(1),
-      .links>ul>li:nth-of-type(2),
-      .links>ul>li:nth-of-type(3),
-      .links>ul>li:nth-of-type(4),
-      .links>ul>li:nth-of-type(5),
-      .links>ul>li:nth-of-type(6),
-      .links>ul>li:nth-of-type(7),
-      .links>ul>li:nth-of-type(8),
-      .logout
-      `,
-      {
-        opacity: 0,
-        interval: 300,
-      }
-    );
-  }, []);
-
-
-
-  
- 
   const { darkMode, toggleDarkMode } = useContext(UserContext);
-  
+
 
   return (
-    <>  
-     
-        <Section style={{ backgroundColor: darkMode ? "#333333" : " rgb(231, 218, 193)", color: darkMode ? 'white' : 'black' }}>
-            
-      <div className="top">
-            <div className="brandSide">
-                 
-          <a href="/accueil">
-            <GiBookPile />
-            <span>ENSPY</span>
-          </a>
+    <>
+      <Section style={{ backgroundColor: darkMode ? "#333333" : " rgb(231, 218, 193)", color: darkMode ? 'white' : 'black' }}>
+        <div className="top">
+          <div className="brandSide">
+            <a href="/accueil">
+              <GiBookPile />
+              <span>ENSPY</span>
+            </a>
+          </div>
+
+          <div className="toggle">
+            {navbarState ? (
+              <VscChromeClose onClick={() => setNavbarState(false)} />
+            ) : (
+              <GiHamburgerMenu
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setNavbarState(true);
+                }}
+              />
+            )}
+            <div className="darkModeToggle" onClick={toggleDarkMode}>
+              {darkMode ? <RiSunFill />  : <RiMoonFill />}
             </div>
-            
- <div className="toggle">
-          {navbarState ? (
-            <VscChromeClose onClick={() => setNavbarState(false)} />
-          ) : (
-            <GiHamburgerMenu
-              onClick={(e) => {
-                e.stopPropagation();
-                setNavbarState(true);
-              }}
-            />
-          )}
-          <div className="darkModeToggle" onClick={toggleDarkMode}>
-            {darkMode ? <RiSunFill />  : <RiMoonFill />}
+          </div>
+
+          <div className="links">
+            <ul>
+              <li className={currentLink === 14 ? "active" : "none"} onClick={() => changerAc()}>
+                <NavLink className="linkin" to="/accueil" end>
+                  <GrCatalog />
+                  <span>Accueil</span>
+                </NavLink>
+              </li>
+
+              <li className={currentLink === 10 ? "active" : "none"} onClick={() => changerProfil()}>
+                <NavLink className="linkin" to="/profil" end>
+                  <FaUser />
+                  <span>Profil bibliothécaire</span>
+                </NavLink>
+              </li>
+
+
+              <li className={currentLink === 2 ? "active" : "none"} onClick={() => changer()}>
+                <NavLink className="linkin" to="/listeEtudiant" end>
+                  <HiUsers />
+                  <span>Etudiants inscrits</span>
+                </NavLink>
+              </li>
+
+              <li className={currentLink === 3 ? "active" : "none"} onClick={() => setCurrentLink(3)}>
+                <NavLink className="linkin" to="/ajouterDoc" end>
+                  <MdPostAdd />
+                  <span>Ajouter documents</span>
+                </NavLink>
+              </li>
+
+              <li className={currentLink === 4 ? "active" : "none"} onClick={() => changerReserv()}>
+                <NavLink className="linkin" to="/listeReservation" end>
+                  <BsListUl />
+                  <span>Liste de réservations</span>
+                </NavLink>
+              </li>
+
+              <li className={currentLink === 5 ? "active" : "none"} onClick={() => changerEmprunt()}>
+                <NavLink className="linkin" to="/emprunts" end>
+                  <BsListUl />
+                  <span>Documents empruntés</span>
+                </NavLink>
+              </li>
+
+              <li className={currentLink === 7 ? "active" : "none"} onClick={() => changerMsg()}>
+                <NavLink className="linkin" to="/messages" end>
+                  <AiFillMessage />
+                  <span>Messages</span>
+                </NavLink>
+              </li>
+
+              <li className={currentLink === 8 ? "active" : "none"} onClick={() => changerArch()}>
+                <NavLink className="linkin" to="/archives" end>
+                  <FaArchive />
+                  <span>Archives</span>
+                </NavLink>
+              </li>
+            </ul>
           </div>
         </div>
 
-     
-        
-        <div className="links">
+        <div className="logout">
+          <NavLink className="linkin" to="/logoutPage">
+            <span className="logout"><FiLogOut />  Déconnexion</span>
+          </NavLink>
+        </div>
+      </Section>
+
+      <ResponsiveNav state={navbarState} className={navbarState ? "show" : ""}>
+        <div className="responsive__links">
           <ul>
-            <li className={currentLink === 14 ? "active" : "none"} onClick={() => changerAc()}>
-              <NavLink className="linkin" to="/accueil" end>
+            <li
+              className={currentLink === 6 ? "active" : "none"}
+              onClick={() => changerCat()}
+            >
+              <NavLink className="linkin" to="/catalogue" end>
                 <GrCatalog />
-                <span>Accueil</span>
+                <span>Catalogue</span>
               </NavLink>
             </li>
 
-            <li className={currentLink === 10 ? "active" : "none"} onClick={() => changerProfil()}>
-              <NavLink className="linkin" to="/profil" end>
-                <FaUser />
-                <span>Profil bibliothécaire</span>
-              </NavLink>
-            </li>
-
-
-            <li className={currentLink === 2 ? "active" : "none"} onClick={() => changer()}>
+            <li
+              className={currentLink === 2 ? "active" : "none"}
+              onClick={() =>changer()}
+            >
               <NavLink className="linkin" to="/listeEtudiant" end>
                 <HiUsers />
                 <span>Etudiants inscrits</span>
               </NavLink>
             </li>
 
-            <li className={currentLink === 3 ? "active" : "none"} onClick={() => setCurrentLink(3)}>
+            <li
+              className={currentLink === 3 ? "active" : "none"}
+              onClick={() => setCurrentLink(3)}
+            >
               <NavLink className="linkin" to="/ajouterDoc" end>
                 <MdPostAdd />
                 <span>Ajouter documents</span>
               </NavLink>
             </li>
 
-            <li className={currentLink === 4 ? "active" : "none"} onClick={() => changerReserv()}>
-              <NavLink className="linkin" to="/listeReservation" end>
+            <li
+              className={currentLink === 4 ? "active" : "none"}
+              onClick={() => changerReserv()}
+            >
+              <NavLink className="linkin"  to="/listeReservation" end>
                 <BsListUl />
                 <span>Liste de réservations</span>
               </NavLink>
             </li>
 
-            <li className={currentLink === 5 ? "active" : "none"} onClick={() => changerEmprunt()}>
+            <li
+              className={currentLink === 5 ? "active" : "none"}
+              onClick={() => changerEmprunt()}
+            >
               <NavLink className="linkin" to="/emprunts" end>
                 <BsListUl />
-                <span>Documents empruntés</span>
+                <span>Livres empruntés</span>
               </NavLink>
             </li>
 
-            <li className={currentLink === 7 ? "active" : "none"} onClick={() => changerMsg()}>
+            <li
+              className={currentLink === 7 ? "active" : "none"}
+              onClick={() => changerMsg()}
+            >
               <NavLink className="linkin" to="/messages" end>
-                <AiFillMessage />
-                <span>Messages</span>
-              </NavLink>
+                  <AiFillMessage />
+                  <span>Messages</span>
+                </NavLink>
             </li>
 
-            <li className={currentLink === 8 ? "active" : "none"} onClick={() => changerArch()}>
+            <li
+              className={currentLink === 8 ? "active" : "none"}
+              onClick={() => changerArch()}
+            >
               <NavLink className="linkin" to="/archives" end>
-                <FaArchive />
-                <span>Archives</span>
-              </NavLink>
+                  <FaArchive />
+                  <span>Archives</span>
+                </NavLink>
             </li>
-          </ul>
-        </div>
-      </div>
-
-      <div className="logout">
-        <NavLink className="linkin" to="/logoutPage">
-          <span className="logout"><FiLogOut />  Déconnexion</span>
-        </NavLink>
-      </div>
-    </Section>
-      <ResponsiveNav state={navbarState} className={navbarState ? "show" : ""}>
-        <div className="responsive__links">
-          <ul>
-          <li
-                className={currentLink === 6 ? "active" : "none"}
-                onClick={() => changerCat()}
-              >
-                <NavLink className="linkin" to="/catalogue" end>
-                  <GrCatalog />
-                  <span>Catalogue</span>
-                </NavLink>
-              </li>
-          <li
-                className={currentLink === 2 ? "active" : "none"}
-                onClick={() =>changer()}
-              >
-                
-                <NavLink className="linkin" to="/listeEtudiant" end>
-                  <HiUsers />
-                  <span>Etudiants inscrits</span>
-                </NavLink>
-              </li>
-              <li
-                className={currentLink === 3 ? "active" : "none"}
-                onClick={() => setCurrentLink(3)}
-              >
-                
-                <NavLink className="linkin" to="/ajouterDoc" end>
-                  <MdPostAdd />
-                  <span>Ajouter documents</span>
-                </NavLink>
-              </li>
-              <li
-                className={currentLink === 4 ? "active" : "none"}
-                onClick={() => changerReserv()}
-              >
-                <NavLink className="linkin"  to="/listeReservation" end>
-                  <BsListUl />
-                  <span>Liste de réservations</span>
-                </NavLink>
-              </li>
-              <li
-                className={currentLink === 5 ? "active" : "none"}
-                onClick={() => changerEmprunt()}
-              >
-                <NavLink className="linkin" to="/emprunts" end>
-                  <BsListUl />
-                  <span>Livres empruntés</span>
-                </NavLink>
-              </li>
-              
-              <li
-                className={currentLink === 7 ? "active" : "none"}
-                onClick={() => changerMsg()}
-              >
-                <NavLink className="linkin" to="/messages" end>
-                    <AiFillMessage />
-                    <span>Messages</span>
-                  </NavLink>
-              </li>
-              <li
-                className={currentLink === 8 ? "active" : "none"}
-                onClick={() => changerArch()}
-              >
-                <NavLink className="linkin" to="/archives" end>
-                    <FaArchive />
-                    <span>Archives</span>
-                  </NavLink>
-              </li>
           </ul>
         </div>
       </ResponsiveNav>
     </>
   );
 }
+
 const Section = styled.section`
   position: fixed;
+  top: 0;
   left: 0;
-  border-top-right-radius: 53px;
-  border-bottom-right-radius: 53px;
-   background-color: rgb(231, 218, 193);
+  background-color: rgb(231, 218, 193);
   height: 100vh;
   width: 18vw;
   display: flex;
