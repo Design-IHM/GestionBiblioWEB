@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useContext } from "react";
+import React, { useState,useContext } from "react";
 import styled from "styled-components";
 import { BsListUl } from "react-icons/bs";
 import { FaUser } from "react-icons/fa";
@@ -7,17 +7,14 @@ import { FaArchive } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
 import { MdPostAdd } from "react-icons/md";
 import { GiHamburgerMenu, GiBookPile } from "react-icons/gi";
-import { RiSunFill, RiMoonFill } from "react-icons/ri";
 import { VscChromeClose } from "react-icons/vsc";
 import { HiUsers } from "react-icons/hi";
 import { AiFillMessage } from "react-icons/ai";
-import scrollreveal from "scrollreveal";
 import { NavLink } from "react-router-dom";
 import { UserContext } from "../App";
-//import { IoIosArrowBack } from "react-icons/io";
 
 export default function Sidebar() {
-  const [currentLink, setCurrentLink] = useState();
+  const [currentLink, setCurrentLink] = useState(0);
   const [navbarState, setNavbarState] = useState(false);
   const html = document.querySelector("html");
   html.addEventListener("click", () => setNavbarState(false));
@@ -31,7 +28,7 @@ export default function Sidebar() {
 
   const changerProfil =()=>{
     setCurrentLink(10)
-  
+
   }
 
   const changerAc =()=>{
@@ -57,341 +54,345 @@ export default function Sidebar() {
     setCurrentLink(7)
     setSearchPage("ras")
   }
-  
+
   const changerArch =()=>{
     setCurrentLink(8)
     setSearchPage("archives")
   }
 
-  useEffect(() => {
-    const sr = scrollreveal({
-      origin: "left",
-      distance: "80px",
-      duration: 1000,
-      reset: false,
-    });
-
-    sr.reveal(
-      `
-          .brand,
-          .links>ul>li:nth-of-type(1),
-      .links>ul>li:nth-of-type(2),
-      .links>ul>li:nth-of-type(3),
-      .links>ul>li:nth-of-type(4),
-      .links>ul>li:nth-of-type(5),
-      .links>ul>li:nth-of-type(6),
-      .links>ul>li:nth-of-type(7),
-      .links>ul>li:nth-of-type(8),
-      .logout
-      `,
-      {
-        opacity: 0,
-        interval: 300,
-      }
-    );
-  }, []);
-
-
-
-  
- 
-  const { darkMode, toggleDarkMode } = useContext(UserContext);
-  
+  const { darkMode } = useContext(UserContext);
 
   return (
-    <>  
-     
-        <Section style={{ backgroundColor: darkMode ? "#333333" : " rgb(231, 218, 193)", color: darkMode ? 'white' : 'black' }}>
-            
-      <div className="top">
-            <div className="brandSide">
-                 
-          <a href="/accueil">
-            <GiBookPile />
-            <span>ENSPY</span>
-          </a>
-            </div>
-            
- <div className="toggle">
-          {navbarState ? (
-            <VscChromeClose onClick={() => setNavbarState(false)} />
-          ) : (
-            <GiHamburgerMenu
-              onClick={(e) => {
-                e.stopPropagation();
-                setNavbarState(true);
-              }}
-            />
-          )}
-          <div className="darkModeToggle" onClick={toggleDarkMode}>
-            {darkMode ? <RiSunFill />  : <RiMoonFill />}
+    <>
+      <Section style={{ backgroundColor: darkMode ? "#333333" : " rgb(231, 218, 193)", color: darkMode ? 'white' : 'black' }}>
+        <div className="top">
+          <div className="brandSide">
+            <a href="/accueil">
+              <GiBookPile />
+              <span className="text-sm md:text-md">ENSPY</span>
+            </a>
+          </div>
+
+          <div className="toggle">
+            {navbarState ? (
+              <VscChromeClose className="menu" onClick={() => setNavbarState(false)}/>
+            ) : (
+              <GiHamburgerMenu
+                className="menu"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setNavbarState(true);
+                }}
+              />
+            )}
+          </div>
+
+          <div className="links">
+            <ul>
+              <li className={currentLink === 14 ? "active" : "none"} onClick={() => changerAc()}>
+                <NavLink className="linkin" to="/accueil" end>
+                  <GrCatalog />
+                  <span>Accueil</span>
+                </NavLink>
+              </li>
+
+              <li className={currentLink === 10 ? "active" : "none"} onClick={() => changerProfil()}>
+                <NavLink className="linkin" to="/profil" end>
+                  <FaUser />
+                  <span>Profil bibliothécaire</span>
+                </NavLink>
+              </li>
+
+
+              <li className={currentLink === 2 ? "active" : "none"} onClick={() => changer()}>
+                <NavLink className="linkin" to="/listeEtudiant" end>
+                  <HiUsers />
+                  <span>Etudiants inscrits</span>
+                </NavLink>
+              </li>
+
+              <li className={currentLink === 3 ? "active" : "none"} onClick={() => setCurrentLink(3)}>
+                <NavLink className="linkin" to="/ajouterDoc" end>
+                  <MdPostAdd />
+                  <span>Ajouter documents</span>
+                </NavLink>
+              </li>
+
+              <li className={currentLink === 4 ? "active" : "none"} onClick={() => changerReserv()}>
+                <NavLink className="linkin" to="/listeReservation" end>
+                  <BsListUl />
+                  <span>Liste de réservations</span>
+                </NavLink>
+              </li>
+
+              <li className={currentLink === 5 ? "active" : "none"} onClick={() => changerEmprunt()}>
+                <NavLink className="linkin" to="/emprunts" end>
+                  <BsListUl />
+                  <span>Documents empruntés</span>
+                </NavLink>
+              </li>
+
+              <li className={currentLink === 7 ? "active" : "none"} onClick={() => changerMsg()}>
+                <NavLink className="linkin" to="/messages" end>
+                  <AiFillMessage />
+                  <span>Messages</span>
+                </NavLink>
+              </li>
+
+              <li className={currentLink === 8 ? "active" : "none"} onClick={() => changerArch()}>
+                <NavLink className="linkin" to="/archives" end>
+                  <FaArchive />
+                  <span>Archives</span>
+                </NavLink>
+              </li>
+            </ul>
           </div>
         </div>
 
-     
-        
-        <div className="links">
+        <div className="logout">
+          <NavLink className="linkin" to="/logoutPage">
+            <span className="logout"><FiLogOut />  Déconnexion</span>
+          </NavLink>
+        </div>
+      </Section>
+
+      <ResponsiveNav state={navbarState} className={navbarState ? "show" : ""}>
+        <div className="responsive__links">
           <ul>
-            <li className={currentLink === 14 ? "active" : "none"} onClick={() => changerAc()}>
-              <NavLink className="linkin" to="/accueil" end>
+            <li
+              className={currentLink === 6 ? "active" : "none"}
+              onClick={() => changerCat()}
+            >
+              <NavLink className="linkin" to="/catalogue" end>
                 <GrCatalog />
-                <span>Accueil</span>
+                <span>Catalogue</span>
               </NavLink>
             </li>
 
-            <li className={currentLink === 10 ? "active" : "none"} onClick={() => changerProfil()}>
-              <NavLink className="linkin" to="/profil" end>
-                <FaUser />
-                <span>Profil bibliothécaire</span>
-              </NavLink>
-            </li>
-
-
-            <li className={currentLink === 2 ? "active" : "none"} onClick={() => changer()}>
+            <li
+              className={currentLink === 2 ? "active" : "none"}
+              onClick={() =>changer()}
+            >
               <NavLink className="linkin" to="/listeEtudiant" end>
                 <HiUsers />
                 <span>Etudiants inscrits</span>
               </NavLink>
             </li>
 
-            <li className={currentLink === 3 ? "active" : "none"} onClick={() => setCurrentLink(3)}>
+            <li
+              className={currentLink === 3 ? "active" : "none"}
+              onClick={() => setCurrentLink(3)}
+            >
               <NavLink className="linkin" to="/ajouterDoc" end>
                 <MdPostAdd />
                 <span>Ajouter documents</span>
               </NavLink>
             </li>
 
-            <li className={currentLink === 4 ? "active" : "none"} onClick={() => changerReserv()}>
-              <NavLink className="linkin" to="/listeReservation" end>
+            <li
+              className={currentLink === 4 ? "active" : "none"}
+              onClick={() => changerReserv()}
+            >
+              <NavLink className="linkin"  to="/listeReservation" end>
                 <BsListUl />
                 <span>Liste de réservations</span>
               </NavLink>
             </li>
 
-            <li className={currentLink === 5 ? "active" : "none"} onClick={() => changerEmprunt()}>
+            <li
+              className={currentLink === 5 ? "active" : "none"}
+              onClick={() => changerEmprunt()}
+            >
               <NavLink className="linkin" to="/emprunts" end>
                 <BsListUl />
-                <span>Documents empruntés</span>
+                <span>Livres empruntés</span>
               </NavLink>
             </li>
 
-            <li className={currentLink === 7 ? "active" : "none"} onClick={() => changerMsg()}>
+            <li
+              className={currentLink === 7 ? "active" : "none"}
+              onClick={() => changerMsg()}
+            >
               <NavLink className="linkin" to="/messages" end>
-                <AiFillMessage />
-                <span>Messages</span>
-              </NavLink>
+                  <AiFillMessage />
+                  <span>Messages</span>
+                </NavLink>
             </li>
 
-            <li className={currentLink === 8 ? "active" : "none"} onClick={() => changerArch()}>
+            <li
+              className={currentLink === 8 ? "active" : "none"}
+              onClick={() => changerArch()}
+            >
               <NavLink className="linkin" to="/archives" end>
-                <FaArchive />
-                <span>Archives</span>
-              </NavLink>
+                  <FaArchive />
+                  <span>Archives</span>
+                </NavLink>
             </li>
-          </ul>
-        </div>
-      </div>
-
-      <div className="logout">
-        <NavLink className="linkin" to="/logoutPage">
-          <span className="logout"><FiLogOut />  Déconnexion</span>
-        </NavLink>
-      </div>
-    </Section>
-      <ResponsiveNav state={navbarState} className={navbarState ? "show" : ""}>
-        <div className="responsive__links">
-          <ul>
-          <li
-                className={currentLink === 6 ? "active" : "none"}
-                onClick={() => changerCat()}
-              >
-                <NavLink className="linkin" to="/catalogue" end>
-                  <GrCatalog />
-                  <span>Catalogue</span>
-                </NavLink>
-              </li>
-          <li
-                className={currentLink === 2 ? "active" : "none"}
-                onClick={() =>changer()}
-              >
-                
-                <NavLink className="linkin" to="/listeEtudiant" end>
-                  <HiUsers />
-                  <span>Etudiants inscrits</span>
-                </NavLink>
-              </li>
-              <li
-                className={currentLink === 3 ? "active" : "none"}
-                onClick={() => setCurrentLink(3)}
-              >
-                
-                <NavLink className="linkin" to="/ajouterDoc" end>
-                  <MdPostAdd />
-                  <span>Ajouter documents</span>
-                </NavLink>
-              </li>
-              <li
-                className={currentLink === 4 ? "active" : "none"}
-                onClick={() => changerReserv()}
-              >
-                <NavLink className="linkin"  to="/listeReservation" end>
-                  <BsListUl />
-                  <span>Liste de réservations</span>
-                </NavLink>
-              </li>
-              <li
-                className={currentLink === 5 ? "active" : "none"}
-                onClick={() => changerEmprunt()}
-              >
-                <NavLink className="linkin" to="/emprunts" end>
-                  <BsListUl />
-                  <span>Livres empruntés</span>
-                </NavLink>
-              </li>
-              
-              <li
-                className={currentLink === 7 ? "active" : "none"}
-                onClick={() => changerMsg()}
-              >
-                <NavLink className="linkin" to="/messages" end>
-                    <AiFillMessage />
-                    <span>Messages</span>
-                  </NavLink>
-              </li>
-              <li
-                className={currentLink === 8 ? "active" : "none"}
-                onClick={() => changerArch()}
-              >
-                <NavLink className="linkin" to="/archives" end>
-                    <FaArchive />
-                    <span>Archives</span>
-                  </NavLink>
-              </li>
           </ul>
         </div>
       </ResponsiveNav>
     </>
   );
 }
+
 const Section = styled.section`
-  position: fixed;
-  left: 0;
-  border-top-right-radius: 53px;
-  border-bottom-right-radius: 53px;
-   background-color: rgb(231, 218, 193);
-  height: 100vh;
-  width: 18vw;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 2rem 0;
-  gap: 2rem;
-  .top {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: rgb(231, 218, 193);
+    height: 100vh;
+    width: 18vw;
     display: flex;
     flex-direction: column;
+    padding-bottom: 2rem;
+    padding-top: 2rem;
     gap: 2rem;
-    width: 100%;
-    .toggle {
-      display: none;
-    }
-    .brandSide a{
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 2rem;
-      text-decoration: none;
-      svg {
-        color: #fe7a3f;
-        font-size: 3rem;
-      }
-      span {
-        font-size: 2rem;
-        color: #fe7a3f;
-        font-weight:bold;
-      }
-    }
-    .links {
-      display: flex;
-      justify-content: center;
-      ul {
-        list-style-type: none;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    .top {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
-        li {
-          border-radius: 0.6rem;
-          &:hover {
-            background-color: #ececec;
-            .linkin {
-              color: #fe7a3f;
+        gap: 2rem;
+        width: 100%;
+
+        .toggle {
+            display: none;
+        }
+
+        .brandSide a {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            text-decoration: none;
+
+            svg {
+                color: chocolate;
+                font-size: 3rem;
             }
-          }
-          .linkin {
-            padding: 0.6rem 1rem;
+
+            span {
+                font-size: 2rem;
+                color: chocolate;
+                font-weight: bold;
+            }
+        }
+
+        .links {
+            display: flex;
+            justify-content: center;
+            margin-left: -20px;
+
+            ul {
+                list-style-type: none;
+                display: flex;
+                margin: auto;
+                flex-direction: column;
+                gap: 1rem;
+
+                li {
+                    border-radius: 0.6rem;
+
+                    &:hover {
+                        background-color: #ececec;
+
+                        .linkin {
+                            color: chocolate;
+                        }
+                    }
+
+                    .linkin {
+                        padding: 0.6rem 1rem;
+                        text-decoration: none;
+                        border-radius: 0.6rem;
+                        display: flex;
+                        gap: 1rem;
+                        color: #888888;
+                        font-weight: bold;
+                    }
+                }
+
+                .active {
+                    background-color: #ececec;
+
+                    .linkin {
+                        color: #fe7a3f;
+                        border-radius: 0.6rem;
+                    }
+                }
+            }
+        }
+    }
+
+    .logout {
+        padding: 0.6rem 1rem;
+        border-radius: 0.6rem;
+        font-weight: bold;
+
+        &:hover {
+            background-color: #da0037;
+            color: black;
+        }
+
+        .linkin {
             text-decoration: none;
             display: flex;
-            gap: 1rem;
+            align-items: center;
+            justify-content: flex-start;
             color: grey;
-            font-weight:bold;
-          }
         }
-        .active{
-          background-color: #ececec;
-          .linkin {
-            color: #fe7a3f;
-            border-radius: 0.6rem;
-          }
+    }
+
+    @media screen and (min-width: 100px) and (max-width: 1080px) {
+        position: initial;
+        width: 100%;
+        height: max-content;
+        padding: 1rem;
+        .top {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1rem;
+
+            .toggle {
+                display: flex;
+                flex-direction: row;
+                gap: 0.5rem;
+                color: #121212;
+                align-items: center;
+                z-index: 99;
+
+                //.menu {
+                //    color: chocolate;
+                //    font-size: 1.2rem;
+                //}
+            }
+            .menu {
+                color: chocolate;
+                font-size: 1.2rem;
+            }
+
+            .brandSide a {
+                gap: 1rem;
+
+                svg {
+                    font-size: 2rem;
+                }
+
+                span {
+                    font-size: 1rem;
+                }
+            }
         }
-      }
-    }
-  }
-  .logout {
-    padding: 0.3rem 1rem;
-    border-radius: 0.6rem;
-    font-weight:bold;
-    margin-bottom:20px;
-    &:hover {
-      background-color: #da0037;
-      color: black;
-    }
-    .linkin {
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      color: grey;
-    }
-  }
-  @media screen and (min-width: 100px) and (max-width: 1080px) {
-    position: initial;
-    width: 100%;
-    height: max-content;
-    padding: 1rem;
-    .top {
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 1rem;
-      .toggle {
-        display: block;
-        color: black;
-        z-index: 99;
-        svg {
-          font-size: 1.4rem;
+
+        .top > .links,
+        .logout {
+            display: none;
         }
-      }
-      .brand {
-        gap: 1rem;
-        justify-content: flex-start;
-      }
     }
-    .top > .links,
-    .logout {
-      display: none;
-    }
-  }
 `;
 
 const ResponsiveNav = styled.div`
@@ -429,13 +430,6 @@ const ResponsiveNav = styled.div`
           gap: 1rem;
           color:black;
          
-        }
-      }
-      .active {
-        background-color: #fe7a3f;
-        .linkin {
-          border-radius: 0.6rem;
-          color: black;
         }
       }
     }

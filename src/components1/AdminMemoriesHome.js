@@ -46,7 +46,7 @@ export default function DepartementsList() {
   });
 
   return (
-    <div>
+    <div className="content-box">
       <Sidebar />
       <Navbar />
       <div

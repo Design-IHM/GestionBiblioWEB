@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
-import login from "../../src/assets/img/login.jpg"
+import login from "../assets/img/login.jpg"
 import {BookHalf} from "react-bootstrap-icons";
 
 const validateEmail = (email) => {
