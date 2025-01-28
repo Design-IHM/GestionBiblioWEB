@@ -123,13 +123,10 @@ input:focus, textarea:focus, select:focus {
   outline: none;
 }
 
-<<<<<<< HEAD
-=======
 .content-box {
   margin-left: 18vw;
 }
 
->>>>>>> cabe8f3d1de6f3e9ca11bf9340f5336c9452ae46
 @media (min-width:1700px) {
 	main .container {
 		max-width: 100%;

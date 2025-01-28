@@ -4,6 +4,7 @@ import { Button, Modal, Form } from 'react-bootstrap';
 import { FaBook, FaPlus } from 'react-icons/fa';
 import firebase from '../metro.config';
 import ReactJsAlert from "reactjs-alert";
+
 export default function DepartementMemoriesBtn(props) {
   const [isHovered, setIsHovered] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -122,7 +123,8 @@ export default function DepartementMemoriesBtn(props) {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    margin: '0 auto', // Centrer horizontalement
+    margin: '0 auto',
+    // Centrer horizontalement
   };
 
   const buttonContainerStyle = {

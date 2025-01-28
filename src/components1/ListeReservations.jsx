@@ -27,23 +27,6 @@ function ListeReservations() {
     getData();
   }, [getData]);
 
-<<<<<<< HEAD
- /* function updates(dos) {
-    const ref = firebase.firestore().collection("BiblioUser");
-    if (dos.etat === 'bloc') {
-      ref.doc(dos.matricule).update({ etat: 'ras' }).catch((err) => {
-        console.log(err);
-      });
-    }
-
-    if (dos.etat !== 'bloc') {
-      ref.doc(dos.matricule).update({ etat: 'bloc' }).catch((err) => {
-        console.log(err);
-      });
-    }
-  }*/
-=======
->>>>>>> cabe8f3d1de6f3e9ca11bf9340f5336c9452ae46
 
   const d = new Date();
 
@@ -86,11 +69,7 @@ function ListeReservations() {
   const { darkMode } = useContext(UserContext);
 
   return (
-<<<<<<< HEAD
-    <>
-=======
     <div className="content-box">
->>>>>>> cabe8f3d1de6f3e9ca11bf9340f5336c9452ae46
       <Sidebar />
       <Navbar />
       <Section>
@@ -172,11 +151,7 @@ function ListeReservations() {
             </tbody>
           </Table> : <Loading />}
       </Section>
-<<<<<<< HEAD
-    </>
-=======
     </div>
->>>>>>> cabe8f3d1de6f3e9ca11bf9340f5336c9452ae46
   );
 }
 

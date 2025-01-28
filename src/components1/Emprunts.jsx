@@ -87,11 +87,7 @@ function Emprunts() {
   const { darkMode } = useContext(UserContext);
 
   return (
-<<<<<<< HEAD
-    <>
-=======
     <div className="content-box">
->>>>>>> cabe8f3d1de6f3e9ca11bf9340f5336c9452ae46
       <Sidebar />
       <Navbar />
       <Section>
@@ -173,11 +169,7 @@ function Emprunts() {
             </tbody>
           </Table> : <Loading />}
       </Section>
-<<<<<<< HEAD
-    </>
-=======
     </div>
->>>>>>> cabe8f3d1de6f3e9ca11bf9340f5336c9452ae46
   );
 }
 
