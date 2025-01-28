@@ -87,7 +87,7 @@ function Emprunts() {
   const { darkMode } = useContext(UserContext);
 
   return (
-    <div className="content-box">
+    <div className="md:content-box">
       <Sidebar />
       <Navbar />
       <Section>

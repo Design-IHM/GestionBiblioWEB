@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useContext } from "react";
+import React, { useState,useContext } from "react";
 import styled from "styled-components";
 import { BsListUl } from "react-icons/bs";
 import { FaUser } from "react-icons/fa";
@@ -11,7 +11,6 @@ import { RiSunFill, RiMoonFill } from "react-icons/ri";
 import { VscChromeClose } from "react-icons/vsc";
 import { HiUsers } from "react-icons/hi";
 import { AiFillMessage } from "react-icons/ai";
-import scrollreveal from "scrollreveal";
 import { NavLink } from "react-router-dom";
 import { UserContext } from "../App";
 
@@ -62,9 +61,7 @@ export default function Sidebar() {
     setSearchPage("archives")
   }
 
-
   const { darkMode, toggleDarkMode } = useContext(UserContext);
-
 
   return (
     <>
@@ -242,123 +239,142 @@ export default function Sidebar() {
 }
 
 const Section = styled.section`
-  position: fixed;
-  top: 0;
-  left: 0;
-  background-color: rgb(231, 218, 193);
-  height: 100vh;
-  width: 18vw;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 2rem 0;
-  gap: 2rem;
-  .top {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: rgb(231, 218, 193);
+    height: 100vh;
+    width: 18vw;
     display: flex;
     flex-direction: column;
+    //align-items: center;
+    //justify-content: space-between;
+    padding-bottom: 2rem;
+    padding-top: 2rem;
     gap: 2rem;
-    width: 100%;
-    .toggle {
-      display: none;
-    }
-    .brandSide a{
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 2rem;
-      text-decoration: none;
-      svg {
-        color: #fe7a3f;
-        font-size: 3rem;
-      }
-      span {
-        font-size: 2rem;
-        color: #fe7a3f;
-        font-weight:bold;
-      }
-    }
-    .links {
-      display: flex;
-      justify-content: center;
-      ul {
-        list-style-type: none;
+
+    .top {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
-        li {
-          border-radius: 0.6rem;
-          &:hover {
-            background-color: #ececec;
-            .linkin {
-              color: #fe7a3f;
+        gap: 2rem;
+        width: 100%;
+
+        .toggle {
+            display: none;
+        }
+
+        .brandSide a {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            text-decoration: none;
+
+            svg {
+                color: chocolate;
+                font-size: 3rem;
             }
-          }
-          .linkin {
-            padding: 0.6rem 1rem;
+
+            span {
+                font-size: 2rem;
+                color: chocolate;
+                font-weight: bold;
+            }
+        }
+
+        .links {
+            display: flex;
+            justify-content: center;
+            margin-left: -20px;
+
+            ul {
+                list-style-type: none;
+                display: flex;
+                margin: auto;
+                flex-direction: column;
+                gap: 1rem;
+
+                li {
+                    border-radius: 0.6rem;
+
+                    &:hover {
+                        background-color: #ececec;
+
+                        .linkin {
+                            color: chocolate;
+                        }
+                    }
+
+                    .linkin {
+                        padding: 0.6rem 1rem;
+                        text-decoration: none;
+                        border-radius: 0.6rem;
+                        display: flex;
+                        gap: 1rem;
+                        color: #888888;
+                        font-weight: bold;
+                    }
+                }
+
+                //.active {
+                //    background-color: #ececec;
+                //
+                //    .linkin {
+                //        color: #fe7a3f;
+                //        border-radius: 0.6rem;
+                //    }
+                //}
+            }
+        }
+    }
+
+    .logout {
+        padding: 0.6rem 1rem;
+        border-radius: 0.6rem;
+        font-weight: bold;
+
+        &:hover {
+            background-color: #da0037;
+            color: black;
+        }
+
+        .linkin {
             text-decoration: none;
             display: flex;
-            gap: 1rem;
+            align-items: center;
+            justify-content: flex-start;
             color: grey;
-            font-weight:bold;
-          }
         }
-        .active{
-          background-color: #ececec;
-          .linkin {
-            color: #fe7a3f;
-            border-radius: 0.6rem;
-          }
+    }
+
+    @media screen and (min-width: 100px) and (max-width: 1080px) {
+        position: initial;
+        width: 100%;
+        height: max-content;
+        padding: 1rem;
+        .top {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1rem;
+
+            .toggle {
+                display: block;
+                color: black;
+                z-index: 99;
+
+                svg {
+                    font-size: 1.4rem;
+                }
+            }
         }
-      }
-    }
-  }
-  .logout {
-    padding: 0.3rem 1rem;
-    border-radius: 0.6rem;
-    font-weight:bold;
-    margin-bottom:20px;
-    &:hover {
-      background-color: #da0037;
-      color: black;
-    }
-    .linkin {
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      color: grey;
-    }
-  }
-  @media screen and (min-width: 100px) and (max-width: 1080px) {
-    position: initial;
-    width: 100%;
-    height: max-content;
-    padding: 1rem;
-    .top {
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 1rem;
-      .toggle {
-        display: block;
-        color: black;
-        z-index: 99;
-        svg {
-          font-size: 1.4rem;
+
+        .top > .links,
+        .logout {
+            display: none;
         }
-      }
-      .brand {
-        gap: 1rem;
-        justify-content: flex-start;
-      }
     }
-    .top > .links,
-    .logout {
-      display: none;
-    }
-  }
 `;
 
 const ResponsiveNav = styled.div`
@@ -396,13 +412,6 @@ const ResponsiveNav = styled.div`
           gap: 1rem;
           color:black;
          
-        }
-      }
-      .active {
-        background-color: #fe7a3f;
-        .linkin {
-          border-radius: 0.6rem;
-          color: black;
         }
       }
     }
