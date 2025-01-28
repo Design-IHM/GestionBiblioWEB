@@ -70,24 +70,25 @@ export default function Sidebar() {
           <div className="brandSide">
             <a href="/accueil">
               <GiBookPile />
-              <span>ENSPY</span>
+              <span className="text-sm md:text-md">ENSPY</span>
             </a>
           </div>
 
           <div className="toggle">
+            <div className="darkModeToggle" onClick={toggleDarkMode}>
+              {darkMode ? <RiSunFill/> : <RiMoonFill/>}
+            </div>
             {navbarState ? (
-              <VscChromeClose onClick={() => setNavbarState(false)} />
+              <VscChromeClose className="menu" onClick={() => setNavbarState(false)}/>
             ) : (
               <GiHamburgerMenu
+                className="menu"
                 onClick={(e) => {
                   e.stopPropagation();
                   setNavbarState(true);
                 }}
               />
             )}
-            <div className="darkModeToggle" onClick={toggleDarkMode}>
-              {darkMode ? <RiSunFill />  : <RiMoonFill />}
-            </div>
           </div>
 
           <div className="links">
@@ -247,8 +248,6 @@ const Section = styled.section`
     width: 18vw;
     display: flex;
     flex-direction: column;
-    //align-items: center;
-    //justify-content: space-between;
     padding-bottom: 2rem;
     padding-top: 2rem;
     gap: 2rem;
@@ -360,12 +359,32 @@ const Section = styled.section`
             padding: 0 1rem;
 
             .toggle {
-                display: block;
-                color: black;
+                display: flex;
+                flex-direction: row;
+                gap: 0.5rem;
+                color: #121212;
+                align-items: center;
                 z-index: 99;
 
+                //.menu {
+                //    color: chocolate;
+                //    font-size: 1.2rem;
+                //}
+            }
+            .menu {
+                color: chocolate;
+                font-size: 1.2rem;
+            }
+
+            .brandSide a {
+                gap: 1rem;
+
                 svg {
-                    font-size: 1.4rem;
+                    font-size: 2rem;
+                }
+
+                span {
+                    font-size: 1rem;
                 }
             }
         }

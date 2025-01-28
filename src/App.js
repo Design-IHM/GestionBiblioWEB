@@ -137,7 +137,6 @@ export default function App() {
           </Router>
         </Div>
       </UserContext.Provider>
-      ;
     </>
   );
 }
