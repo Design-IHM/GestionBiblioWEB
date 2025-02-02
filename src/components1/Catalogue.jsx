@@ -119,6 +119,27 @@ export default function Catalogue() {
         getData();
     }, [getData]);
 
+    // Pagination
+    const itemsPerPage = 6;
+    const [currentPage, setCurrentPage] = useState(1);
+    const totalPages = Math.ceil(data.length / itemsPerPage);
+
+    const filteredData = data.filter((doc) => {
+        const docName = doc.name || "";
+        return docName.toUpperCase().includes(searchWord.toUpperCase());
+    });
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const displayedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+
+    function nextPage() {
+        if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+    }
+
+    function prevPage() {
+        if (currentPage > 1) setCurrentPage(currentPage - 1);
+    }
+
     // Add a new document in collection "cities" with ID 'LA'
     const resUpdate = async function () {
         await firebase.firestore().collection('BiblioInformatique').doc(nomBD).set({
@@ -146,104 +167,113 @@ export default function Catalogue() {
 
     return (
         <div className="content-box">
-            <Sidebar />
-            <Navbar />
-            <h1 style={{ textAlign: 'center', color: 'gray', marginTop: '10px', marginBottom: '20px' }}>Liste des Livres du {departement}</h1>
-            <Section>
-                {loader ? (
-                    data.map((doc, index) => {
-                        if (doc.name.toUpperCase().includes(searchWord.toUpperCase())) {
-                            return (
-                                <Card key={index} onClick={() => openModal(doc)} style={{ backgroundcolor: 'white' }}>
-                                    <CardContent>
-                                        <h3 style={{ textAlign: 'center', color: 'chocolate', marginTop: '10px', marginBottom: '20px' }}>{doc.name}</h3>
-                                        <h6 style={{ textAlign: 'center', color: 'black', marginTop: '10px' }}>Département : {doc.cathegorie}</h6>
-                                        <h6 style={{ textAlign: 'center', color: doc.exemplaire === 0 ? 'red' : 'green', marginTop: '10px', marginBottom: '20px' }}>Exemplaire disponible: {doc.exemplaire}</h6>
-                                    </CardContent>
-                                    <CardImage>
-                                        <a href={doc.image}>
-                                            <img src={doc.image} alt="logo" />
-                                        </a>
-                                    </CardImage>
-                                </Card>
-                            );
-                        }
-                        return null;
-                    })
-                ) : <Loading />}
-                <div>
-                    <Modal
-                        isOpen={modalIsOpen}
-                        onAfterOpen={afterOpenModal}
-                        onRequestClose={closeModal}
-                        style={customStyles}
-                        contentLabel="Example Modal"
-                    >
-                        <button onClick={closeModal} style={closeStyle}><GrFormClose /></button>
-                        <h2 ref={(_subtitle) => (subtitle = _subtitle)}>Modifier le document</h2>
-                        <form ref={formRef} style={formClass}>
-                            <label className="labelForm" style={labelForm} htmlFor="name">Entrer le nouveau nom</label>
-                            <input style={labelInput} id="name" type="text" placeholder={name} name="name" value={name} onChange={(e) => setName(e.target.value)} />
-                            <label className="labelForm" style={labelForm} htmlFor="exemp">Entrer le nouveau nombre d'exemplaire</label>
-                            <input style={labelInput} id="exemp" type="text" placeholder="Nouveau nombre exemplaire..." name="exemplaire" value={exemplaire} onChange={(e) => setExemplaire(e.target.value)} />
-                            <label className="labelForm" style={labelForm} htmlFor="class">Entrer la nouvelle matière</label>
-                            <select style={labelInput} id="class" type="text" placeholder="Nouvelle catégorie..." name='cathegorie' value={cathegorie} onChange={(e) => setCathegorie(e.target.value)} >
-                                <option value=''></option>
-                                <option value='Mathematique'>Mathematique</option>
-                                <option value='Physique'>Physique</option>
-                                <option value='Chimie'>Chimie</option>
-                                <option value='Genie Informatique'>Genie Informatique</option>
-                                <option value="Genie Civile">Genie Civile</option>
-                                <option value='Genie Electrique'>Genie Electrique</option>
-                                <option value='Genie Mecanique'>Genie Mecanique</option>
-                                <option value='Genie Telecom'>Genie Telecom</option>
-                                <option value='Genie Electrique'>Genie Electrique</option>
-                                <option value='Memoire GI'>Memoire Genie Informatique</option>
-                                <option value='Memoire GC'>Memoire Genie Civile</option>
-                                <option value='Memoire GELE'>Memoire Genie Electrique</option>
-                                <option value='Memoire GET'>Memoire Genie Telecom</option>
-                                <option value='Memoire GIndus'>Memoire Genie Industriel</option>
-                                <option value='Memoire GM'>Memoire Genie Mecanique</option>
-                            </select>
-                            <label className="labelForm" style={labelForm} htmlFor="salle">Entrer son nouveau numero de salle</label>
-                            <select style={labelInput} id="salle" type="text" placeholder="Nouvelle salle..." name="salle" value={salle} onChange={(e) => setSalle(e.target.value)}>
-                                <option value=''></option>
-                                <option value='1'>1</option>
-                                <option value='2'>2</option>
-                                <option value='3'>3</option>
-                                <option value='4'>4</option>
-                            </select>
-                            <label className="labelForm" style={labelForm} htmlFor="etagere">Entrer la position de l'étagère</label>
-                            <input style={labelInput} id="etagere" type="text" placeholder="Nouvelle étagère..." name="etagere" value={etagere} onChange={(e) => setEtagere(e.target.value)} />
-                            <label className="labelForm" style={labelForm} htmlFor="desc">Entrer la nouvelle description</label>
-                            <textarea style={labelInput} id="etagere" type="desc" placeholder="Nouvelle description..." name="description" value={desc} onChange={(e) => setDesc(e.target.value)} />
-                            <ReactJsAlert
-                                status={status} // true or false
-                                type={type} // success, warning, error, info
-                                title={title}
-                                quotes={true}
-                                quote=""
-                                Close={() => setStatus(false)}
-                            />
-                            <div className="btn-sub" style={{ display: 'flex', gap: '160px' }}>
-                                <button type='button' onClick={resUpdate} className='btn-btn-primary' style={{ display: 'flex', borderRadius: 5, textAlign: 'center', padding: 10, color: 'white', background: 'green', width: 100 }}>Modifier</button>
-                                <button type='button' onClick={deleteDoc} className='btn-btn-primary' style={{ display: 'flex', borderRadius: 5, textAlign: 'center', padding: 10, color: 'white', background: 'red', width: 100 }}>Supprimer</button>
-                            </div>
-                        </form>
-                    </Modal>
-                </div>
-                <Pagination className="pagination justify-content-center">
-                    <Pagination.Prev />
-                    <Pagination.Item>{1}</Pagination.Item>
-                    <Pagination.Item>{2}</Pagination.Item>
-                    <Pagination.Item>{3}</Pagination.Item>
-                    <Pagination.Item>{4}</Pagination.Item>
-                    <Pagination.Item>{5}</Pagination.Item>
-                    <Pagination.Item>{6}</Pagination.Item>
-                    <Pagination.Item>{7}</Pagination.Item>
-                    <Pagination.Next />
-                </Pagination>
-            </Section>
+             <Container>
+                <Sidebar />
+                <Navbar />
+                <MainContent>
+                    <h1 style={{ textAlign: 'center', color: 'gray', marginTop: '10px', marginBottom: '20px' }}>Liste des Livres du {departement}</h1>
+                    <Section>
+                    {loader ? (
+                        displayedData.map((doc, index) => {
+                            if (doc.name.toUpperCase().includes(searchWord.toUpperCase())) {
+                                return (
+                                    <Card key={index} onClick={() => openModal(doc)} style={{ backgroundColor: 'white' }}>
+                                        <CardContent>
+                                            <h3 style={{ textAlign: 'center', color: 'chocolate', marginTop: '10px', marginBottom: '20px' }}>{doc.name}</h3>
+                                            <h6 style={{ textAlign: 'center', color: 'black', marginTop: '10px' }}>Département : {doc.cathegorie}</h6>
+                                            <h6 style={{ textAlign: 'center', color: doc.exemplaire === 0 ? 'red' : 'green', marginTop: '10px', marginBottom: '20px' }}>Exemplaire disponible: {doc.exemplaire}</h6>
+                                        </CardContent>
+                                        <CardImage>
+                                            <a href={doc.image}>
+                                                <img src={doc.image} alt="logo" />
+                                            </a>
+                                        </CardImage>
+                                    </Card>
+                                );
+                            }
+                            return null;
+                        })
+                    ) : <Loading />}
+                    </Section>
+                    {filteredData.length > itemsPerPage && (
+                        <PaginationContainer>
+                            <PaginationButton onClick={prevPage} disabled={currentPage === 1}>
+                                Précédent
+                            </PaginationButton>
+                            <PageIndicator>Page {currentPage} / {totalPages}</PageIndicator>
+                            <PaginationButton onClick={nextPage} disabled={currentPage === totalPages}>
+                                Suivant
+                            </PaginationButton>
+                        </PaginationContainer>
+                    )}
+                    <div>
+                        <Modal
+                            isOpen={modalIsOpen}
+                            onAfterOpen={afterOpenModal}
+                            onRequestClose={closeModal}
+                            style={customStyles}
+                            contentLabel="Example Modal"
+                        >
+                            <button onClick={closeModal} style={closeStyle}><GrFormClose /></button>
+                            <h2 ref={(_subtitle) => (subtitle = _subtitle)}>Modifier le document</h2>
+                            <form ref={formRef} style={formClass}>
+                                <label className="labelForm" style={labelForm} htmlFor="name">Entrer le nouveau nom</label>
+                                <input style={labelInput} id="name" type="text" placeholder={name} name="name" value={name} onChange={(e) => setName(e.target.value)} />
+                                <label className="labelForm" style={labelForm} htmlFor="exemp">Entrer le nouveau nombre d'exemplaire</label>
+                                <input style={labelInput} id="exemp" type="text" placeholder="Nouveau nombre exemplaire..." name="exemplaire" value={exemplaire} onChange={(e) => setExemplaire(e.target.value)} />
+                                <label className="labelForm" style={labelForm} htmlFor="class">Entrer la nouvelle matière</label>
+                                <select style={labelInput} id="class" type="text" placeholder="Nouvelle catégorie..." name='cathegorie' value={cathegorie} onChange={(e) => setCathegorie(e.target.value)} >
+                                    <option value=''></option>
+                                    <option value='Mathematique'>Mathematique</option>
+                                    <option value='Physique'>Physique</option>
+                                    <option value='Chimie'>Chimie</option>
+                                    <option value='Genie Informatique'>Genie Informatique</option>
+                                    <option value="Genie Civile">Genie Civile</option>
+                                    <option value='Genie Electrique'>Genie Electrique</option>
+                                    <option value='Genie Mecanique'>Genie Mecanique</option>
+                                    <option value='Genie Telecom'>Genie Telecom</option>
+                                    <option value='Genie Electrique'>Genie Electrique</option>
+                                    <option value='Memoire GI'>Memoire Genie Informatique</option>
+                                    <option value='Memoire GC'>Memoire Genie Civile</option>
+                                    <option value='Memoire GELE'>Memoire Genie Electrique</option>
+                                    <option value='Memoire GET'>Memoire Genie Telecom</option>
+                                    <option value='Memoire GIndus'>Memoire Genie Industriel</option>
+                                    <option value='Memoire GM'>Memoire Genie Mecanique</option>
+                                </select>
+                                <label className="labelForm" style={labelForm} htmlFor="salle">Entrer son nouveau numero de salle</label>
+                                <select style={labelInput} id="salle" type="text" placeholder="Nouvelle salle..." name="salle" value={salle} onChange={(e) => setSalle(e.target.value)}>
+                                    <option value=''></option>
+                                    <option value='1'>1</option>
+                                    <option value='2'>2</option>
+                                    <option value='3'>3</option>
+                                    <option value='4'>4</option>
+                                </select>
+                                <label className="labelForm" style={labelForm} htmlFor="etagere">Entrer la position de l'étagère</label>
+                                <input style={labelInput} id="etagere" type="text" placeholder="Nouvelle étagère..." name="etagere" value={etagere} onChange={(e) => setEtagere(e.target.value)} />
+                                <label className="labelForm" style={labelForm} htmlFor="desc">Entrer la nouvelle description</label>
+                                <textarea style={labelInput} id="etagere" type="desc" placeholder="Nouvelle description..." name="description" value={desc} onChange={(e) => setDesc(e.target.value)} />
+                                <ReactJsAlert
+                                    status={status} // true or false
+                                    type={type} // success, warning, error, info
+                                    title={title}
+                                    quotes={true}
+                                    quote=""
+                                    Close={() => setStatus(false)}
+                                />
+                                <div className="btn-sub" style={{ display: 'flex', gap: '160px' }}>
+                                    <button type='button' onClick={resUpdate} className='btn-btn-primary' style={{ display: 'flex', borderRadius: 5, textAlign: 'center', padding: 10, color: 'white', background: 'green', width: 100 }}>Modifier</button>
+                                    <button type='button' onClick={deleteDoc} className='btn-btn-primary' style={{ display: 'flex', borderRadius: 5, textAlign: 'center', padding: 10, color: 'white', background: 'red', width: 100 }}>Supprimer</button>
+                                </div>
+                            </form>
+                        </Modal>
+                    </div>
+                
+                </MainContent >
+             </Container>
+           
+            
+            
+           
         </div>
     );
 }
@@ -306,7 +336,7 @@ const Card = styled.div`
     padding: 1rem;
     margin: 1rem;
     transition: transform 0.3s ease;
-    backgroun-color:white;
+    background-color: white;
 
     &:hover {
         transform: scale(1.05);
@@ -330,4 +360,41 @@ const CardImage = styled.div`
         height: 100px;
         border-radius: 10px;
     }
+`;
+
+const PaginationContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px;
+`;
+
+const PaginationButton = styled.button`
+    background-color: chocolate;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+
+    &:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+`;
+
+const PageIndicator = styled.span`
+    font-size: 1rem;
+    color: #333;
+`;
+
+const MainContent = styled.div`
+  padding: 2rem;
+`;
+
+const Container = styled.div`
+  min-height: 100vh;
 `;

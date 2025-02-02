@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import styled from "styled-components";
 import { UserContext } from "../App";
-import { useLocation } from 'react-router-dom';  // Importation de useLocation
+import { useLocation } from 'react-router-dom';
 import Modal from 'react-modal';
 import { GrFormClose } from 'react-icons/gr';
 import Sidebar from "../components1/Sidebar";
@@ -10,19 +10,37 @@ import Loading from "./Loading";
 
 export default function MemoireParDepartement() {
   const { searchWord } = useContext(UserContext);
-  const { state } = useLocation();  // Utilisation de useLocation pour récupérer les données
+  const { state } = useLocation();
   const [modalIsOpen, setIsOpen] = useState(false);
   const [selectedMemoire, setSelectedMemoire] = useState(null);
-
+  
   const memoires = state ? state.memories : [];
   const departement = state ? state.departement : ""; 
-  
-  
 
+  // Pagination
+  const itemsPerPage = 6;
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.ceil(memoires.length / itemsPerPage);
+
+  const filteredMemoires = memoires.filter((doc) => {
+    const docName = doc.name || "";
+    return docName.toUpperCase().includes(searchWord.toUpperCase());
+  });
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const displayedMemoires = filteredMemoires.slice(startIndex, startIndex + itemsPerPage);
 
   function openModal(memoire) {
     setSelectedMemoire(memoire);
     setIsOpen(true);
+  }
+
+  function nextPage() {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  }
+
+  function prevPage() {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
   }
 
   const customStyles = {
@@ -48,32 +66,38 @@ export default function MemoireParDepartement() {
         <MainContent>
           <Title>Liste des Mémoires du {departement}</Title>
           <Section>
-            {memoires.length > 0 ? (
-              memoires
-                .filter((doc) => {
-                  const docName = doc.name || "";
-                  const search = searchWord || "";
-                  return docName.toUpperCase().includes(search.toUpperCase());
-                })
-                .map((doc, index) => (
-                  <Card key={index} onClick={() => openModal(doc)}>
-                    <CardContent>
-                      <ThemeTitle>{doc.theme}</ThemeTitle>
-                      <AuthorName>{doc.name}</AuthorName>
-                      <Department>Département : {doc.département}</Department>
-                      <Year>Année : {doc.annee}</Year>
-                    </CardContent>
-                    <CardImage>
-                      <a href={doc.image}>
-                        <img src={doc.image} alt="mémoire" />
-                      </a>
-                    </CardImage>
-                  </Card>
-                ))
+            {displayedMemoires.length > 0 ? (
+              displayedMemoires.map((doc, index) => (
+                <Card key={index} onClick={() => openModal(doc)}>
+                  <CardContent>
+                    <ThemeTitle>Thème: {doc.theme}</ThemeTitle>
+                    <AuthorName> Etudiant: {doc.name}</AuthorName>
+                    <Department>Département : {doc.département}</Department>
+                    <Year>Année : {doc.annee}</Year>
+                  </CardContent>
+                  <CardImage>
+                    <a href={doc.image}>
+                      <img src={doc.image} alt="mémoire" />
+                    </a>
+                  </CardImage>
+                </Card>
+              ))
             ) : (
               <Loading />
             )}
           </Section>
+
+          {filteredMemoires.length > itemsPerPage && (
+            <PaginationContainer>
+              <PaginationButton onClick={prevPage} disabled={currentPage === 1}>
+                Précédent
+              </PaginationButton>
+              <PageIndicator>Page {currentPage} / {totalPages}</PageIndicator>
+              <PaginationButton onClick={nextPage} disabled={currentPage === totalPages}>
+                Suivant
+              </PaginationButton>
+            </PaginationContainer>
+          )}
 
           <Modal
             isOpen={modalIsOpen}
@@ -190,7 +214,36 @@ const CardImage = styled.div`
   }
 `;
 
-// Modal Styles
+// Pagination Styles
+const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+`;
+
+const PaginationButton = styled.button`
+  background-color: chocolate;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+`;
+
+const PageIndicator = styled.span`
+  font-size: 1rem;
+  color: #333;
+`;
+
 const CloseButton = styled.button`
   position: absolute;
   right: 1rem;

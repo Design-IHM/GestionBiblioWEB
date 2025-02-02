@@ -38,6 +38,7 @@
 
 .card {
     transition: transform 0.2s;
+   
 }
 
 .card:hover {
