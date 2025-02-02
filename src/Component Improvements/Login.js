@@ -66,7 +66,7 @@ const Login = () => {
               <BookHalf
                 className="book-icon"
               />
-              <span className="biblio-title">BIBIO ENSPY</span>
+              <span className="biblio-title">BIBLIO ENSPY</span>
             </h1>
             {validationError && (
               <p className="error-message">{validationError}</p>

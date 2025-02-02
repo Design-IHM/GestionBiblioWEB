@@ -53,7 +53,7 @@ export default function DepartementsList() {
         className="d-flex align-items-center justify-content-center mb-4 "
         
       >
-        <h1 className="mr-2 text-secondary">Administration des mémoires</h1>
+        <h1 className="mr-2 text-secondary" >Administration des mémoires</h1>
         <FaBook style={{ fontSize: '2rem' }} className='text-dark'/>
       </div>
       {departementRows}
