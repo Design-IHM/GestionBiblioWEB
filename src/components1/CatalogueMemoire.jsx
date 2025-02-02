@@ -5,7 +5,7 @@ import { UserContext } from "../App";
 import firebase from "../metro.config";
 import Modal from 'react-modal';
 import { GrFormClose } from 'react-icons/gr';
-import { FaBook, FaGraduationCap } from 'react-icons/fa';
+import {FaGraduationCap } from 'react-icons/fa';
 import Sidebar from "../components1/Sidebar";
 import Navbar from "../components1/Navbar";
 import Loading from "./Loading";
@@ -47,11 +47,13 @@ export default function CatalogueMemoire() {
   const ref = firebase.firestore().collection("Memoire");
 
   const getData = useCallback(() => {
+    
     if (departement) {
       ref.where("département", "==", departement).onSnapshot((querySnapshot) => {
         const items = [];
         querySnapshot.forEach((doc) => items.push(doc.data()));
         setData(items);
+        console.log("Mémoire récupérées :", items);
         setLoader(true);
       });
     } else {
@@ -59,12 +61,15 @@ export default function CatalogueMemoire() {
         const items = [];
         querySnapshot.forEach((doc) => items.push(doc.data()));
         setData(items);
+        console.log("Mémories récupérées :", items);
         setLoader(true);
       });
     }
   }, [ref, departement]);
 
   useEffect(() => {
+    console.log("Département reçu :", departement);
+
     getData();
   }, [getData]);
 
@@ -98,6 +103,10 @@ export default function CatalogueMemoire() {
     await ref.doc(matricule).delete();
     setIsOpen(false);
   };
+
+ 
+
+console.log("Département reçu :", departement); // Ajoute ce log pour vérifier
 
   return (
     <div className="content-box">

@@ -33,6 +33,7 @@ import Ajoutermémoire from "./components1/ajouterMemoire";
 import CatalogueMemoire from "./components1/CatalogueMemoire";
 import DepartementMemoriesBtn from "./Component Improvements/DepartementBooksBtn";
 import DepartementsList from "./Component Improvements/AdminBooksHome";
+import MemoireParDepartement from "./components1/MemoireParDepartement";
 
 
 export const UserContext = createContext();
@@ -93,6 +94,7 @@ export default function App() {
                 <Route path="/gestlivre" element={<Cat />} />
                 <Route path="/departement" element={<Dept />} />
                 <Route path="/departementMem" element={<AdminMemoriesHome />} />
+                <Route path="/memoireParDepartement" element={<MemoireParDepartement />} />
                 <Route path="/" element={<Login />} />
                 <Route
                   path="/registrationConfirmation"
@@ -124,7 +126,7 @@ export default function App() {
                 <Route path="/pagenation" element={<Pagenation />} />
                 <Route
                   path="/catalogueMemoire"
-                  element={<CatalogueMemoire />}
+                  element={<CatalogueMemoire/>}
                 />
                 <Route
                   path="/departementMemoriesBtn"

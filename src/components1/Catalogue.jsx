@@ -111,6 +111,7 @@ export default function Catalogue() {
                 setLoader(true);
             });
             setData(items);
+            console.log("Données récupérées :", items);
         });
     }, [ref, departement]);
 
