@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, {useState, useRef, useEffect} from "react";
 import { Button as BootstrapButton, Form, Row, Col, Container, Card } from "react-bootstrap";
 import ReactJsAlert from "reactjs-alert";
 import "./AjoutDoc.css";
@@ -16,19 +16,36 @@ export default function Ajoutermémoirec() {
     const [name, setName] = useState('')
     const [matricule, setMatricule] = useState('')
     const [theme, setTheme] = useState('')
-    const [département, setDépartement] = useState('');
+    const [departement, setDepartement] = useState('');
     const [annee, setAnnee] = useState('')
     const [etagere, setEtagere] = useState('')
     const [image, setImage] = useState('');
     const formRef = useRef()
     const navigate = useNavigate();
+    const [memories, setMemories] = useState([]);
 
+    useEffect(() => {
+        fetchMemories();
+    }, []);
+
+    // Récupérer les mémoires depuis Firebase
+    const fetchMemories = () => {
+        const ref = firebase.firestore().collection("Memoire");
+        ref.onSnapshot((querySnapshot) => {
+            const items = [];
+            querySnapshot.forEach((doc) => {
+                items.push(doc.data());
+            });
+            setMemories(items);
+            console.log(items);
+        });
+    };
     const res = async function () {
         await firebase.firestore().collection('Memoire').doc(matricule).set({
             name: name,
             matricule: matricule,
             theme: theme,
-            département: département,
+            departement: departement,
             annee: parseInt(annee),
             etagere: etagere,
             image: image,
@@ -44,14 +61,20 @@ export default function Ajoutermémoirec() {
         setStatus(true);
         setType("success");
         setTitle("Mémoire ajouté avec succès");
-        navigate("/catalogueMemoire", { state: { département: département } })
+        const filteredMemories = memories.filter((memoire) => memoire.departement === departement)
+        navigate('/memoireParDepartement', {
+            state: {
+                memories: filteredMemories,
+                departement: departement
+            }
+        });
     }
 
     const resetForm = () => {
         setName('');
         setMatricule('');
         setTheme('');
-        setDépartement('');
+        setDepartement('');
         setAnnee('');
         setEtagere('');
         setImage('');
@@ -142,17 +165,17 @@ export default function Ajoutermémoirec() {
                                 </FormGroup>
 
                                 <FormGroup>
-                                    <Label>Département</Label>
+                                    <Label>Departement</Label>
                                     <StyledSelect
-                                        value={département}
-                                        onChange={(e) => setDépartement(e.target.value)}
+                                        value={departement}
+                                        onChange={(e) => setDepartement(e.target.value)}
                                         required
                                     >
-                                        <option value='Genie Informatique'>Génie Informatique</option>
+                                        <option value='Génie informatique'>Génie Informatique</option>
                                         <option value="Genie Civile">Génie Civile</option>
-                                        <option value='Genie Electrique'>Génie Électrique</option>
-                                        <option value='Genie Mecanique'>Génie Mécanique/Industriel</option>
-                                        <option value='Genie Telecom'>Génie Télécom</option>
+                                        <option value='Génie électrique'>Génie Électrique</option>
+                                        <option value='Génie industriel mécanique'>Génie Mécanique/Industriel</option>
+                                        <option value='Génie Télécom'>Génie Télécom</option>
                                     </StyledSelect>
                                 </FormGroup>
 
