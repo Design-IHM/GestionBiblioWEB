@@ -1,107 +1,130 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Modal, Form } from 'react-bootstrap';
 import { FaBook, FaPlus } from 'react-icons/fa';
 import firebase from '../metro.config';
 import ReactJsAlert from "reactjs-alert";
+import { v4 as uuidv4 } from 'uuid';
 
 export default function DepartementMemoriesBtn(props) {
   const navigate = useNavigate();
-  const { nom_du_departement, myimage} = props ;
+  const { nom_du_departement, myimage } = props;
+  
+  // États pour le style et modal
   const [isHovered, setIsHovered] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [formValues, setFormValues] = useState({
-    titre: '',
-    nombreExemplaires: 0,
-    departement: nom_du_departement,
-    etagere: '',
-    description: '',
-  });
+  
+  // États pour le formulaire
+  const [name, setName] = useState('');
+  const [exemplaire, setExemplaire] = useState(0);
+  const [etagere, setEtagere] = useState('');
+  const [desc, setDesc] = useState('');
+  const [salle] = useState('');
+  const [typ] = useState('');
+  
+  // États pour l'image et le chargement
+  const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+  
+  // États pour l'alerte
+  const [status, setStatus] = useState(false);
+  const [type, setType] = useState("");
+  const [title, setTitle] = useState("");
 
   const handleVisualiser = () => {
-    // Redirection vers la page catalogue avec le nom du département
     navigate('/catalogue', { state: { departement: nom_du_departement } });
   };
 
   const handleAjouter = () => {
     setShowModal(true);
-    setFormValues({ ...formValues, departement: nom_du_departement });
   };
 
   const handleModalClose = () => {
     setShowModal(false);
+    resetForm();
   };
 
-  const handleFormSubmit = (event) => {
-    event.preventDefault();
-    // Traitez les valeurs du formulaire ici
-    console.log(formValues);
-    // Réinitialisez les valeurs du formulaire
-    setFormValues({
-      titre: '',
-      nombreExemplaires: 0,
-      departement: nom_du_departement,
-      etagere: '',
-      description: '',
-    });
-    // Fermez la modal
-    setShowModal(false);
+  const resetForm = () => {
+    setName('');
+    setExemplaire(0);
+    setEtagere('');
+    setDesc('');
+    setImage(null);
+    setImagePreview(null);
   };
 
-  //const handleInputChange = (event) => {
-    //const { name, value } = event.target;
-    //setFormValues({ ...formValues, [name]: value });
-  //};
-
-  const handleMouseEnter = () => {
-    setIsHovered(true);
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
   };
 
-  const handleMouseLeave = () => {
-    setIsHovered(false);
+  const uploadImage = async (file) => {
+    if (!file) return null;
+    
+    try {
+      const storageRef = firebase.storage().ref();
+      const fileRef = storageRef.child(`livres/${Date.now()}-${file.name}`);
+      await fileRef.put(file);
+      return await fileRef.getDownloadURL();
+    } catch (error) {
+      console.error("Erreur lors de l'upload de l'image:", error);
+      throw error;
+    }
   };
-  const [name, setName] = useState('')
-  //const [catégorie, setCatégorie] = useState('')
-  const [setCathegorie] = useState('');
-  const [desc, setDesc] = useState('')
-  const [etagere, setEtagere] = useState('')
-  const [exemplaire, setExemplaire] = useState(0)
-  const [image, setImage] = useState(null)
- // const [pdf, setPdf] = useState(null)
-  //const [setUrl] = useState(null)
-  const [salle] = useState('')
-  const [typ] = useState('')
-  //const formRef = useRef()
 
- /* const handleChangeImage = (e) => {
-      if (e.target.files[0]) {
-          setImage(e.target.files[0])
-          handleSumit()
-      }
-  }*/
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!image) {
+      setStatus(true);
+      setType("error");
+      setTitle("Veuillez sélectionner une image");
+      return;
+    }
 
-  /*const handleSumit = (e) => {
+    setLoading(true);
 
-      const imageRef = ref(storage, `images/${image.name + v4()}`)
-      //const pdfRef = ref(storage, `files/${image.name}`)
+    try {
+      const imageUrl = await uploadImage(image);
+      
+      await firebase.firestore().collection('BiblioInformatique').doc(name).set({
+        name: name,
+        exemplaire: parseInt(exemplaire),
+        etagere: etagere,
+        salle: salle,
+        image: imageUrl,
+        type: typ,
+        nomBD: name,
+        cathegorie: nom_du_departement,
+        desc: desc,
+        commentaire: [
+          {
+            heure: new Date(),
+            nomUser: '',
+            texte: '',
+            note: 0
+          }
+        ]
+      });
 
-      uploadBytes(imageRef, image).then(() => {
-          getDownloadURL(imageRef).then((url) => {
-              setUrl(url)
-          })
-              .catch((error) => {
-                  console.log(error.message, "error getting the image url")
-              })
-          setImage(null)
-      }).catch((error) => {
-          console.log(error.message)
-      })
+      setStatus(true);
+      setType("success");
+      setTitle("Document ajouté avec succès");
+      handleModalClose();
+    } catch (error) {
+      console.error("Erreur lors de l'enregistrement:", error);
+      setStatus(true);
+      setType("error");
+      setTitle("Erreur lors de l'enregistrement du document");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  }*/
-
- 
-  
   const cardStyle = {
     backgroundImage: `url(${myimage})`,
     backgroundSize: 'cover',
@@ -116,10 +139,9 @@ export default function DepartementMemoriesBtn(props) {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    margin: '0 auto', // Centrer horizontalement
-    borderradius:'45px',
+    margin: '0 auto',
+    borderRadius: '45px',
   };
-
 
   const buttonContainerStyle = {
     display: 'flex',
@@ -143,13 +165,12 @@ export default function DepartementMemoriesBtn(props) {
 
   const buttonVisualiserStyle = {
     width: '100px',
-    backgroundColor: '#fe7a3f', // Couleur bleue pour le bouton "Visualiser"
+    backgroundColor: '#fe7a3f',
     borderColor: 'transparent',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-around',
     padding: '5px',
-
   };
 
   const iconStyle = {
@@ -164,145 +185,133 @@ export default function DepartementMemoriesBtn(props) {
   const bookIconStyle1 = {
     fontSize: '40px',
     marginRight: '10px',
-    color:"gray",
+    color: "gray",
     marginBottom: '10px',
-    
   };
-  
-  //const [setInputs] = useState({});
-
-  /*const handleChange = (event) => {
-      const name = event.target.name;
-      const value = event.target.value;
-
-
-      setInputs(values => ({ ...values, [name]: value }))
-  }*/
-
-  const [status, setStatus] = useState(false);
-    const [type, setType] = useState("");
-    const [title, setTitle] = useState("");
-
-  /*function ajouter() {
-    const ref = firebase.firestore().collection("BiblioInformatique")
-
-    ref
-        .doc('anna')
-        .set({ name: inputs.name, exemplaires: inputs.exemplaire, cathegorie: inputs.cathegorie, salle: inputs.salle, etagere: inputs.etagere, description: inputs.desc, image: inputs.image })
-        .catch((err) => {
-            console.log(err)
-        })
-
-    console.log("ajouter", inputs)
-}*/
-
-const res = async function () {
-  await firebase.firestore().collection('BiblioInformatique').doc(name).set({
-      name: name,
-      exemplaire: parseInt(exemplaire),
-      etagere: etagere,
-      salle: salle,
-      image: image,
-      type: typ,
-      nomBD: name,
-      cathegorie: nom_du_departement,
-      desc: desc,
-      commentaire: [
-          {
-              heure: new Date(),
-              nomUser: '',
-              texte: '',
-              note: 0
-          }
-      ]
-  })
-  setStatus(true);
-  setType("success");
-  setTitle("Document ajouté avec succes");
-  navigate("/catalogue", { state: { departement: nom_du_departement } });
-}
-
 
   return (
     <div className="border border-dadius border-solid-2 p-2 bg-light">
       <h4 className="text-center">
-      <FaBook style={bookIconStyle} /> <span className="text-dark">{nom_du_departement}</span>
-    </h4>
-    
-    <div
-      className="card"
-      style={cardStyle}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      <div className="card-body">
-        <div style={buttonContainerStyle}>
-          <Button variant="primary" onClick={handleVisualiser} style={buttonVisualiserStyle}>
-            Visualiser
-          </Button>
-          <Button variant="success" onClick={handleAjouter} style={buttonAjouterStyle}>
-            <FaPlus style={iconStyle} /> Ajouter
-          </Button>
+        <FaBook style={bookIconStyle} /> <span className="text-dark">{nom_du_departement}</span>
+      </h4>
+      
+      <div
+        className="card"
+        style={cardStyle}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div className="card-body">
+          <div style={buttonContainerStyle}>
+            <Button variant="primary" onClick={handleVisualiser} style={buttonVisualiserStyle}>
+              Visualiser
+            </Button>
+            <Button variant="success" onClick={handleAjouter} style={buttonAjouterStyle}>
+              <FaPlus style={iconStyle} /> Ajouter
+            </Button>
+          </div>
         </div>
       </div>
+
       <Modal show={showModal} onHide={handleModalClose} style={{ backgroundColor: 'transparent' }}>
         <Modal.Header closeButton>
-          <Modal.Title className='text-center'><h2 className='text-center'>Ajouter un livre de {nom_du_departement}</h2></Modal.Title>
+          <Modal.Title className='text-center'>
+            <h2 className='text-center'>Ajouter un livre de {nom_du_departement}</h2>
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-        <Form.Group className='mb-3' controlId='formBasicName'>
-                    <Form.Label className="labelForm">Nom du Livre</Form.Label>
-                    <Form.Control className="name-input" type="text" placeholder="name" name="name" value={name} onChange={(e) => setName(e.target.value)} required></Form.Control>
-                </Form.Group>
-          <Form onSubmit={handleFormSubmit}>
-          <Form.Group className='mb-3' controlId='formBasicName'>
-                    <Form.Label className="labelForm">Département </Form.Label>
+          <Form onSubmit={handleSubmit}>
+            <Form.Group className='mb-3'>
+              <Form.Label className="labelForm">Nom du Livre</Form.Label>
               <Form.Control
                 type="text"
-                name="departement"
-                
-                value={nom_du_departement}
-
-                onChange={(e) => setCathegorie(e.target.value)}
+                placeholder="Nom du livre"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 required
               />
             </Form.Group>
-          <Form.Group className='mb-3' controlId='formBasicNumber'>
-                    <Form.Label className="labelForm">Nombre d'exemplaires </Form.Label>
-                    <Form.Control className="price-input" type="number" placeholder="Nombre d'exemplaires" name="exemplaire" value={exemplaire} onChange={(e) => setExemplaire(e.target.value)} ></Form.Control>
-                </Form.Group> 
-                <Form.Group className='mb-3' controlId='formBasicName'>
-                    <Form.Label className="labelForm">Etagère</Form.Label>
-                    <Form.Control className="name-input" type="text" placeholder="Etagère" value={etagere} onChange={(e) => setEtagere(e.target.value)} name='etagere' required></Form.Control>
-                </Form.Group>
-                <Form.Group className='mb-3' controlId='formBasicName'>
-                    <Form.Label className="labelForm">Description du document</Form.Label>
-                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="2" placeholder="Desciption" value={desc} onChange={(e) => setDesc(e.target.value)} name='desc'></textarea>
-                </Form.Group>
-                <Form.Group className='mb-3' controlId='formBasicName'>
-                    {/*<button type='button' onClick={handleSumit} style={{ borderRadius: 5, textAlign: 'center', padding: 10, color: 'white', backgroundColor: 'grey' }}>Img</button>*/}
-                    <FaBook style={bookIconStyle1} />
-                    <Form.Label className="labelForm">Entrer le lien de l'image</Form.Label>
-                    <Form.Control className="image-input" type="text" placeholder="Image" value={image} onChange={(e) => setImage(e.target.value)} name='image' required></Form.Control>
-                </Form.Group>
-                <ReactJsAlert
-                    status={status} // true or false
-                    type={type} // success, warning, error, info
-                    title={title}
-                    quotes={true}
-                    quote=""
-                    Close={() => setStatus(false)}
-                />
-            {/* <button type='button' onClick={res} className='btn-btn-primary' style={{borderRadius:5,textAlign:'center', padding:10,color:'white',backgroundColor:'green'}}>Ajouter</button> */}
-            <button type='button' onClick={res} className='btn-btn-primary' style={{ borderRadius: 5, textAlign: 'center', padding: 10, color: 'white', backgroundColor: 'green', alignContent: 'center' }}>Ajouter</button>
 
+            <Form.Group className='mb-3'>
+              <Form.Label className="labelForm">Département</Form.Label>
+              <Form.Control
+                type="text"
+                value={nom_du_departement}
+                readOnly
+              />
+            </Form.Group>
 
-            
+            <Form.Group className='mb-3'>
+              <Form.Label className="labelForm">Nombre d'exemplaires</Form.Label>
+              <Form.Control
+                type="number"
+                placeholder="Nombre d'exemplaires"
+                value={exemplaire}
+                onChange={(e) => setExemplaire(e.target.value)}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className='mb-3'>
+              <Form.Label className="labelForm">Etagère</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Etagère"
+                value={etagere}
+                onChange={(e) => setEtagere(e.target.value)}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className='mb-3'>
+              <Form.Label className="labelForm">Description du document</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={2}
+                placeholder="Description"
+                value={desc}
+                onChange={(e) => setDesc(e.target.value)}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className='mb-3'>
+              <FaBook style={bookIconStyle1} />
+              <Form.Label className="labelForm">Image du livre</Form.Label>
+              <Form.Control
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                required
+              />
+              {imagePreview && (
+                <div className="mt-2 text-center">
+                  <img
+                    src={imagePreview}
+                    alt="Aperçu"
+                    style={{ maxWidth: '200px', maxHeight: '200px' }}
+                  />
+                </div>
+              )}
+            </Form.Group>
+
+            <button
+              type='submit'
+              className='btn btn-success w-100'
+              disabled={loading}
+            >
+              {loading ? 'Enregistrement en cours...' : 'Ajouter'}
+            </button>
           </Form>
         </Modal.Body>
       </Modal>
+
+      <ReactJsAlert
+        status={status}
+        type={type}
+        title={title}
+        Close={() => setStatus(false)}
+      />
     </div>
-    </div>
-   
   );
 }

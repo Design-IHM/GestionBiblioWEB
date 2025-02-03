@@ -1,0 +1,18 @@
+.table-head {
+    background-color: #E7DAC1FF;
+}
+
+.table-th {
+    color: chocolate;
+    font-size: 20px;
+    font-weight: bold;
+    align-content: center;
+    width: 250px;
+}
+
+@media (max-width: 768px) {
+    .table-th {
+        font-size: 10px;
+        width: 50px;
+    }
+}

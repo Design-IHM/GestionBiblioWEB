@@ -61,6 +61,7 @@ export default function DepartementMemoriesBtn(props) {
   const handleVisualiser = () => {
     // Redirection vers la page catalogue avec le nom du département
     navigate('/catalogueMemoire', { state: { département: nom_du_departement } });
+    console.log("État passé à la navigation :", { département: nom_du_departement });
   };
 
   const handleAjouter = () => {

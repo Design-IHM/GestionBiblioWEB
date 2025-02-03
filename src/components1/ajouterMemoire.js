@@ -10,6 +10,7 @@ import Navbar from '../components1/Navbar';
 import styled from 'styled-components';
 import memoire from "../../src/assets/mémoirecard.jpeg"
 import livre from "../../src/assets/livrecard.jpg"
+import {FaUpload} from "react-icons/fa";
 
 export default function Ajoutermémoirec() {
     const [name, setName] = useState('')
@@ -60,13 +61,20 @@ export default function Ajoutermémoirec() {
     const [type, setType] = useState("");
     const [title, setTitle] = useState("");
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImage(file.name); // Store the file name or handle the file as needed
+        }
+    };
+
     return (
         <MemoireContainer fluid>
             <Row>
                 <Col md={2}>
                     <Sidebar />
                 </Col>
-                <Col md={10}>
+                <Col md={10} className="bg-white">
                     <Navbar />
                     <Row className="justify-content-center mt-4">
                         <Col md={3} className="mb-3">
@@ -79,7 +87,16 @@ export default function Ajoutermémoirec() {
                             </Card>
                         </Col>
                         <Col md={3} className="mb-3">
-                            <Card className="text-center p-3" onClick={() => navigate('/ajoutermémoire')} style={{ cursor: 'pointer' }}>
+                            <Card
+                              className="text-center p-3 border"
+                              onClick={() => navigate('/ajouterDoc')}
+                              style={{
+                                  cursor: 'pointer',
+                                  borderColor: 'green',
+                                  borderWidth: '2px',
+                                  boxShadow: '0 4px 8px rgba(210, 105, 30, 1)', // Green drop shadow
+                              }}
+                            >
                                 <Card.Img variant="top" src={memoire} />
                                 <Card.Body>
                                     
@@ -161,15 +178,31 @@ export default function Ajoutermémoirec() {
                                     />
                                 </FormGroup>
 
-                                <FormGroup>
-                                    <Label>Lien de l'image</Label>
-                                    <StyledInput
-                                        type="text"
-                                        placeholder="Image"
-                                        value={image}
-                                        onChange={(e) => setImage(e.target.value)}
+                                {/*<FormGroup>*/}
+                                {/*    <Label>Lien de l'image</Label>*/}
+                                {/*    <StyledInput*/}
+                                {/*        type="text"*/}
+                                {/*        placeholder="Image"*/}
+                                {/*        value={image}*/}
+                                {/*        onChange={(e) => setImage(e.target.value)}*/}
+                                {/*    />*/}
+                                {/*</FormGroup>*/}
+
+                                <FileInputContainer>
+                                    <Label classname="text-left">Lien de l'image</Label>
+                                    {/* Hidden file input */}
+                                    <HiddenFileInput
+                                      type="file"
+                                      id="file-input"
+                                      onChange={handleFileChange}
                                     />
-                                </FormGroup>
+                                    {/* Custom file input button */}
+                                    <CustomFileInput htmlFor="file-input">
+                                        <FaUpload />
+                                        {image ? `Selected: ${image}` : "Choose a file"}
+                                    </CustomFileInput>
+                                </FileInputContainer>
+
                             </FormGrid>
                             <ButtonGroup>
                                 <StyledButton type="button" onClick={res} $primary>
@@ -194,6 +227,35 @@ export default function Ajoutermémoirec() {
         </MemoireContainer>
     )
 }
+
+// Styled components
+const FileInputContainer = styled.div`
+  display: flex;
+    flex-direction: column;
+  gap: 10px;
+`;
+
+const HiddenFileInput = styled.input`
+  display: none; // Hide the default file input
+`;
+
+const CustomFileInput = styled.label`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: center;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+`;
 
 const MemoireContainer = styled(Container)`
     min-height: 100vh;
@@ -279,14 +341,14 @@ const StyledButton = styled(BootstrapButton)`
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s;
-    background-color: ${props => props.$primary ? '#3b82f6' : '#9ca3af'};
+    background-color: ${props => props.$primary ? '#3b82f6' : '#ffffff'};
     color: white;
     min-width: 150px;
 
     &:hover {
         transform: translateY(-1px);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        background-color: ${props => props.$primary ? '#2563eb' : '#6b7280'};
+        background-color: ${props => props.$primary ? '#2563eb' : '#fffaf4'};
     }
 
     &:active {

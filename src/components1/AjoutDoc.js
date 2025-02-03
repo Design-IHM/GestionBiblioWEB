@@ -10,6 +10,7 @@ import Navbar from '../components1/Navbar';
 import styled from 'styled-components';
 import memoire from "../../src/assets/mémoirecard.jpeg"
 import livre from "../../src/assets/livrecard.jpg"
+import {FaUpload} from "react-icons/fa";
 
 export default function AjoutDoc(props) {
     const [name, setName] = useState('')
@@ -17,7 +18,7 @@ export default function AjoutDoc(props) {
     const [desc, setDesc] = useState('')
     const [etagere, setEtagere] = useState('')
     const [exemplaire, setExemplaire] = useState(1)
-    const [image, setImage] = useState(null)
+    const [image, setImage] = useState("")
     const [salle, setSalle] = useState('')
     const [typ] = useState('')
     const formRef = useRef()
@@ -59,6 +60,13 @@ export default function AjoutDoc(props) {
         setSalle('');
     }
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImage(file.name); // Store the file name or handle the file as needed
+        }
+    };
+
     const [status, setStatus] = useState(false);
     const [type, setType] = useState("");
     const [title, setTitle] = useState("");
@@ -69,11 +77,20 @@ export default function AjoutDoc(props) {
                 <Col md={2}>
                     <Sidebar />
                 </Col>
-                <Col md={10}>
+                <Col md={10} className="bg-white">
                     <Navbar />
                     <Row className="justify-content-center mt-4">
                         <Col md={3} className="mb-3">
-                            <Card className="text-center p-3" onClick={() => navigate('/ajouterDoc')} style={{ cursor: 'pointer' }}>
+                            <Card
+                              className="text-center p-3 border"
+                              onClick={() => navigate('/ajouterDoc')}
+                              style={{
+                                  cursor: 'pointer',
+                                  borderColor: 'green',
+                                  borderWidth: '2px',
+                                  boxShadow: '0 4px 8px rgba(210, 105, 30, 1)', // Green drop shadow
+                              }}
+                            >
                                 <Card.Img variant="top" src={livre} />
                                 <Card.Body>
                                     <Card.Text style={{ color: 'chocolate', fontWeight: 'bold' }}>LIVRE</Card.Text>
@@ -155,15 +172,20 @@ export default function AjoutDoc(props) {
                                     />
                                 </FormGroup>
 
-                                <FormGroup>
-                                    <Label>Lien de l'image</Label>
-                                    <StyledInput
-                                        type="text"
-                                        placeholder="Image"
-                                        value={image}
-                                        onChange={(e) => setImage(e.target.value)}
+                                <FileInputContainer>
+                                    <Label classname="text-left">Lien de l'image</Label>
+                                    {/* Hidden file input */}
+                                    <HiddenFileInput
+                                      type="file"
+                                      id="file-input"
+                                      onChange={handleFileChange}
                                     />
-                                </FormGroup>
+                                    {/* Custom file input button */}
+                                    <CustomFileInput htmlFor="file-input">
+                                        <FaUpload />
+                                        {image ? `Selected: ${image}` : "Choose a file"}
+                                    </CustomFileInput>
+                                </FileInputContainer>
 
                                 <FormGroup>
                                     <Label>Description du document</Label>
@@ -198,6 +220,35 @@ export default function AjoutDoc(props) {
         </LivreContainer>
     )
 }
+
+// Styled components
+const FileInputContainer = styled.div`
+  display: flex;
+    flex-direction: column;
+  gap: 10px;
+`;
+
+const HiddenFileInput = styled.input`
+  display: none; // Hide the default file input
+`;
+
+const CustomFileInput = styled.label`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  text-align: center;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+`;
 
 const LivreContainer = styled(Container)`
     min-height: 100vh;
@@ -266,7 +317,7 @@ const StyledSelect = styled.select`
 `;
 
 const StyledTextarea = styled.textarea`
-    ${inputStyles}
+    ${inputStyles};
     resize: vertical;
     min-height: 100px;
 `;

@@ -6,6 +6,7 @@ import styled from "styled-components";
 import Loading from "./Loading";
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
+import "./Table.css"
 import { UserContext } from "../App";
 
 function Emprunts() {
@@ -85,80 +86,172 @@ function Emprunts() {
       <Sidebar />
       <Navbar />
       <Section>
-        {loader ?
-          <Table variant={darkMode ? "dark" : undefined} striped bordered hover>
-            <thead>
+        {
+          loader ?
+          <Table variant={darkMode ? "dark" : undefined} bordered hover>
+            <thead className="table-head">
               <tr>
-                <th>Id</th>
-                <th>Nom</th>
-                <th>Classe</th>
-                <th>Document 1</th>
-                <th>Document 2</th>
-                <th>Document 3</th>
-                <th>Etat</th>
+                <th className="table-th">
+                  Information
+                </th>
+                <th className="table-th">
+                  Document 1
+                </th>
+                <th className="table-th">
+                  Document 2
+                </th>
+                <th className="table-th">
+                  Document 3
+                </th>
+                <th className="table-th">
+                  Etat
+                </th>
               </tr>
             </thead>
+
             <tbody>
               {data.map((doc, index) => {
                 if (doc.etat1 === 'emprunt' || doc.etat2 === 'emprunt' || doc.etat3 === 'emprunt') {
                   return (
                     <tr key={doc.id}>
-                      <td>{index + 1}</td>
-                      <td>{doc.name}</td>
-                      <td>{doc.niveau}</td>
                       <td>
-                        <h4>{doc.etat1 === 'emprunt' ? doc.tabEtat1[0] + '\n' : ''}</h4>
-                        <h6>{doc.etat1 === 'emprunt' ? doc.tabEtat1[5].slice(0, 16) + '\n' : ''}</h6>
+                        <div className="d-flex flex-column justify-content-between">
+                          <h5>
+                            {doc.name}
+                          </h5>
+                          <div className="mx-3 mt-4 justify-content-between d-flex flex-row ">
+                            <span style={{fontSize: "12px"}}>id: <p
+                              style={{fontSize: "12px", color: "grey"}}>{index + 1}</p></span>
+                            <span style={{fontSize: "12px"}}>class: <p
+                              style={{fontSize: "12px", color: "grey"}}>{doc.niveau}</p></span>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td>
+                        <h5>{doc.etat1 === 'emprunt' ? doc.tabEtat1[0] + '\n' : ''}</h5>
+                        {doc.etat1 === 'emprunt' ?
+                          <span style={{fontSize: "12px"}}>Date: </span>
+                          : ""
+                        }
+
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            color: "grey"
+                          }}>
+                          {doc.etat1 === 'emprunt' ? doc.tabEtat1[5].slice(0, 16) + '\n' : ''}</span>
+
                         <div>
                           {doc.etat1 === 'emprunt' ?
                             <Button
-                              style={{ backgroundColor: 'green', marginTop: '10px', fontWeight: 'bold' }}
-                              variant="secondary"
-                              className="btn-sm"
-                              onClick={() => { remis1(doc) }}
+                              style={{
+                                backgroundColor: 'chocolate',
+                                marginTop: "5px",
+                                fontSize: "12px",
+                                fontWeight: 'bold',
+                                borderColor: "chocolate",
+                                padding: "3px"
+                              }}
+                              // className="btn-sm"
+                              onClick={() => {
+                                remis1(doc)
+                              }}
                             >
                               Valider Remise
                             </Button>
-                            : "Le document a déjà été remis."}
+                            :
+                            <p style={{margin: "10px", fontSize: "14px"}}>
+                              Le document a déjà été remis.
+                            </p>
+                          }
                         </div>
                       </td>
+
                       <td>
-                        <h4>{doc.etat2 === 'emprunt' ? doc.tabEtat2[0] + '\n' : ''}</h4>
-                        <h6>{doc.etat2 === 'emprunt' ? doc.tabEtat2[5].slice(0, 16) + '\n' : ''}</h6>
+                        <h5>{doc.etat2 === 'emprunt' ? doc.tabEtat2[0] + '\n' : ''}</h5>
+                        {doc.etat2 === 'emprunt' ?
+                          <span style={{fontSize: "12px"}}>Date: </span>
+                          : ""
+                        }
+
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            color: "grey"
+                          }}>{doc.etat2 === 'emprunt' ? doc.tabEtat2[5].slice(0, 16) + '\n' : ''}</span>
                         <div>
                           {doc.etat2 === 'emprunt' ?
                             <Button
-                              style={{ backgroundColor: 'green', marginTop: '10px', fontWeight: 'bold' }}
-                              variant="secondary"
-                              className="btn-sm"
-                              onClick={() => { remis2(doc) }}
+                              style={{
+                                backgroundColor: 'chocolate',
+                                marginTop: "5px",
+                                fontSize: "12px",
+                                fontWeight: 'bold',
+                                borderColor: "chocolate",
+                                padding: "3px"
+                              }}
+                              // className="btn-sm"
+                              onClick={() => {
+                                remis2(doc)
+                              }}
                             >
                               Valider Remise
                             </Button>
-                            : "Le document a déjà été remis."}
+                            :
+                            <p style={{margin: "10px",fontSize: "14px"}}>
+                              Le document a déjà été remis.
+                            </p>
+                          }
                         </div>
                       </td>
+
                       <td>
-                        <h4>{doc.etat3 === 'emprunt' ? doc.tabEtat3[0] + '\n' : ''}</h4>
-                        <h6>{doc.etat3 === 'emprunt' ? doc.tabEtat3[5].slice(0, 16) + '\n' : ''}</h6>
+                        <h5>{doc.etat3 === 'emprunt' ? doc.tabEtat3[0] + '\n' : ''}</h5>
+                        {doc.etat3 === 'emprunt' ?
+                          <span style={{fontSize: "12px"}}>Date: </span>
+                          : ""
+                        }
+
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            color: "grey"
+                          }}
+                        >
+                          {doc.etat3 === 'emprunt' ? doc.tabEtat3[5].slice(0, 16) + '\n' : ''}
+                        </span>
                         <div>
                           {doc.etat3 === 'emprunt' ?
                             <Button
-                              style={{ backgroundColor: 'green', marginTop: '10px', fontWeight: 'bold' }}
-                              variant="secondary"
-                              className="btn-sm"
-                              onClick={() => { remis3(doc) }}
+                              style={{
+                                backgroundColor: 'chocolate',
+                                marginTop: "5px",
+                                fontSize: "12px",
+                                fontWeight: 'bold',
+                                borderColor: "chocolate",
+                                padding: "3px"
+                              }}
+                              // className="btn-sm"
+                              onClick={() => {
+                                remis3(doc)
+                              }}
                             >
                               Valider Remise
                             </Button>
-                            : "Le document a déjà été remis."}
+                            :
+                            <p style={{margin: "10px",fontSize: "14px"}}>
+                              Le document a déjà été remis.
+                            </p>
+                          }
                         </div>
                       </td>
-                      <td>{doc.etat}</td>
+
+                      <td style={{margin: "10px",fontSize: "14px"}}>{doc.etat}</td>
                     </tr>
                   );
                 }
-                return null; // Ajoute cette ligne pour retourner quelque chose même si la condition n'est pas remplie
+                return null;
               })}
             </tbody>
           </Table>
@@ -173,13 +266,13 @@ function Emprunts() {
 export default Emprunts;
 
 const Section = styled.section`
-  overflow: auto;
-  margin-top: 40px;
-  margin-bottom: 20px;
+    overflow: auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
 
-  td, tr {
-    text-align: center;
-  }
+    td, tr {
+        text-align: center;
+    }
 `;
 
 

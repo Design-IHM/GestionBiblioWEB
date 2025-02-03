@@ -23,4 +23,10 @@ yarn-debug.log*
 yarn-error.log*
 /.idea
 /.gitignore
+
+codeStyleConfig.xml
+modules.xml
+vcs.xml
 /.vscode
+GestionBiblioWeb.iml
+

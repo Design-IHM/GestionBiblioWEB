@@ -5,7 +5,7 @@ import { FaUser } from "react-icons/fa";
 import { GrCatalog } from "react-icons/gr";
 import { FaArchive } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
-import { MdPostAdd } from "react-icons/md";
+import { MdPostAdd, MdRuleFolder } from "react-icons/md";
 import { GiHamburgerMenu, GiBookPile } from "react-icons/gi";
 import { VscChromeClose } from "react-icons/vsc";
 import { HiUsers } from "react-icons/hi";
@@ -91,57 +91,77 @@ export default function Sidebar() {
             <ul>
               <li className={currentLink === 14 ? "active" : "none"} onClick={() => changerAc()}>
                 <NavLink className="linkin" to="/accueil" end>
-                  <GrCatalog />
+                  <GrCatalog/>
                   <span>Accueil</span>
                 </NavLink>
               </li>
 
               <li className={currentLink === 10 ? "active" : "none"} onClick={() => changerProfil()}>
                 <NavLink className="linkin" to="/profil" end>
-                  <FaUser />
+                  <FaUser/>
                   <span>Profil bibliothécaire</span>
+                </NavLink>
+              </li>
+
+              <li
+                className={currentLink === 6 ? "active" : "none"}
+                onClick={() => changerCat()}
+              >
+                <NavLink className="linkin" to="/departement" end>
+                  <GrCatalog/>
+                  <span>Gestion de Livres</span>
+                </NavLink>
+              </li>
+
+              <li
+                className={currentLink === 15 ? "active" : "none"}
+                onClick={() => changerCat()}
+              >
+                <NavLink className="linkin" to="/departementMem" end>
+                  <MdRuleFolder/>
+                  <span>Gestion de Memoires</span>
                 </NavLink>
               </li>
 
 
               <li className={currentLink === 2 ? "active" : "none"} onClick={() => changer()}>
                 <NavLink className="linkin" to="/listeEtudiant" end>
-                  <HiUsers />
+                  <HiUsers/>
                   <span>Etudiants inscrits</span>
                 </NavLink>
               </li>
 
               <li className={currentLink === 3 ? "active" : "none"} onClick={() => setCurrentLink(3)}>
                 <NavLink className="linkin" to="/ajouterDoc" end>
-                  <MdPostAdd />
+                  <MdPostAdd/>
                   <span>Ajouter documents</span>
                 </NavLink>
               </li>
 
               <li className={currentLink === 4 ? "active" : "none"} onClick={() => changerReserv()}>
                 <NavLink className="linkin" to="/listeReservation" end>
-                  <BsListUl />
+                  <BsListUl/>
                   <span>Liste de réservations</span>
                 </NavLink>
               </li>
 
               <li className={currentLink === 5 ? "active" : "none"} onClick={() => changerEmprunt()}>
                 <NavLink className="linkin" to="/emprunts" end>
-                  <BsListUl />
+                  <BsListUl/>
                   <span>Documents empruntés</span>
                 </NavLink>
               </li>
 
               <li className={currentLink === 7 ? "active" : "none"} onClick={() => changerMsg()}>
                 <NavLink className="linkin" to="/messages" end>
-                  <AiFillMessage />
+                  <AiFillMessage/>
                   <span>Messages</span>
                 </NavLink>
               </li>
 
               <li className={currentLink === 8 ? "active" : "none"} onClick={() => changerArch()}>
                 <NavLink className="linkin" to="/archives" end>
-                  <FaArchive />
+                  <FaArchive/>
                   <span>Archives</span>
                 </NavLink>
               </li>
@@ -151,7 +171,7 @@ export default function Sidebar() {
 
         <div className="logout">
           <NavLink className="linkin" to="/logoutPage">
-            <span className="logout"><FiLogOut />  Déconnexion</span>
+            <span className="logout"><FiLogOut/>  Déconnexion</span>
           </NavLink>
         </div>
       </Section>
@@ -159,22 +179,46 @@ export default function Sidebar() {
       <ResponsiveNav state={navbarState} className={navbarState ? "show" : ""}>
         <div className="responsive__links">
           <ul>
+            <li className={currentLink === 14 ? "active" : "none"} onClick={() => changerAc()}>
+              <NavLink className="linkin" to="/accueil" end>
+                <GrCatalog/>
+                <span>Accueil</span>
+              </NavLink>
+            </li>
+
+            <li className={currentLink === 10 ? "active" : "none"} onClick={() => changerProfil()}>
+              <NavLink className="linkin" to="/profil" end>
+                <FaUser/>
+                <span>Profil bibliothécaire</span>
+              </NavLink>
+            </li>
+
             <li
               className={currentLink === 6 ? "active" : "none"}
               onClick={() => changerCat()}
             >
-              <NavLink className="linkin" to="/catalogue" end>
-                <GrCatalog />
-                <span>Catalogue</span>
+              <NavLink className="linkin" to="/departement" end>
+                <GrCatalog/>
+                <span>Gestion de Livres</span>
+              </NavLink>
+            </li>
+
+            <li
+              className={currentLink === 15 ? "active" : "none"}
+              onClick={() => changerCat()}
+            >
+              <NavLink className="linkin" to="/departementMem" end>
+                <MdRuleFolder/>
+                <span>Gestion de Memoires</span>
               </NavLink>
             </li>
 
             <li
               className={currentLink === 2 ? "active" : "none"}
-              onClick={() =>changer()}
+              onClick={() => changer()}
             >
               <NavLink className="linkin" to="/listeEtudiant" end>
-                <HiUsers />
+                <HiUsers/>
                 <span>Etudiants inscrits</span>
               </NavLink>
             </li>
@@ -184,7 +228,7 @@ export default function Sidebar() {
               onClick={() => setCurrentLink(3)}
             >
               <NavLink className="linkin" to="/ajouterDoc" end>
-                <MdPostAdd />
+                <MdPostAdd/>
                 <span>Ajouter documents</span>
               </NavLink>
             </li>
@@ -193,8 +237,8 @@ export default function Sidebar() {
               className={currentLink === 4 ? "active" : "none"}
               onClick={() => changerReserv()}
             >
-              <NavLink className="linkin"  to="/listeReservation" end>
-                <BsListUl />
+              <NavLink className="linkin" to="/listeReservation" end>
+                <BsListUl/>
                 <span>Liste de réservations</span>
               </NavLink>
             </li>
@@ -204,7 +248,7 @@ export default function Sidebar() {
               onClick={() => changerEmprunt()}
             >
               <NavLink className="linkin" to="/emprunts" end>
-                <BsListUl />
+                <BsListUl/>
                 <span>Livres empruntés</span>
               </NavLink>
             </li>
@@ -214,9 +258,9 @@ export default function Sidebar() {
               onClick={() => changerMsg()}
             >
               <NavLink className="linkin" to="/messages" end>
-                  <AiFillMessage />
-                  <span>Messages</span>
-                </NavLink>
+                <AiFillMessage/>
+                <span>Messages</span>
+              </NavLink>
             </li>
 
             <li
@@ -224,9 +268,9 @@ export default function Sidebar() {
               onClick={() => changerArch()}
             >
               <NavLink className="linkin" to="/archives" end>
-                  <FaArchive />
-                  <span>Archives</span>
-                </NavLink>
+                <FaArchive/>
+                <span>Archives</span>
+              </NavLink>
             </li>
           </ul>
         </div>

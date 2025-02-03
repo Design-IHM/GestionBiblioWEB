@@ -80,7 +80,8 @@ export default function Profil() {
     };
 
     return (
-        <Container>
+        <div className="content-box">
+              <Container>
             <Sidebar />
             <Navbar />
             <Content>
@@ -150,7 +151,7 @@ export default function Profil() {
                         </FormGrid>
 
                         <ButtonGroup>
-                            <Button type="submit" $primary>
+                            <Button type="submit" $primary style={{backgroundColor:"chocolate"}}>
                                 Enregistrer
                             </Button>
                             <Button type="button" onClick={() => navigate("/")}>
@@ -170,19 +171,21 @@ export default function Profil() {
                 />
             </Content>
         </Container>
+        </div>
+       
     );
 }
 
 // Tous les styles restent identiques
 const Container = styled.div`
-    min-height: 100vh;
-    background-color: #f5f5f5;
+    min-height: 80vh;
+   
 `;
 
 const Content = styled.div`
     padding: 2rem;
-    margin-top: 60px;
-    margin-left: 250px;
+    
+   
     display: flex;
     justify-content: center;
 
@@ -194,11 +197,12 @@ const Content = styled.div`
 
 const FormContainer = styled.div`
     background: white;
-    padding: 2.5rem;
+    padding: 1.5rem;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 800px;
+    background-color:rgb(243, 239, 232);
 `;
 
 const AvatarSection = styled.div`
@@ -266,7 +270,7 @@ const Label = styled.label`
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: #374151;
+    color: chocolate;
 `;
 
 const inputStyles = `
@@ -279,7 +283,7 @@ const inputStyles = `
     
     &:focus {
         outline: none;
-        border-color: #3b82f6;
+        border-color: chocolate;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
     
