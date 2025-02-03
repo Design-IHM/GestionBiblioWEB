@@ -15,21 +15,21 @@ export default function  Discussion(){
 
   const [datUserTest, setDatUserTest]= useState(true)
   useEffect(() => {
-   // console.log(email)
+   console.log(email)
     setTimeout(() => {
       setDatUserTest(false);
     }, 100);
-  }, []);
+  }, [email]);
 
     const [dat, setDat] = useState([])
-    
-    const subscriber =useCallback (() =>{ 
+
+    const subscriber =useCallback (() =>{
       if(email.length !== 0){
         firebase.firestore()
         .collection('BiblioUser')
         .doc(email)
         .onSnapshot(documentSnapshot => {
-       //   console.log('User exists: ', documentSnapshot._firestore)   
+            console.log('User exists: ', documentSnapshot._firestore)
             setDat(documentSnapshot.data())
        })}},[email])
 
@@ -43,25 +43,24 @@ export default function  Discussion(){
     function ajouter(){
      // debut ajouter tableau
      const washingtonRef = firebase.firestore().collection("BiblioUser").doc(email)
-     
+
      washingtonRef.update({
        messages: arrayUnion({"recue":"R", "texte": message ,"heure": dt})
      });
- 
+
     }
 
     const  res = async function(){
         await firebase.firestore().collection('MessagesRecue').doc(message).set({
            email:email,
-           messages:message,
-           nom:nom
+           messages:message
         })
     //    setNom("");
         setMessage("");
      //   setEmail("");
      //   setObjet("");
         ajouter()
-    
+
        }
 
        //const [objet, setObjet] = useState('');
@@ -70,8 +69,6 @@ export default function  Discussion(){
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log(email);
-        
-        
     }
 
 
@@ -85,8 +82,8 @@ export default function  Discussion(){
         <div className="messag-div">
             <div className="discussion">
             <div className="namerecep">{nom}</div>
-          
-            {datUserTest ? 
+
+            {datUserTest ?
             <Loading /> :
               (dat.messages.map((dev,index)=>
                     dev.recue === "R" ?<Send heure={dev.heure} texte={dev.texte} key={index}/>
@@ -109,34 +106,26 @@ export default function  Discussion(){
 }
 
 const Receiv =({heure, texte})=>{
-    var date = new Date(heure.seconds*1000)
-    //var forma = date.toLocaleString()
-    //var format = date.toJSON(10)
-    var formatDate = date.toDateString()
-    var formatHeure = date.toTimeString()
-  
-    //var dt =Timestamp.fromDate(new Date())
-   // var dte = dt.toDateString()
-  //  console.log(Timestamp.fromDate(new Date()))
-  // console.log(dt)
+    const date = new Date(heure.seconds * 1000);
+    const formatDate = date.toDateString();
+    const formatHeure = date.toTimeString();
+
     return(
       <div className="recepteur">
-                    <span className="text-rec">{texte}</span>
-                    <p>{formatDate} At {formatHeure.slice(0,8)}</p>
-                </div>
+          <span className="text-rec">{texte}</span>
+          <p>{formatDate} At {formatHeure.slice(0,8)}</p>
+      </div>
     )
   }
 
   const Send=({heure, texte})=>{
-    var date = new Date(heure.seconds*1000)
-    //var forma = date.toLocaleString()
-    //var format = date.toJSON(10)
-    var formatDate = date.toDateString()
-    var formatHeure = date.toTimeString()
+      const date = new Date(heure.seconds * 1000);
+      const formatDate = date.toDateString();
+      const formatHeure = date.toTimeString();
       return(
         <div className="emmeteur">
             <span className="text-emm">{texte}</span>
             <p>{formatDate} At {formatHeure.slice(0,8)}</p>
-        </div> 
+        </div>
       )
   }

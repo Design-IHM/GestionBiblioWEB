@@ -264,8 +264,8 @@ function Emprunts() {
               })}
             </tbody>
           </Table>
-            :
-            <Loading/>
+          :
+          <Loading />
         }
       </Section>
     </div>
@@ -283,3 +283,5 @@ const Section = styled.section`
         text-align: center;
     }
 `;
+
+
