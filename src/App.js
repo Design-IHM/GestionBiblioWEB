@@ -34,6 +34,7 @@ import CatalogueMemoire from "./components1/CatalogueMemoire";
 import DepartementMemoriesBtn from "./Component Improvements/DepartementBooksBtn";
 import DepartementsList from "./Component Improvements/AdminBooksHome";
 import MemoireParDepartement from "./components1/MemoireParDepartement";
+import AboutPage from "./components1/AboutPage";
 
 
 export const UserContext = createContext();
@@ -134,6 +135,7 @@ export default function App() {
                 />
 
                 <Route path="*" element={<NoPage />} />
+                <Route path="/aboutUs" element={<AboutPage />} />
               </Routes>
             </Section>
           </Router>

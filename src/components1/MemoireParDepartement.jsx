@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { UserContext } from "../App";
 import { useLocation } from 'react-router-dom';
-import { FiEdit2, FiX, FiBook, FiUser, FiCalendar, FiGrid, FiBookmark, FiMessageSquare, FiArrowUp, FiArrowDown } from 'react-icons/fi';
+import { FiEdit2, FiX, FiBook, FiUser, FiCalendar, FiGrid, FiBookmark, FiHardDrive } from 'react-icons/fi';
 import Sidebar from "../components1/Sidebar";
 import Navbar from "../components1/Navbar";
 import Loading from "./Loading";
@@ -17,8 +17,7 @@ export default function MemoireParDepartement() {
     const [editedMemoire, setEditedMemoire] = useState(null);
     const [loading, setLoading] = useState(false);
     const [memoires, setMemoires] = useState(state ? state.memories : []);
-    const [sortField, setSortField] = useState(null);
-    const [sortOrder, setSortOrder] = useState('asc');
+    const [sortOption, setSortOption] = useState('nameAsc');
     const departement = state ? state.departement : "";
 
     const itemsPerPage = 8;
@@ -31,9 +30,14 @@ export default function MemoireParDepartement() {
     });
 
     const sortedMemoires = [...filteredMemoires].sort((a, b) => {
-        if (sortField) {
-            if (a[sortField] < b[sortField]) return sortOrder === 'asc' ? -1 : 1;
-            if (a[sortField] > b[sortField]) return sortOrder === 'asc' ? 1 : -1;
+        if (sortOption === 'nameAsc') {
+            return a.name.localeCompare(b.name);
+        } else if (sortOption === 'nameDesc') {
+            return b.name.localeCompare(a.name);
+        } else if (sortOption === 'anneeAsc') {
+            return a.annee - b.annee;
+        } else if (sortOption === 'anneeDesc') {
+            return b.annee - a.annee;
         }
         return 0;
     });
@@ -90,9 +94,6 @@ export default function MemoireParDepartement() {
                 return;
             }
 
-            // Log des valeurs avant la mise à jour
-            console.log("Avant la mise à jour:", selectedMemoire);
-            console.log("Nouvelles valeurs:", editedMemoire);
 
             // Utilisez le champ `matricule` pour mettre à jour le document
             setLoading(true); // Afficher l'effet de chargement
@@ -101,7 +102,7 @@ export default function MemoireParDepartement() {
 
             // Récupérer les données mises à jour depuis Firestore
             const updatedDoc = await firebase.firestore().collection('Memoire').doc(selectedMemoire.matricule).get();
-            console.log("Après la mise à jour:", updatedDoc.data());
+            
 
             // Mettre à jour l'état local
             setSelectedMemoire(updatedDoc.data());
@@ -138,12 +139,12 @@ export default function MemoireParDepartement() {
                         Liste des Mémoires du {departement}
                     </Title>
                     <SortContainer>
-                        <SortButton onClick={() => setSortField('name')} disabled={sortField === 'name'}>
-                            Nom {sortField === 'name' ? (sortOrder === 'asc' ? <FiArrowUp /> : <FiArrowDown />) : <FiArrowUp />}
-                        </SortButton>
-                        <SortButton onClick={() => setSortField('annee')} disabled={sortField === 'annee'}>
-                            Année {sortField === 'annee' ? (sortOrder === 'asc' ? <FiArrowUp /> : <FiArrowDown />) : <FiArrowUp />}
-                        </SortButton>
+                        <SortSelect value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
+                            <option value="nameAsc">Nom A-Z</option>
+                            <option value="nameDesc">Nom Z-A</option>
+                            <option value="anneeAsc">Année croissante</option>
+                            <option value="anneeDesc">Année décroissante</option>
+                        </SortSelect>
                     </SortContainer>
                     <Section>
                         {displayedMemoires.length > 0 ? (
@@ -168,6 +169,10 @@ export default function MemoireParDepartement() {
                                             <InfoItem>
                                                 <FiCalendar className="icon" />
                                                 <span>{doc.annee}</span>
+                                            </InfoItem>
+                                            <InfoItem>
+                                                <FiHardDrive className="icon" />
+                                                <span>Etagère: {doc.etagere}</span>
                                             </InfoItem>
                                         </CardInfo>
                                         <CardImage>
@@ -285,26 +290,26 @@ const Title = styled.h1`
 
 const SortContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   margin-bottom: 1rem;
 `;
 
-const SortButton = styled.button`
+const SortSelect = styled.select`
   background: white;
-  border: 1px solid #e2e8f0;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
+  border: 1px solid chocolate;
+  height: 40px;
+  width: 200px;
+  border-radius: 60px;
+  padding: 0.5rem;
+  color: chocolate;
+  font-weight: 500;
   cursor: pointer;
-  font-size: 1rem;
+  margin-bottom: 1rem;
   transition: all 0.2s ease;
 
   &:hover {
-    background: #f0f0f0;
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
+    background: chocolate;
+    color: white;
   }
 `;
 

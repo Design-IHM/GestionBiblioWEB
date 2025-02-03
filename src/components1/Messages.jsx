@@ -13,7 +13,7 @@ export default function Messages() {
     const refUser = firebase.firestore().collection("BiblioUser");
 
     const [data, setData] = useState([]);
-    const [ setDataMes] = useState([]);
+    const [ dataMes, setDataMes] = useState([]);
     const [loader, setLoader] = useState(false);
 
     const getDataUser = useCallback(() => {

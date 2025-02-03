@@ -189,11 +189,13 @@ export default function Catalogue() {
                         <FiBook className="icon" />
                         Liste des Livres du {departement}
                     </Title>
-                    
-                    <SortSelect value={sortOrder} onChange={handleSortChange}>
+                    <SortContainer>
+                        <SortSelect value={sortOrder} onChange={handleSortChange}>
                         <option value="asc">A-Z</option>
                         <option value="desc">Z-A</option>
                     </SortSelect>
+                    </SortContainer>
+                    
                     <Section>
                         {loader ? (
                             displayedData.map((doc, index) => (
@@ -469,4 +471,9 @@ const PaginationButton = styled.button`
 const PageIndicator = styled.span`
   color: #4a5568;
   font-weight: 500;
+`;
+const SortContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
 `;
