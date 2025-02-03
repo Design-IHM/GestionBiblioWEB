@@ -28,24 +28,6 @@ export default function Navbar() {
       <div className="backButton" onClick={goBack}>
         <IoIosArrowBack/>
       </div>
-      {searchPage && (
-        <div className="search">
-          <BiSearch className="searchIcon"/>
-          <input
-            className="searchInput"
-            onChange={(e) => setSearchWord(e.target.value)}
-            value={searchWord}
-            type="text"
-            placeholder={
-              searchPage === "etudiant"
-                ? "Search Student"
-                : searchPage === "document"
-                  ? "Search Document"
-                  : "Search Document"
-            }
-          />
-        </div>
-      )}
 
       <div className="titleNav">
         <DarkModeButton className="darkModeButton" darkMode={darkMode} onClick={toggleDarkMode}>
