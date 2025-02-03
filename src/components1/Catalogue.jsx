@@ -23,6 +23,9 @@ export default function Catalogue() {
     const [type, setType] = useState("");
     const [title, setTitle] = useState("");
 
+    // Sorting
+    const [sortOrder, setSortOrder] = useState('asc');
+
     function openModal(e) {
         setNomBD(e.nomBD);
         setName(e.name);
@@ -128,8 +131,16 @@ export default function Catalogue() {
         return docName.toUpperCase().includes(searchWord.toUpperCase());
     });
 
+    const sortedData = [...filteredData].sort((a, b) => {
+        if (sortOrder === 'asc') {
+            return a.name.localeCompare(b.name);
+        } else {
+            return b.name.localeCompare(a.name);
+        }
+    });
+
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const displayedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+    const displayedData = sortedData.slice(startIndex, startIndex + itemsPerPage);
 
     function nextPage() {
         if (currentPage < totalPages) setCurrentPage(currentPage + 1);
@@ -137,6 +148,10 @@ export default function Catalogue() {
 
     function prevPage() {
         if (currentPage > 1) setCurrentPage(currentPage - 1);
+    }
+
+    function handleSortChange(e) {
+        setSortOrder(e.target.value);
     }
 
     // Add a new document in collection "cities" with ID 'LA'
@@ -174,6 +189,11 @@ export default function Catalogue() {
                         <FiBook className="icon" />
                         Liste des Livres du {departement}
                     </Title>
+                    
+                    <SortSelect value={sortOrder} onChange={handleSortChange}>
+                        <option value="asc">A-Z</option>
+                        <option value="desc">Z-A</option>
+                    </SortSelect>
                     <Section>
                         {loader ? (
                             displayedData.map((doc, index) => (
@@ -305,6 +325,25 @@ const Title = styled.h1`
 
   .icon {
     color: chocolate;
+  }
+`;
+
+const SortSelect = styled.select`
+  background: white;
+  border: 1px solid chocolate;
+  height: 40px;
+  width: 100px;
+  border-radius: 60px;
+  padding: 0.5rem;
+  color: chocolate;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: chocolate;
+    color: white;
   }
 `;
 

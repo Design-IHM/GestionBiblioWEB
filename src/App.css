@@ -40,6 +40,9 @@
     border-radius: 10px;
     margin: 0.5rem;
   }
+  .content-box {
+    margin-left: 0;
+  }
 }
 
 label {
@@ -68,7 +71,6 @@ button {
   color: white;
   text-decoration: underline;
 }
-Footer
 
 /*Default CSS*/ 
 
@@ -153,7 +155,7 @@ nav.navbar {
   transition:  0.32s ease-in-out;
 }
 nav.navbar.scrolled {
-  padding: 0px 0;
+  padding: 0 0;
   background-color: #121212;
 }
 nav.navbar a.navbar-brand {
@@ -229,7 +231,7 @@ z-index: 1;
 }
 .navbar-text button::before {
 content: "";
-width: 0%;
+width: 0;
 height: 100%;
 position: absolute;
 background-color: #fff;
@@ -468,7 +470,7 @@ z-index: 0;
 }
 .nav-link#projects-tabs-tab-first {
 border: 1px solid rgba(255, 255, 255, 0.5);
-border-radius: 55px 0px 0px 55px;
+border-radius: 55px 0 0 55px;
 }
 .nav-link#projects-tabs-tab-second {
 border-top: 1px solid rgba(255, 255, 255, 0.5);

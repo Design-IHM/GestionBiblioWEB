@@ -28,12 +28,6 @@ function Emprunts() {
     getData();
   }, [getData]);
 
-  //const d = new Date();
-
-  // Date
-  //const jour = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
-  //const mois = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
-
   function ajouter(nomEtudiant, nomDoc) {
     const washingtonRef = firebase.firestore().collection("ArchivesBiblio").doc("Arch");
     let date = new Date();
@@ -268,8 +262,8 @@ function Emprunts() {
               })}
             </tbody>
           </Table>
-            :
-            <Loading/>
+          :
+          <Loading />
         }
       </Section>
     </div>
@@ -287,3 +281,5 @@ const Section = styled.section`
         text-align: center;
     }
 `;
+
+
