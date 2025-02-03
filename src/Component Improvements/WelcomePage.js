@@ -32,7 +32,6 @@ const Accueil = () => {
         />
       </div>
 
-
       <div className="features">
         <h2><span className="emoji">🤔</span>. Nos Services: </h2>
         <button

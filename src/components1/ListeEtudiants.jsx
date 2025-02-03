@@ -3,7 +3,6 @@ import styled from "styled-components";
 import firebase from '../metro.config';
 import { UserContext } from "../App";
 import Modal from 'react-modal';
-import { GrFormClose } from "react-icons/gr";
 import { Table } from 'react-bootstrap';
 import Loading from "./Loading";
 import Sidebar from '../components1/Sidebar';
@@ -19,15 +18,6 @@ function ListeEtudiants() {
   const [data, setData] = useState([]);
   const [loader, setLoader] = useState(false);
 
-  // Modal
-  const [modalIsOpens, setIsOpens] = useState(false);
-  const [name, setName] = useState('');
-  const [niveau, setNiveau] = useState('');
-  const [matricule, setMatricule] = useState('');
-  const [tel, setTel] = useState('');
-  const [image, setImage] = useState('');
-  const [stat, setStat] = useState('');
-  const [setEmail] = useState('');
 
   const [tooltipText, setTooltipText] = useState('');
   const [showTooltip, setShowTooltip] = useState(false);
@@ -38,7 +28,7 @@ function ListeEtudiants() {
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      top: '50%',
+      // top: '50%',
       left: '50%',
       right: 'auto',
       bottom: 'auto',
@@ -51,7 +41,7 @@ function ListeEtudiants() {
   const closeStyle = {
     position: "absolute",
     right: '10px',
-    top: '10px',
+    // top: '10px',
     cursor: 'pointer',
   };
 
@@ -93,25 +83,6 @@ function ListeEtudiants() {
     getData();
   }, [getData]);
 
-  function afterOpenModal() {
-    subtitle.style.color = '#000';
-  }
-
-  function closeModal() {
-    setIsOpens(false);
-  }
-
-  function openModal(e) {
-    setName(e.name);
-    setNiveau(e.niveau);
-    setMatricule(e.matricule);
-    setTel(e.tel);
-    setIsOpens(true);
-    setImage(e.image);
-    setStat(e.etat);
-    setEmail(e.email);
-  }
-
   function updates(dos) {
     const ref = firebase.firestore().collection("BiblioUser");
     if (dos.etat === 'bloc') {
@@ -136,8 +107,8 @@ function ListeEtudiants() {
     setShowTooltip(false);
   };
 
-  
-  
+
+
   const Section = styled.section`
   overflow: auto;
   padding: 20px;
@@ -146,9 +117,9 @@ function ListeEtudiants() {
   transition: background-color 0.3s ease, color 0.3s ease;
 
   .img-pfl {
-    width: 50px;
-    height: 50px;
-    border-radius: 5px;
+    width: 80px;
+    height: 80px;
+    border-radius: 100%;
   }
 
   .btn-bloc-etudiant a {
@@ -158,12 +129,12 @@ function ListeEtudiants() {
   }
 
   .btn-bloc-etudiant {
-    margin-top: 10px;
+    //margin-top: 10px;
     margin-bottom: 10px;
   }
 
   .table {
-    margin-top: 40px;
+    //margin-top: 40px;
     margin-bottom: 20px;
     flex:1;
     overflow-y:auto;
@@ -221,115 +192,143 @@ function ListeEtudiants() {
 
 
   return (
-    
+
       <div className="content-box">
-  
+
       <Sidebar />
       <Navbar />
       <Section>
         {loader ? (
           <div className="table">
-            <Table variant={darkMode ? "dark" : undefined} striped bordered hover>
+            <Table variant={darkMode ? "dark" : undefined} bordered>
               <thead>
-                <tr>
-                  <th>Photo de profil</th>
-                  <th>Nom</th>
-                  <th>Classe</th>
-                  <th>Matricule</th>
-                  <th>Téléphone</th>
-                  <th>Statut</th>
-                  <th>Action possible</th>
-                </tr>
+              <tr>
+                <th style={{
+                  backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px"
+                }}>
+                  Photo de profil
+                </th>
+                <th style={{
+                  backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px"
+                }}>
+                  Information
+                </th>
+                <th style={{
+                  backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px"
+                }}>
+                  Téléphone
+                </th>
+                <th style={{
+                  backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px"
+                }}>
+                  Statut
+                </th>
+                <th style={{
+                  backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px"
+                }}>
+                  Action possible
+                </th>
+              </tr>
               </thead>
               <tbody>
-                {data.map((etudiant, index) => {
-                  if (etudiant.name && etudiant.name.toUpperCase().includes(searchWord.toUpperCase())) {
-                    return (
-                      <tr key={index + 1}>
-                        <td>
-                          <a href={etudiant.image} alt='profil'>
-                            <img src={etudiant.image} className="img-pfl" alt="profil" />
-                          </a>
-                        </td>
-                        <td onClick={() => openModal(etudiant)} style={{ cursor: 'pointer' }}>{etudiant.name}</td>
-                        <td onClick={() => openModal(etudiant)} style={{ cursor: 'pointer' }}>{etudiant.niveau}</td>
-                        <td onClick={() => openModal(etudiant)} style={{ cursor: 'pointer' }}>{etudiant.matricule}</td>
-                        <td onClick={() => openModal(etudiant)} style={{ cursor: 'pointer' }}>{etudiant.tel}</td>
-                        <td onClick={() => openModal(etudiant)} style={{ cursor: 'pointer' }}>{etudiant.etat}</td>
-                        <td>
-                          <div className="btn-bloc-etudiant">
+              {data.map((etudiant, index) => {
+                if (etudiant.name && etudiant.name.toUpperCase().includes(searchWord.toUpperCase())) {
+                  return (
+                    <tr key={index + 1}>
+                      <td>
+                        <a href={etudiant.image}>
+                          <img src={etudiant.image} className="img-pfl" alt="profil"/>
+                        </a>
+                      </td>
+                      <td>
+                        <div className="d-flex flex-column justify-content-between">
+                          <h5>
+                            {etudiant.name}
+                          </h5>
+                          <div className="mx-3 mt-4 justify-content-between d-flex flex-row ">
+                          <span style={{fontSize: "12px"}}>matricule: <p
+                              style={{fontSize: "12px", color: "grey"}}>{etudiant.matricule}</p></span>
+                            <span style={{fontSize: "12px"}}>class: <p
+                                style={{fontSize: "12px", color: "grey"}}>{etudiant.niveau}</p></span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="fw-bold">{etudiant.tel}</td>
+                      <td className="fw-bold">{etudiant.etat}</td>
+                      <td>
+                        <div className="btn-bloc-etudiant">
                             <button
-                              onClick={() => updates(etudiant)}
-                              onMouseEnter={(e) =>
-                                handleMouseEnter(
-                                  e,
-                                  etudiant.etat === "bloc" ? "Débloquer" : "Bloquer"
-                                )
-                              }
-                              onMouseLeave={handleMouseLeave}
+                                onClick={() => updates(etudiant)}
+                                onMouseEnter={(e) =>
+                                    handleMouseEnter(
+                                        e,
+                                        etudiant.etat === "bloc" ? "Débloquer" : "Bloquer"
+                                    )
+                                }
+                                onMouseLeave={handleMouseLeave}
                             >
                               {etudiant.etat === "bloc" ? (
-                                <FaUnlock color="green" size="20" />
+                                  <FaUnlock color="green" size="20"/>
                               ) : (
-                                <FaLock color="red" size="20" />
+                                  <FaLock color="red" size="20"/>
                               )}
                             </button>
                           </div>
                         </td>
                       </tr>
-                    );
-                  }
-                  return null;
-                })}
+                  );
+                }
+                return null;
+              })}
               </tbody>
             </Table>
           </div>
         ) : (
-          <Loading />
+            <Loading/>
         )}
 
         {showTooltip && (
-          <TooltipContainer
-            style={{
-              top: tooltipPosition.y,
-              left: tooltipPosition.x,
-            }}
-          >
-            {tooltipText}
-          </TooltipContainer>
+            <TooltipContainer
+                style={{
+                  top: tooltipPosition.y,
+                  left: tooltipPosition.x,
+                }}
+            >
+              {tooltipText}
+            </TooltipContainer>
         )}
 
-        <div className="resp-modal">
-          <Modal
-            isOpen={modalIsOpens}
-            onAfterOpen={afterOpenModal}
-            onRequestClose={closeModal}
-            style={customStyles}
-            contentLabel="Example Modal"
-          >
-            <button onClick={closeModal} style={closeStyle}>
-              <GrFormClose />
-            </button>
-            <h2 ref={(_subtitle) => (subtitle = _subtitle)}>
-              Informations personnelles sur l'étudiant: {name}
-            </h2>
-            <div style={modalDiv}>
-              <div>
-                <img style={imgP} src={image} alt="profil" />
-              </div>
-              <div style={infor}>
-                <span>Matricule : {matricule}</span>
-                <span>Classe : {niveau}</span>
-                <span>Téléphone : {tel}</span>
-                <span>Statut : {stat}</span>
-              </div>
-            </div>
-          </Modal>
-        </div>
+        {/*<div className="resp-modal">*/}
+        {/*  <Modal*/}
+        {/*      isOpen={modalIsOpens}*/}
+        {/*      onAfterOpen={afterOpenModal}*/}
+        {/*      onRequestClose={closeModal}*/}
+        {/*      style={customStyles}*/}
+        {/*      contentLabel="Example Modal"*/}
+        {/*  >*/}
+        {/*  <button onClick={closeModal} style={closeStyle}>*/}
+        {/*      <GrFormClose />*/}
+        {/*    </button>*/}
+        {/*    <h2 ref={(_subtitle) => (subtitle = _subtitle)}>*/}
+        {/*      Informations personnelles sur l'étudiant: {name}*/}
+        {/*    </h2>*/}
+        {/*    <div style={modalDiv}>*/}
+        {/*      <div>*/}
+        {/*        <img style={imgP} src={image} alt="profil" />*/}
+        {/*      </div>*/}
+        {/*      <div style={infor}>*/}
+        {/*        <span>Matricule : {matricule}</span>*/}
+        {/*        <span>Classe : {niveau}</span>*/}
+        {/*        <span>Téléphone : {tel}</span>*/}
+        {/*        <span>Statut : {stat}</span>*/}
+        {/*      </div>*/}
+        {/*    </div>*/}
+        {/*  </Modal>*/}
+        {/*</div>*/}
       </Section>
     </div>
-    
-    
+
+
   );
 }
 

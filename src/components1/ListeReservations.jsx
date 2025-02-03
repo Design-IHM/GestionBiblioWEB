@@ -76,80 +76,180 @@ function ListeReservations() {
         {loader ?
           <Table variant={darkMode ? "dark" : undefined} striped bordered hover>
             <thead>
-              <tr>
-                <th>Id</th>
-                <th>Nom</th>
-                <th>Classe</th>
-                <th>Document 1</th>
-                <th>Document 2</th>
-                <th>Document 3</th>
-                <th>Etat</th>
-              </tr>
+            <tr>
+              <th style={{
+                backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px"
+              }}>
+                Information
+              </th>
+              <th style={{
+                backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px"
+              }}>
+                Document 1
+              </th>
+              <th style={{
+                backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px"
+              }}>
+                Document 2
+              </th>
+              <th style={{
+                backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px"
+              }}>
+                Document 3
+              </th>
+              <th style={{
+                backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px"
+              }}>
+                Etat</th>
+            </tr>
             </thead>
             <tbody>
               {data.map((doc, index) => {
                 if (doc.etat1 === 'reserv' || doc.etat2 === 'reserv' || doc.etat3 === 'reserv') {
                   return (
                     <tr key={doc.id}>
-                      <td>{index + 1}</td>
-                      <td>{doc.name}</td>
-                      <td>{doc.niveau}</td>
                       <td>
-                        <h4>{doc.etat1 === 'reserv' ? doc.tabEtat1[0] + '\n' : ""}</h4>
-                        {doc.etat1 === 'reserv' ? (doc.tabEtat1[5]).toLocaleString().slice(0, 16) + '\n' : ""}
+                        <div className="d-flex flex-column justify-content-between">
+                          <h5 className="text-center">
+                              {doc.name}
+                            </h5>
+                          <div className="mx-3 mt-4 justify-content-between d-flex flex-row ">
+                            <span style={{fontSize: "12px"}}>id: <p
+                                style={{fontSize: "12px", color: "grey"}}>{index + 1}</p></span>
+                            <span style={{fontSize: "12px"}}>class: <p
+                                  style={{fontSize: "12px", color: "grey"}}>{doc.niveau}</p></span>
+                          </div>
+                        </div>
+                      </td>
+
+                      <td>
+                        <h5>{doc.etat1 === 'reserv' ? doc.tabEtat1[0] + '\n' : ''}</h5>
+                        {doc.etat1 === 'reserv' ? (
+                          <span style={{fontSize: "12px"}}>Date: </span>
+                          ) : ""
+                        }
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            color: "grey"
+                          }}
+                        >
+                          {doc.etat1 === 'reserv' ? doc.tabEtat1[5]?.toLocaleString().slice(0, 16) + '\n' : ''}
+                        </span>
                         <div>
-                          {doc.etat1 === 'reserv' ?
+                          {doc.etat1 === 'reserv' ? (
                             <Button
-                              style={{ backgroundColor: 'green', marginTop: '10px', fontWeight: 'bold' }}
-                              variant="secondary"
-                              className="btn-sm"
-                              onClick={() => { reserv1(doc) }}
+                              style={{
+                                backgroundColor: 'chocolate',
+                                marginTop: "5px",
+                                fontSize: "12px",
+                                fontWeight: 'bold',
+                                borderColor: "chocolate",
+                                padding: "3px"
+                              }}
+                              onClick={() => {
+                                reserv1(doc);
+                              }}
                             >
                               Valider Emprunt
                             </Button>
-                            : 'Espace disponible pour une réservation'}
-                        </div>
+                            ) : (
+                              <p style={{margin: "10px", fontSize: "14px"}}>
+                                Espace disponible pour une réservation
+                              </p>
+                            )}
+                          </div>
                       </td>
-                      <td>
-                        <h4>{doc.etat2 === 'reserv' ? doc.tabEtat2[0] + '\n' : ''}</h4>
-                        {doc.etat2 === 'reserv' ? (doc.tabEtat2[5]).toLocaleString().slice(0, 16) + '\n' : ''}
-                        <div>
-                          {doc.etat2 === 'reserv' ?
-                            <Button
-                              style={{ backgroundColor: 'green', marginTop: '10px', fontWeight: 'bold' }}
-                              variant="secondary"
-                              className="btn-sm"
-                              onClick={() => { reserv2(doc) }}
-                            >
-                              Valider Emprunt
-                            </Button>
-                            : 'Espace disponible pour une réservation'}
-                        </div>
-                      </td>
-                      <td>
-                        <h4>{doc.etat3 === 'reserv' ? doc.tabEtat3[0] + '\n' : ''}</h4>
-                        {doc.etat3 === 'reserv' ? (doc.tabEtat3[5]).toLocaleString().slice(0, 16) + '\n' : ''}
-                        <div>
-                          {doc.etat3 === 'reserv' ?
-                            <Button
-                              style={{ backgroundColor: 'green', marginTop: '10px', fontWeight: 'bold' }}
-                              variant="secondary"
-                              className="btn-sm"
-                              onClick={() => { reserv3(doc) }}
-                            >
-                              Valider Emprunt
-                            </Button>
-                            : 'Espace disponible pour une réservation'}
-                        </div>
-                      </td>
-                      <td>{doc.etat}</td>
-                    </tr>
+
+                        <td>
+                          <h5>{doc.etat2 === 'reserv' ? doc.tabEtat2[0] + '\n' : ''}</h5>
+                          {doc.etat2 === 'reserv' ? (
+                              <span style={{fontSize: "12px"}}>Date: </span>
+                          ) : ""
+                          }
+                          <span
+                            style={{
+                              fontSize: "12px",
+                              color: "grey"
+                            }}
+                          >
+                            {doc.etat2 === 'reserv' ? doc.tabEtat2[5]?.toLocaleString().slice(0, 16) + '\n' : ''}
+                          </span>
+
+                          <div>
+                            {doc.etat2 === 'reserv' ? (
+                              <Button
+                                style={{
+                                  backgroundColor: 'chocolate',
+                                  marginTop: "5px",
+                                  fontSize: "12px",
+                                  fontWeight: 'bold',
+                                  borderColor: "chocolate",
+                                  padding: "3px"
+                                }}
+                                onClick={() => {
+                                  reserv2(doc);
+                                }}
+                              >
+                                Valider Emprunt
+                              </Button>
+                            ) : (
+                              <p style={{margin: "10px", fontSize: "14px"}}>
+                                Espace disponible pour une réservation
+                              </p>
+                            )}
+                          </div>
+                        </td>
+
+                        <td>
+                          <h5>{doc.etat3 === 'reserv' ? doc.tabEtat3[0] + '\n' : ''}</h5>
+                          {doc.etat3 === 'reserv' ? (
+                              <span style={{fontSize: "12px"}}>Date: </span>
+                          ) : ""
+                          }
+                          <span
+                              style={{
+                                fontSize: "12px",
+                                color: "grey"
+                              }}
+                          >
+                          {doc.etat3 === 'reserv' ? doc.tabEtat3[5]?.toLocaleString().slice(0, 16) + '\n' : ''}
+                        </span>
+                          <div>
+                            {doc.etat3 === 'reserv' ? (
+                              <Button
+                                style={{
+                                  backgroundColor: 'chocolate',
+                                  marginTop: "5px",
+                                  fontSize: "12px",
+                                  fontWeight: 'bold',
+                                  borderColor: "chocolate",
+                                  padding: "3px"
+                                }}
+                                onClick={() => {
+                                  reserv3(doc);
+                                }}
+                              >
+                                Valider Emprunt
+                              </Button>
+                              ) : (
+                              <p style={{margin: "10px", fontSize: "14px"}}>
+                                Espace disponible pour une réservation
+                              </p>
+                            )}
+                          </div>
+                        </td>
+
+                        <td>{doc.etat}</td>
+                      </tr>
                   );
                 }
                 return null; // Ajoute cette ligne pour retourner quelque chose même si la condition n'est pas remplie
               })}
             </tbody>
-          </Table> : <Loading />}
+          </Table> :
+            <Loading/>
+        }
       </Section>
     </div>
   );
@@ -159,6 +259,10 @@ export default ListeReservations;
 
 const Section = styled.section`
   overflow: auto;
-  margin-top: 40px;
+  margin-top: 20px;
   margin-bottom: 20px;
+
+  td, tr {
+    text-align: center;
+  }
 `;
