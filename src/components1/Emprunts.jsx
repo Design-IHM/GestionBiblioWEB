@@ -6,6 +6,7 @@ import styled from "styled-components";
 import Loading from "./Loading";
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
+import "./Table.css"
 import { UserContext } from "../App";
 
 function Emprunts() {
@@ -88,31 +89,21 @@ function Emprunts() {
         {
           loader ?
           <Table variant={darkMode ? "dark" : undefined} bordered hover>
-            <thead>
+            <thead className="table-head">
               <tr>
-                <th style={{
-                  backgroundColor: "#E7DAC1FF", color:"chocolate", fontSize: "20px", fontWeight: "bold" , width: "250px"
-                }}>
+                <th className="table-th">
                   Information
                 </th>
-                <th style={{
-                  backgroundColor: "#E7DAC1FF", color:"chocolate", fontSize: "20px", fontWeight: "bold" , width: "250px"
-                }}>
+                <th className="table-th">
                   Document 1
                 </th>
-                <th style={{
-                  backgroundColor: "#E7DAC1FF", color:"chocolate", fontSize: "20px", fontWeight: "bold" , width: "250px"
-                }}>
+                <th className="table-th">
                   Document 2
                 </th>
-                <th style={{
-                  backgroundColor: "#E7DAC1FF", color:"chocolate", fontSize: "20px", fontWeight: "bold" , width: "250px"
-                }}>
+                <th className="table-th">
                   Document 3
                 </th>
-                <th style={{
-                  backgroundColor: "#E7DAC1FF", color:"chocolate", fontSize: "20px", fontWeight: "bold" , width: "250px"
-                }}>
+                <th className="table-th">
                   Etat
                 </th>
               </tr>

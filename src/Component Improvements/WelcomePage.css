@@ -87,7 +87,7 @@
 @media screen and (max-width: 480px) {
 
     .img-banner {
-        height: 200px;
+        height: 350px;
     }
 
     .hero-banner {
@@ -95,11 +95,11 @@
     }
 
     .hero h1 {
-        font-size: 18px;
+        font-size: 2.5rem;
     }
 
     .hero p {
-        font-size: 12px;
+        font-size: 14px;
         margin-top: 5px;
     }
 
