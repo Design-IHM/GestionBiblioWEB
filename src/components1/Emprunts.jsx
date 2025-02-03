@@ -148,7 +148,9 @@ function Emprunts() {
                           style={{
                             fontSize: "12px",
                             color: "grey"
-                          }}>{doc.etat1 === 'emprunt' ? doc.tabEtat1[5].slice(0, 16) + '\n' : ''}</span>
+                          }}>
+                          {doc.etat1 === 'emprunt' ? doc.tabEtat1[5].slice(0, 16) + '\n' : ''}</span>
+
                         <div>
                           {doc.etat1 === 'emprunt' ?
                             <Button

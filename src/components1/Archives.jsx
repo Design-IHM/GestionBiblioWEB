@@ -46,14 +46,29 @@ function Archives() {
       <Navbar />
       <Section>
         {loader ? 
-      <Table variant={darkMode ? "dark" : undefined} striped bordered hover>
+      <Table variant={darkMode ? "dark" : undefined} bordered hover>
         <thead>
           <tr>
-            <th>Id</th>
-            <th>Nom du client</th>     
-            <th>Nom du document</th>
-            <th>Date de remise</th>
-            <th>Statut</th>
+            <th  style={{
+                backgroundColor: "#E7DAC1FF", color:"chocolate", fontSize: "20px", fontWeight: "bold" , width: "400px"
+            }}>
+                Information du client
+            </th>
+            <th style={{
+                backgroundColor: "#E7DAC1FF", color:"chocolate", fontSize: "20px", fontWeight: "bold" , width: "250px"
+            }}>
+                Nom du document
+            </th>
+            <th style={{
+                  backgroundColor: "#E7DAC1FF", color:"chocolate", fontSize: "20px", fontWeight: "bold" , width: "250px"
+                }}>
+                Date de remise
+            </th>
+            <th style={{
+                  backgroundColor: "#E7DAC1FF", color:"chocolate", fontSize: "20px", fontWeight: "bold" , width: "250px"
+                }}>
+                Statut
+            </th>
            
           </tr>
         </thead>
@@ -62,19 +77,24 @@ function Archives() {
         
       return( doc.tableauArchives.slice().reverse().map((e,i)=>{
         if(e.nomDoc.includes(searchWord.toUpperCase()) || e.heure.toUpperCase().includes(searchWord.toUpperCase()) || e.nomEtudiant.toUpperCase().includes(searchWord.toUpperCase())){
-              return ( <tr key={i}>
-                    <td>{doc.tableauArchives.length - i}</td>
-                    <td>{e.nomEtudiant}</td>
-                    
-                    <td>{e.nomDoc}</td>
-                         
-                    <td>{e.heure}</td>
-                    <td>Remis</td>
-                </tr>);
-                }
-                return null;
+          return (
+          <tr key={i}>
+            <td className="flex">
+              <p className="fw-bold">
+                {e.nomEtudiant}
+              </p>
 
-              }))
+              <span style={{color: "grey", fontSize: "12px"}}>
+                {doc.tableauArchives.length - i}
+              </span>
+            </td>
+            <td>{e.nomDoc}</td>
+            <td>{e.heure}</td>
+            <td>Remis</td>
+          </tr>);
+        }
+          return null;
+          }))
          
         })}
         </tbody>

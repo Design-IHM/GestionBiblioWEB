@@ -74,7 +74,7 @@ function ListeReservations() {
       <Navbar />
       <Section>
         {loader ?
-          <Table variant={darkMode ? "dark" : undefined} striped bordered hover>
+          <Table variant={darkMode ? "dark" : undefined} bordered hover>
             <thead>
             <tr>
               <th style={{
