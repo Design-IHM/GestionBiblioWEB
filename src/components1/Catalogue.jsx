@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useContext, useCallback, useRef } from "react";
 import styled from "styled-components";
-import { cardStyles } from "./ReusableStyles";
-import firebase from '../metro.config';
 import { UserContext } from "../App";
 import Modal from 'react-modal';
 import ReactJsAlert from "reactjs-alert";
 import { GrFormClose } from "react-icons/gr";
-import Pagination from "react-bootstrap/Pagination";
+import { FiBook, FiUser, FiGrid, FiBookmark } from 'react-icons/fi';
 import Loading from "./Loading";
 import { useLocation } from 'react-router-dom';
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
+import firebase from '../metro.config';
 
 export default function Catalogue() {
     const location = useLocation();
@@ -120,7 +119,7 @@ export default function Catalogue() {
     }, [getData]);
 
     // Pagination
-    const itemsPerPage = 6;
+    const itemsPerPage = 8;
     const [currentPage, setCurrentPage] = useState(1);
     const totalPages = Math.ceil(data.length / itemsPerPage);
 
@@ -167,33 +166,44 @@ export default function Catalogue() {
 
     return (
         <div className="content-box">
-             <Container>
+            <Container>
                 <Sidebar />
                 <Navbar />
                 <MainContent>
-                    <h1 style={{ textAlign: 'center', color: 'gray', marginTop: '10px', marginBottom: '20px' }}>Liste des Livres du {departement}</h1>
+                    <Title>
+                        <FiBook className="icon" />
+                        Liste des Livres du {departement}
+                    </Title>
                     <Section>
-                    {loader ? (
-                        displayedData.map((doc, index) => {
-                            if (doc.name.toUpperCase().includes(searchWord.toUpperCase())) {
-                                return (
-                                    <Card key={index} onClick={() => openModal(doc)} style={{ backgroundColor: 'white' }}>
-                                        <CardContent>
-                                            <h3 style={{ textAlign: 'center', color: 'chocolate', marginTop: '10px', marginBottom: '20px' }}>{doc.name}</h3>
-                                            <h6 style={{ textAlign: 'center', color: 'black', marginTop: '10px' }}>Département : {doc.cathegorie}</h6>
-                                            <h6 style={{ textAlign: 'center', color: doc.exemplaire === 0 ? 'red' : 'green', marginTop: '10px', marginBottom: '20px' }}>Exemplaire disponible: {doc.exemplaire}</h6>
-                                        </CardContent>
+                        {loader ? (
+                            displayedData.map((doc, index) => (
+                                <Card key={index} onClick={() => openModal(doc)}>
+                                    <CardHeader>
+                                        <ThemeTitle>
+                                            <FiBookmark className="icon" />
+                                            {doc.name}
+                                        </ThemeTitle>
+                                    </CardHeader>
+                                    <CardBody>
+                                        <CardInfo>
+                                            <InfoItem>
+                                                <FiUser className="icon" />
+                                                <span>{doc.cathegorie}</span>
+                                            </InfoItem>
+                                            <InfoItem>
+                                                <FiGrid className="icon" />
+                                                <span>{doc.exemplaire}</span>
+                                            </InfoItem>
+                                        </CardInfo>
                                         <CardImage>
-                                            <a href={doc.image}>
-                                                <img src={doc.image} alt="logo" />
-                                            </a>
+                                            <img src={doc.image} alt="logo" />
                                         </CardImage>
-                                    </Card>
-                                );
-                            }
-                            return null;
-                        })
-                    ) : <Loading />}
+                                    </CardBody>
+                                </Card>
+                            ))
+                        ) : (
+                            <Loading />
+                        )}
                     </Section>
                     {filteredData.length > itemsPerPage && (
                         <PaginationContainer>
@@ -267,134 +277,157 @@ export default function Catalogue() {
                             </form>
                         </Modal>
                     </div>
-                
-                </MainContent >
-             </Container>
-           
-            
-            
-           
+                </MainContent>
+            </Container>
         </div>
     );
 }
 
-const Section = styled.section`
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    
-    overflow-x: auto;
-
-    .analytic {
-        ${cardStyles};
-        padding: 1rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: start;
-        background-color: #fff;
-        color: grey;
-        gap: 1rem;
-        transition: 0.5s ease-in-out;
-
-        &:hover {
-            background-color: #fff;
-            color: grey;
-            transform: scale(1.03);
-        }
-
-        .content {
-            cursor: pointer;
-        }
-
-        .logo img {
-            background-color: black;
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100px;
-            height: 100px;
-        }
-    }
-
-    @media screen and (min-width: 280px) and (max-width: 720px) {
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-
-        .analytic {
-            &:nth-of-type(3),
-            &:nth-of-type(4) {
-                flex-direction: row-reverse;
-            }
-        }
-    }
-`;
-
-const Card = styled.div`
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 1rem;
-    margin: 1rem;
-    transition: transform 0.3s ease;
-    background-color: white;
-
-    &:hover {
-        transform: scale(1.05);
-    }
-`;
-
-const CardContent = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-`;
-
-const CardImage = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 1rem;
-
-    img {
-        width: 100px;
-        height: 100px;
-        border-radius: 10px;
-    }
-`;
-
-const PaginationContainer = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-    gap: 10px;
-`;
-
-const PaginationButton = styled.button`
-    background-color: chocolate;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.3s ease;
-
-    &:disabled {
-        background-color: #ccc;
-        cursor: not-allowed;
-    }
-`;
-
-const PageIndicator = styled.span`
-    font-size: 1rem;
-    color: #333;
+const Container = styled.div`
+  min-height: 100vh;
 `;
 
 const MainContent = styled.div`
   padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
 `;
 
-const Container = styled.div`
-  min-height: 100vh;
+const Title = styled.h1`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: #2d3748;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  font-weight: 600;
+
+  .icon {
+    color: chocolate;
+  }
+`;
+
+const Section = styled.section`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  padding: 1rem;
+
+  @media (max-width: 1400px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 1100px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(1, 1fr);
+  }
+`;
+
+const Card = styled.div`
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  width: 100%;
+  margin: 0;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  }
+`;
+
+const CardHeader = styled.div`
+  padding: 1rem;
+  background: #E7DAC1FF;
+`;
+
+const CardBody = styled.div`
+  padding: 1rem;
+`;
+
+const ThemeTitle = styled.h3`
+  color: black;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+
+  .icon {
+    font-size: 1em;
+  }
+`;
+
+const CardInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+`;
+
+const InfoItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #4a5568;
+  font-size: 0.9rem;
+
+  .icon {
+    color: chocolate;
+  }
+`;
+
+const CardImage = styled.div`
+  width: 100%;
+  height: 150px;
+  overflow: hidden;
+  border-radius: 8px;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover img {
+    transform: scale(1.05);
+  }
+`;
+
+const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+`;
+
+const PaginationButton = styled.button`
+  background: ${props => props.disabled ? '#ccc' : 'white'};
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  color: ${props => props.disabled ? '#666' : 'chocolate'};
+  font-weight: 500;
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: chocolate;
+    color: white;
+  }
+`;
+
+const PageIndicator = styled.span`
+  color: #4a5568;
+  font-weight: 500;
 `;

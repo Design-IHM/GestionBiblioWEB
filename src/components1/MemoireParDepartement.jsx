@@ -1,279 +1,504 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { UserContext } from "../App";
 import { useLocation } from 'react-router-dom';
-import Modal from 'react-modal';
-import { GrFormClose } from 'react-icons/gr';
+import { FiEdit2, FiX, FiBook, FiUser, FiCalendar, FiGrid, FiBookmark, FiMessageSquare } from 'react-icons/fi';
 import Sidebar from "../components1/Sidebar";
 import Navbar from "../components1/Navbar";
 import Loading from "./Loading";
+import firebase from '../metro.config'; // Assurez-vous d'importer Firebase
 
 export default function MemoireParDepartement() {
-  const { searchWord } = useContext(UserContext);
-  const { state } = useLocation();
-  const [modalIsOpen, setIsOpen] = useState(false);
-  const [selectedMemoire, setSelectedMemoire] = useState(null);
-  
-  const memoires = state ? state.memories : [];
-  const departement = state ? state.departement : ""; 
+    const { searchWord } = useContext(UserContext);
+    const { state } = useLocation();
+    const [popupIsOpen, setPopupIsOpen] = useState(false);
+    const [selectedMemoire, setSelectedMemoire] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedMemoire, setEditedMemoire] = useState(null);
 
-  // Pagination
-  const itemsPerPage = 6;
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(memoires.length / itemsPerPage);
+    const memoires = state ? state.memories : [];
+    const departement = state ? state.departement : "";
 
-  const filteredMemoires = memoires.filter((doc) => {
-    const docName = doc.name || "";
-    return docName.toUpperCase().includes(searchWord.toUpperCase());
-  });
+    const itemsPerPage = 8;
+    const [currentPage, setCurrentPage] = useState(1);
+    const totalPages = Math.ceil(memoires.length / itemsPerPage);
 
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const displayedMemoires = filteredMemoires.slice(startIndex, startIndex + itemsPerPage);
+    const filteredMemoires = memoires.filter((doc) => {
+        const docName = doc.name || "";
+        return docName.toUpperCase().includes(searchWord.toUpperCase());
+    });
 
-  function openModal(memoire) {
-    setSelectedMemoire(memoire);
-    setIsOpen(true);
-  }
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const displayedMemoires = filteredMemoires.slice(startIndex, startIndex + itemsPerPage);
 
-  function nextPage() {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-  }
+    let subtitle;
 
-  function prevPage() {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
-  }
+    function openPopup(memoire) {
+        console.log("Opening popup for:", memoire);
+        setSelectedMemoire(memoire);
+        setEditedMemoire({ ...memoire });
+        setIsEditing(false);
+        setPopupIsOpen(true);
+    }
 
-  const customStyles = {
-    content: {
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      top: '50%',
-      left: '50%',
-      right: 'auto',
-      bottom: 'auto',
-      marginRight: '-50%',
-      padding: '10px 50px',
-      transform: 'translate(-50%, -50%)',
-    },
-  };
+    function closePopup() {
+        console.log("Closing popup");
+        setPopupIsOpen(false);
+        setSelectedMemoire(null);
+        setEditedMemoire(null);
+        setIsEditing(false);
+    }
 
-  return (
-    <div className="content-box">
-      <Container>
-        <Sidebar />
-        <Navbar />
-        <MainContent>
-          <Title>Liste des Mémoires du {departement}</Title>
-          <Section>
-            {displayedMemoires.length > 0 ? (
-              displayedMemoires.map((doc, index) => (
-                <Card key={index} onClick={() => openModal(doc)}>
-                  <CardContent>
-                    <ThemeTitle>Thème: {doc.theme}</ThemeTitle>
-                    <AuthorName> Etudiant: {doc.name}</AuthorName>
-                    <Department>Département : {doc.département}</Department>
-                    <Year>Année : {doc.annee}</Year>
-                  </CardContent>
-                  <CardImage>
-                    <a href={doc.image}>
-                      <img src={doc.image} alt="mémoire" />
-                    </a>
-                  </CardImage>
-                </Card>
-              ))
-            ) : (
-              <Loading />
-            )}
-          </Section>
+    function handleEdit() {
+        setIsEditing(!isEditing);
+    }
 
-          {filteredMemoires.length > itemsPerPage && (
-            <PaginationContainer>
-              <PaginationButton onClick={prevPage} disabled={currentPage === 1}>
-                Précédent
-              </PaginationButton>
-              <PageIndicator>Page {currentPage} / {totalPages}</PageIndicator>
-              <PaginationButton onClick={nextPage} disabled={currentPage === totalPages}>
-                Suivant
-              </PaginationButton>
-            </PaginationContainer>
-          )}
+    function handleInputChange(e, field) {
+        setEditedMemoire({
+            ...editedMemoire,
+            [field]: e.target.value
+        });
+    }
 
-          <Modal
-            isOpen={modalIsOpen}
-            onRequestClose={() => setIsOpen(false)}
-            style={customStyles}
-          >
-            <CloseButton onClick={() => setIsOpen(false)}>
-              <GrFormClose />
-            </CloseButton>
-            {selectedMemoire && (
-              <>
-                <ModalTitle>Détails du Mémoire</ModalTitle>
-                <ModalForm>
-                  <FormLabel>Nom</FormLabel>
-                  <FormInput type="text" value={selectedMemoire.name} readOnly />
-                  <FormLabel>Thème</FormLabel>
-                  <FormInput type="text" value={selectedMemoire.theme} readOnly />
-                  <FormLabel>Département</FormLabel>
-                  <FormInput type="text" value={selectedMemoire.département} readOnly />
-                  <FormLabel>Année</FormLabel>
-                  <FormInput type="text" value={selectedMemoire.annee} readOnly />
-                  <FormLabel>Étagère</FormLabel>
-                  <FormInput type="text" value={selectedMemoire.etagere} readOnly />
-                  <FormLabel>Commentaire</FormLabel>
-                  <FormInput type="text" value={selectedMemoire.commentaire} readOnly />
-                </ModalForm>
-              </>
-            )}
-          </Modal>
-        </MainContent>
-      </Container>
-    </div>
-  );
+    const renderValue = (value) => {
+        if (value === null || value === undefined) {
+            return '';
+        }
+        if (typeof value === 'object') {
+            // Si la valeur est un objet, on le convertit en chaîne lisible
+            return JSON.stringify(value);
+        }
+        return value;
+    };
+
+    const updateMemoire = async (e) => {
+        e.preventDefault(); // Empêcher le comportement par défaut du formulaire
+        try {
+            // Vérifiez que le champ `matricule` a une valeur définie
+            if (!selectedMemoire.matricule) {
+                console.error("Le champ 'matricule' est undefined.");
+                return;
+            }
+
+             // Log des valeurs avant la mise à jour
+             console.log("Avant la mise à jour:", selectedMemoire);
+             console.log("Nouvelles valeurs:", editedMemoire);
+
+            // Utilisez le champ `matricule` pour mettre à jour le document
+            await firebase.firestore().collection('Memoire').doc(selectedMemoire.matricule).update(editedMemoire);
+            console.log("Mémoire mis à jour avec succès");
+
+            // Log des valeurs après la mise à jour
+            const updatedDoc = await firebase.firestore().collection('Memoire').doc(selectedMemoire.matricule).get();
+            console.log("Après la mise à jour:", updatedDoc.data());
+            closePopup();
+        } catch (error) {
+            console.error("Erreur lors de la mise à jour du mémoire:", error);
+        }
+    };
+
+    useEffect(() => {
+        if (selectedMemoire) {
+            console.log("Selected Memoire:", selectedMemoire);
+        }
+    }, [selectedMemoire]);
+
+    return (
+        <div className="content-box">
+            <Container>
+                <Sidebar />
+                <Navbar />
+                <MainContent>
+                    <Title>
+                        <FiBook className="icon" />
+                        Liste des Mémoires du {departement}
+                    </Title>
+                    <Section>
+                        {displayedMemoires.length > 0 ? (
+                            displayedMemoires.map((doc, index) => (
+                                <Card key={index} onClick={() => openPopup(doc)}>
+                                    <CardHeader>
+                                        <ThemeTitle>
+                                            <FiBookmark className="icon" />
+                                            {doc.theme}
+                                        </ThemeTitle>
+                                    </CardHeader>
+                                    <CardBody>
+                                        <CardInfo>
+                                            <InfoItem>
+                                                <FiUser className="icon" />
+                                                <span>{doc.name}</span>
+                                            </InfoItem>
+                                            <InfoItem>
+                                                <FiGrid className="icon" />
+                                                <span>{doc.département}</span>
+                                            </InfoItem>
+                                            <InfoItem>
+                                                <FiCalendar className="icon" />
+                                                <span>{doc.annee}</span>
+                                            </InfoItem>
+                                        </CardInfo>
+                                        <CardImage>
+                                            <img src={doc.image} alt="mémoire" />
+                                        </CardImage>
+                                    </CardBody>
+                                </Card>
+                            ))
+                        ) : (
+                            <Loading />
+                        )}
+                    </Section>
+
+                    {filteredMemoires.length > itemsPerPage && (
+                        <PaginationContainer>
+                            <PaginationButton
+                                onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                                disabled={currentPage === 1}
+                            >
+                                Précédent
+                            </PaginationButton>
+                            <PageIndicator>Page {currentPage} / {totalPages}</PageIndicator>
+                            <PaginationButton
+                                onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                            >
+                                Suivant
+                            </PaginationButton>
+                        </PaginationContainer>
+                    )}
+
+                    {popupIsOpen && selectedMemoire && (
+                        <PopupOverlay onClick={closePopup}>
+                            <PopupContent onClick={e => e.stopPropagation()}>
+                                <CloseButton onClick={closePopup}>
+                                    <FiX />
+                                </CloseButton>
+                                <h2>Détails du Mémoire</h2>
+                                <PopupForm onSubmit={updateMemoire}>
+                                    {Object.entries(selectedMemoire).map(([key, value]) => {
+                                        // Ignorer certaines clés si nécessaire
+                                        if (key === 'image' || key === 'commentaire') return null;
+
+                                        return (
+                                            <FormGroup key={key}>
+                                                <Label htmlFor={key}>{key.charAt(0).toUpperCase() + key.slice(1)}</Label>
+                                                {isEditing ? (
+                                                    typeof value === 'object' ? (
+                                                        <Textarea
+                                                            id={key}
+                                                            value={JSON.stringify(value, null, 2)}
+                                                            onChange={(e) => handleInputChange(e, key)}
+                                                        />
+                                                    ) : (
+                                                        <Input
+                                                            id={key}
+                                                            type="text"
+                                                            value={editedMemoire[key] || ''}
+                                                            onChange={(e) => handleInputChange(e, key)}
+                                                        />
+                                                    )
+                                                ) : (
+                                                    <p>{renderValue(value)}</p>
+                                                )}
+                                                {!isEditing && (
+                                                    <EditIcon onClick={handleEdit}>
+                                                        <FiEdit2 />
+                                                    </EditIcon>
+                                                )}
+                                            </FormGroup>
+                                        );
+                                    })}
+
+                                    <ButtonContainer>
+                                        <EditButton type="submit">
+                                            {isEditing ? "Enregistrer" : "Modifier"}
+                                        </EditButton>
+                                    </ButtonContainer>
+                                </PopupForm>
+                            </PopupContent>
+                        </PopupOverlay>
+                    )}
+                </MainContent>
+            </Container>
+        </div>
+    );
 }
 
-// Styled Components
+// Styles...
+
 const Container = styled.div`
   min-height: 100vh;
 `;
 
 const MainContent = styled.div`
   padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
 `;
 
 const Title = styled.h1`
-  text-align: center;
-  color: gray;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: #2d3748;
   margin-bottom: 2rem;
-  font-size: 1.8rem;
+  font-size: 2rem;
+  font-weight: 600;
+
+  .icon {
+    color: chocolate;
+  }
 `;
 
 const Section = styled.section`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(4, 1fr); // Forcé à 4 colonnes au lieu de auto-fill
   gap: 1.5rem;
   padding: 1rem;
+
+  @media (max-width: 1400px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 1100px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(1, 1fr);
+  }
 `;
 
 const Card = styled.div`
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
   cursor: pointer;
-  transition: transform 0.3s ease;
+  width: 100%; // Permet à la carte de prendre toute la largeur de sa cellule
+  margin: 0;   // Retire la marge auto
 
   &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  }
+`;
+
+const CardHeader = styled.div`
+  padding: 1rem;
+  background:  #E7DAC1FF;
+`;
+
+const CardBody = styled.div`
+  padding: 1rem;
+`;
+
+const ThemeTitle = styled.h3`
+  color: black;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+
+  .icon {
+    font-size: 1em;
+  }
+`;
+
+const CardInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+`;
+
+const InfoItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #4a5568;
+  font-size: 0.9rem;
+
+  .icon {
+    color: chocolate;
+  }
+`;
+
+const CardImage = styled.div`
+  width: 100%;
+  height: 150px;
+  overflow: hidden;
+  border-radius: 8px;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover img {
     transform: scale(1.05);
   }
 `;
 
-const CardContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-`;
-
-const ThemeTitle = styled.h3`
-  color: chocolate;
-  text-align: center;
-  margin-bottom: 1rem;
-  font-size: 1.2rem;
-`;
-
-const AuthorName = styled.h4`
-  color: #333;
-  text-align: center;
-`;
-
-const Department = styled.h6`
-  color: black;
-  text-align: center;
-  margin-top: 0.5rem;
-`;
-
-const Year = styled.h6`
-  color: #666;
-  text-align: center;
-  margin-top: 0.5rem;
-`;
-
-const CardImage = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 1rem;
-
-  img {
-    width: 100px;
-    height: 100px;
-    border-radius: 10px;
-    object-fit: cover;
-  }
-`;
-
-// Pagination Styles
 const PaginationContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 20px;
-  gap: 10px;
+  gap: 1rem;
+  margin-top: 2rem;
 `;
 
 const PaginationButton = styled.button`
-  background-color: chocolate;
-  color: white;
+  background: ${props => props.disabled ? '#ccc' : 'white'};
   border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s ease;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  color: ${props => props.disabled ? '#666' : 'chocolate'};
+  font-weight: 500;
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
 
-  &:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
+  &:hover:not(:disabled) {
+    background: chocolate;
+    color: white;
   }
 `;
 
 const PageIndicator = styled.span`
-  font-size: 1rem;
-  color: #333;
+  color: #4a5568;
+  font-weight: 500;
+`;
+
+const PopupOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const PopupContent = styled.div`
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow-y: auto;
+  max-height: 80vh;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 0;
+  }
 `;
 
 const CloseButton = styled.button`
   position: absolute;
-  right: 1rem;
-  top: 1rem;
+  right: 10px;
+  top: 10px;
   background: none;
   border: none;
   cursor: pointer;
   font-size: 1.5rem;
+  color: #4a5568;
 `;
 
-const ModalTitle = styled.h2`
-  color: #333;
-  margin-bottom: 1.5rem;
-`;
-
-const ModalForm = styled.form`
+const PopupForm = styled.form`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  width: 100%;
 `;
 
-const FormLabel = styled.label`
+const FormGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  position: relative;
+`;
+
+const Label = styled.label`
   font-size: 1rem;
-  color: #333;
+  color: #4a5568;
 `;
 
-const FormInput = styled.input`
+const Input = styled.input`
+  border-radius: 5px;
+  border: 1px solid #e2e8f0;
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: chocolate;
+    box-shadow: 0 0 0 3px rgba(210, 105, 30, 0.1);
+  }
+`;
+
+const Textarea = styled.textarea`
+  border-radius: 5px;
+  border: 1px solid #e2e8f0;
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  min-height: 100px;
+  resize: vertical;
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: chocolate;
+    box-shadow: 0 0 0 3px rgba(210, 105, 30, 0.1);
+  }
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+`;
+
+const EditButton = styled.button`
+  background: green;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: darkgreen;
+  }
+`;
+
+const EditIcon = styled.button`
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #4a5568;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;

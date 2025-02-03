@@ -59,6 +59,7 @@ export default function AdminMemoriesHome() {
         items.push(doc.data());
       });
       setMemories(items);
+      console.log(items);
     });
   };
 
