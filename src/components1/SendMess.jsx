@@ -50,7 +50,7 @@ export default function SendMess() {
     }
 
 
-    const {email, setEmail, setNom} = useContext(UserContext)
+    const {email, setEmail,nom, setNom} = useContext(UserContext)
 
 
 
