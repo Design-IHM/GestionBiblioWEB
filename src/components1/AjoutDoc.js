@@ -139,7 +139,7 @@ export default function AjoutDoc(props) {
                                         required
                                     >
                                         <option value='Mathematique'>MSP</option>
-                                        <option value='Genie Informatique'>Génie Informatique</option>
+                                        <option value='Genie Informatique'>Génie informatique</option>
                                         <option value="Genie Civile">Génie Civile</option>
                                         <option value='Genie Electrique'>Génie Électrique</option>
                                         <option value='Genie Mecanique'>Génie Mécanique/Industriel</option>

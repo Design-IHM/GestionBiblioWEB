@@ -165,6 +165,15 @@ export default function Sidebar() {
                   <span>Archives</span>
                 </NavLink>
               </li>
+              <li
+                className={currentLink === 16 ? "active" : "none"}
+                onClick={() => changer()}
+              >
+                <NavLink className="linkin" to="/dashboard" end>
+                  <MdRuleFolder/>
+                  <span>Statistiques</span>
+                </NavLink>
+              </li>
             </ul>
           </div>
         </div>
