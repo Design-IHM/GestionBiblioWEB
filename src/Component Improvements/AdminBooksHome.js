@@ -10,6 +10,7 @@ import img3 from  '../assets/genie_telecom.jpg';
 import img4 from  '../assets/genie_electrique.jpg';
 import img5 from '../assets/genie_meca.jpg';
 import img6 from  '../assets/Msp.jpg';
+import { useI18n } from '../Context/I18nContext';
 
 export default function DepartementsList() {
   const departements = [
@@ -32,7 +33,10 @@ const images = [
   img6,
 
 ]  
-
+const { language } = useI18n();
+const translations = {
+  admin : language === "FR" ? "Administration des livres" : "Book's administration"
+}
   const departementRows = [];
   let currentRow = [];
 
@@ -61,8 +65,8 @@ const images = [
         className="d-flex align-items-center justify-content-center mb-4 "
         
       >
-        <h1 className="mr-2 text-secondary">Administration des livres</h1>
-        <FaBook style={{ fontSize: '2rem' }} className='text-dark'/>
+        <h1 className="mr-2 text-secondary">{translations.admin}</h1>
+        
       </div>
       <diV className='mt-2'>
         {departementRows}

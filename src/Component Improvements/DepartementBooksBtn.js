@@ -5,11 +5,33 @@ import { FaBook, FaPlus } from 'react-icons/fa';
 import firebase from '../metro.config';
 import ReactJsAlert from "reactjs-alert";
 import { v4 as uuidv4 } from 'uuid';
+import { useI18n } from "../Context/I18nContext"; // Importez le contexte i18n
 
 export default function DepartementMemoriesBtn(props) {
   const navigate = useNavigate();
   const { nom_du_departement, myimage } = props;
   
+  // Contexte i18n
+  const { language } = useI18n();
+
+  // Traductions
+  const translations = {
+    view: language === "FR" ? "Visualiser" : "View",
+    add: language === "FR" ? "Ajouter" : "Add",
+    add_book: language === "FR" ? `Ajouter un livre de ${nom_du_departement}` : `Add a book from ${nom_du_departement}`,
+    book_name: language === "FR" ? "Nom du Livre" : "Book Name",
+    department: language === "FR" ? "Département" : "Department",
+    number_of_copies: language === "FR" ? "Nombre d'exemplaires" : "Number of Copies",
+    shelf: language === "FR" ? "Etagère" : "Shelf",
+    description: language === "FR" ? "Description du document" : "Document Description",
+    book_image: language === "FR" ? "Image du livre" : "Book Image",
+    save: language === "FR" ? "Enregistrement en cours..." : "Saving...",
+    add_button: language === "FR" ? "Ajouter" : "Add",
+    document_added: language === "FR" ? "Document ajouté avec succès" : "Document added successfully",
+    error_upload_image: language === "FR" ? "Veuillez sélectionner une image" : "Please select an image",
+    error_saving: language === "FR" ? "Erreur lors de l'enregistrement du document" : "Error saving document",
+  };
+
   // États pour le style et modal
   const [isHovered, setIsHovered] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -82,7 +104,7 @@ export default function DepartementMemoriesBtn(props) {
     if (!image) {
       setStatus(true);
       setType("error");
-      setTitle("Veuillez sélectionner une image");
+      setTitle(translations.error_upload_image);
       return;
     }
 
@@ -113,13 +135,13 @@ export default function DepartementMemoriesBtn(props) {
 
       setStatus(true);
       setType("success");
-      setTitle("Document ajouté avec succès");
+      setTitle(translations.document_added);
       handleModalClose();
     } catch (error) {
       console.error("Erreur lors de l'enregistrement:", error);
       setStatus(true);
       setType("error");
-      setTitle("Erreur lors de l'enregistrement du document");
+      setTitle(translations.error_saving);
     } finally {
       setLoading(false);
     }
@@ -204,10 +226,10 @@ export default function DepartementMemoriesBtn(props) {
         <div className="card-body">
           <div style={buttonContainerStyle}>
             <Button variant="primary" onClick={handleVisualiser} style={buttonVisualiserStyle}>
-              Visualiser
+              {translations.view}
             </Button>
             <Button variant="success" onClick={handleAjouter} style={buttonAjouterStyle}>
-              <FaPlus style={iconStyle} /> Ajouter
+              <FaPlus style={iconStyle} /> {translations.add}
             </Button>
           </div>
         </div>
@@ -216,16 +238,16 @@ export default function DepartementMemoriesBtn(props) {
       <Modal show={showModal} onHide={handleModalClose} style={{ backgroundColor: 'transparent' }}>
         <Modal.Header closeButton>
           <Modal.Title className='text-center'>
-            <h2 className='text-center'>Ajouter un livre de {nom_du_departement}</h2>
+            <h2 className='text-center'>{translations.add_book}</h2>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
             <Form.Group className='mb-3'>
-              <Form.Label className="labelForm">Nom du Livre</Form.Label>
+              <Form.Label className="labelForm">{translations.book_name}</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Nom du livre"
+                placeholder={translations.book_name}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
@@ -233,7 +255,7 @@ export default function DepartementMemoriesBtn(props) {
             </Form.Group>
 
             <Form.Group className='mb-3'>
-              <Form.Label className="labelForm">Département</Form.Label>
+              <Form.Label className="labelForm">{translations.department}</Form.Label>
               <Form.Control
                 type="text"
                 value={nom_du_departement}
@@ -242,10 +264,10 @@ export default function DepartementMemoriesBtn(props) {
             </Form.Group>
 
             <Form.Group className='mb-3'>
-              <Form.Label className="labelForm">Nombre d'exemplaires</Form.Label>
+              <Form.Label className="labelForm">{translations.number_of_copies}</Form.Label>
               <Form.Control
                 type="number"
-                placeholder="Nombre d'exemplaires"
+                placeholder={translations.number_of_copies}
                 value={exemplaire}
                 onChange={(e) => setExemplaire(e.target.value)}
                 required
@@ -253,10 +275,10 @@ export default function DepartementMemoriesBtn(props) {
             </Form.Group>
 
             <Form.Group className='mb-3'>
-              <Form.Label className="labelForm">Etagère</Form.Label>
+              <Form.Label className="labelForm">{translations.shelf}</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="Etagère"
+                placeholder={translations.shelf}
                 value={etagere}
                 onChange={(e) => setEtagere(e.target.value)}
                 required
@@ -264,11 +286,11 @@ export default function DepartementMemoriesBtn(props) {
             </Form.Group>
 
             <Form.Group className='mb-3'>
-              <Form.Label className="labelForm">Description du document</Form.Label>
+              <Form.Label className="labelForm">{translations.description}</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={2}
-                placeholder="Description"
+                placeholder={translations.description}
                 value={desc}
                 onChange={(e) => setDesc(e.target.value)}
                 required
@@ -277,7 +299,7 @@ export default function DepartementMemoriesBtn(props) {
 
             <Form.Group className='mb-3'>
               <FaBook style={bookIconStyle1} />
-              <Form.Label className="labelForm">Image du livre</Form.Label>
+              <Form.Label className="labelForm">{translations.book_image}</Form.Label>
               <Form.Control
                 type="file"
                 accept="image/*"
@@ -300,7 +322,7 @@ export default function DepartementMemoriesBtn(props) {
               className='btn btn-success w-100'
               disabled={loading}
             >
-              {loading ? 'Enregistrement en cours...' : 'Ajouter'}
+              {loading ? translations.save : translations.add_button}
             </button>
           </Form>
         </Modal.Body>
