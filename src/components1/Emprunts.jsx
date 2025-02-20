@@ -7,11 +7,14 @@ import Loading from "./Loading";
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
 import { UserContext } from "../App";
+import { useI18n } from "../Context/I18nContext";
 
 function Emprunts() {
   const ref = firebase.firestore().collection("BiblioUser");
   const [data, setData] = useState([]);
   const [loader, setLoader] = useState(false);
+  const { darkMode } = useContext(UserContext);
+  const { language } = useI18n();
 
   const getData = useCallback(() => {
     ref.onSnapshot((querySnapshot) => {
@@ -78,42 +81,40 @@ function Emprunts() {
     }
   }
 
-  const { darkMode } = useContext(UserContext);
+  // Traductions directes pour la liste des emprunts
+  const translations = {
+    information: language === "FR" ? "Information" : "Information",
+    document1: language === "FR" ? "Document 1" : "Document 1",
+    document2: language === "FR" ? "Document 2" : "Document 2",
+    document3: language === "FR" ? "Document 3" : "Document 3",
+    status: language === "FR" ? "Etat" : "Status",
+    validate_return: language === "FR" ? "Valider Remise" : "Validate Return",
+    document_returned: language === "FR" ? "Le document a déjà été remis." : "The document has already been returned."
+  };
 
   return (
     <div className="content-box">
       <Sidebar />
       <Navbar />
       <Section>
-        {
-          loader ?
+        {loader ? (
           <Table variant={darkMode ? "dark" : undefined} bordered hover>
             <thead>
               <tr>
-                <th style={{
-                  backgroundColor: "#E7DAC1FF", color:"chocolate", fontSize: "20px", fontWeight: "bold" , width: "250px"
-                }}>
-                  Information
+                <th style={{ backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px" }}>
+                  {translations.information}
                 </th>
-                <th style={{
-                  backgroundColor: "#E7DAC1FF", color:"chocolate", fontSize: "20px", fontWeight: "bold" , width: "250px"
-                }}>
-                  Document 1
+                <th style={{ backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px" }}>
+                  {translations.document1}
                 </th>
-                <th style={{
-                  backgroundColor: "#E7DAC1FF", color:"chocolate", fontSize: "20px", fontWeight: "bold" , width: "250px"
-                }}>
-                  Document 2
+                <th style={{ backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px" }}>
+                  {translations.document2}
                 </th>
-                <th style={{
-                  backgroundColor: "#E7DAC1FF", color:"chocolate", fontSize: "20px", fontWeight: "bold" , width: "250px"
-                }}>
-                  Document 3
+                <th style={{ backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px" }}>
+                  {translations.document3}
                 </th>
-                <th style={{
-                  backgroundColor: "#E7DAC1FF", color:"chocolate", fontSize: "20px", fontWeight: "bold" , width: "250px"
-                }}>
-                  Etat
+                <th style={{ backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px" }}>
+                  {translations.status}
                 </th>
               </tr>
             </thead>
@@ -125,34 +126,24 @@ function Emprunts() {
                     <tr key={doc.id}>
                       <td>
                         <div className="d-flex flex-column justify-content-between">
-                          <h5>
-                            {doc.name}
-                          </h5>
+                          <h5>{doc.name}</h5>
                           <div className="mx-3 mt-4 justify-content-between d-flex flex-row ">
-                            <span style={{fontSize: "12px"}}>id: <p
-                              style={{fontSize: "12px", color: "grey"}}>{index + 1}</p></span>
-                            <span style={{fontSize: "12px"}}>class: <p
-                              style={{fontSize: "12px", color: "grey"}}>{doc.niveau}</p></span>
+                            <span style={{ fontSize: "12px" }}>id: <p style={{ fontSize: "12px", color: "grey" }}>{index + 1}</p></span>
+                            <span style={{ fontSize: "12px" }}>class: <p style={{ fontSize: "12px", color: "grey" }}>{doc.niveau}</p></span>
                           </div>
                         </div>
                       </td>
 
                       <td>
                         <h5>{doc.etat1 === 'emprunt' ? doc.tabEtat1[0] + '\n' : ''}</h5>
-                        {doc.etat1 === 'emprunt' ?
-                          <span style={{fontSize: "12px"}}>Date: </span>
-                          : ""
-                        }
-
-                        <span
-                          style={{
-                            fontSize: "12px",
-                            color: "grey"
-                          }}>
-                          {doc.etat1 === 'emprunt' ? doc.tabEtat1[5].slice(0, 16) + '\n' : ''}</span>
-
+                        {doc.etat1 === 'emprunt' ? (
+                          <span style={{ fontSize: "12px" }}>Date: </span>
+                        ) : ""}
+                        <span style={{ fontSize: "12px", color: "grey" }}>
+                          {doc.etat1 === 'emprunt' ? doc.tabEtat1[5].slice(0, 16) + '\n' : ''}
+                        </span>
                         <div>
-                          {doc.etat1 === 'emprunt' ?
+                          {doc.etat1 === 'emprunt' ? (
                             <Button
                               style={{
                                 backgroundColor: 'chocolate',
@@ -162,35 +153,30 @@ function Emprunts() {
                                 borderColor: "chocolate",
                                 padding: "3px"
                               }}
-                              // className="btn-sm"
                               onClick={() => {
-                                remis1(doc)
+                                remis1(doc);
                               }}
                             >
-                              Valider Remise
+                              {translations.validate_return}
                             </Button>
-                            :
-                            <p style={{margin: "10px", fontSize: "14px"}}>
-                              Le document a déjà été remis.
+                          ) : (
+                            <p style={{ margin: "10px", fontSize: "14px" }}>
+                              {translations.document_returned}
                             </p>
-                          }
+                          )}
                         </div>
                       </td>
 
                       <td>
                         <h5>{doc.etat2 === 'emprunt' ? doc.tabEtat2[0] + '\n' : ''}</h5>
-                        {doc.etat2 === 'emprunt' ?
-                          <span style={{fontSize: "12px"}}>Date: </span>
-                          : ""
-                        }
-
-                        <span
-                          style={{
-                            fontSize: "12px",
-                            color: "grey"
-                          }}>{doc.etat2 === 'emprunt' ? doc.tabEtat2[5].slice(0, 16) + '\n' : ''}</span>
+                        {doc.etat2 === 'emprunt' ? (
+                          <span style={{ fontSize: "12px" }}>Date: </span>
+                        ) : ""}
+                        <span style={{ fontSize: "12px", color: "grey" }}>
+                          {doc.etat2 === 'emprunt' ? doc.tabEtat2[5].slice(0, 16) + '\n' : ''}
+                        </span>
                         <div>
-                          {doc.etat2 === 'emprunt' ?
+                          {doc.etat2 === 'emprunt' ? (
                             <Button
                               style={{
                                 backgroundColor: 'chocolate',
@@ -200,38 +186,30 @@ function Emprunts() {
                                 borderColor: "chocolate",
                                 padding: "3px"
                               }}
-                              // className="btn-sm"
                               onClick={() => {
-                                remis2(doc)
+                                remis2(doc);
                               }}
                             >
-                              Valider Remise
+                              {translations.validate_return}
                             </Button>
-                            :
-                            <p style={{margin: "10px",fontSize: "14px"}}>
-                              Le document a déjà été remis.
+                          ) : (
+                            <p style={{ margin: "10px", fontSize: "14px" }}>
+                              {translations.document_returned}
                             </p>
-                          }
+                          )}
                         </div>
                       </td>
 
                       <td>
                         <h5>{doc.etat3 === 'emprunt' ? doc.tabEtat3[0] + '\n' : ''}</h5>
-                        {doc.etat3 === 'emprunt' ?
-                          <span style={{fontSize: "12px"}}>Date: </span>
-                          : ""
-                        }
-
-                        <span
-                          style={{
-                            fontSize: "12px",
-                            color: "grey"
-                          }}
-                        >
+                        {doc.etat3 === 'emprunt' ? (
+                          <span style={{ fontSize: "12px" }}>Date: </span>
+                        ) : ""}
+                        <span style={{ fontSize: "12px", color: "grey" }}>
                           {doc.etat3 === 'emprunt' ? doc.tabEtat3[5].slice(0, 16) + '\n' : ''}
                         </span>
                         <div>
-                          {doc.etat3 === 'emprunt' ?
+                          {doc.etat3 === 'emprunt' ? (
                             <Button
                               style={{
                                 backgroundColor: 'chocolate',
@@ -241,22 +219,21 @@ function Emprunts() {
                                 borderColor: "chocolate",
                                 padding: "3px"
                               }}
-                              // className="btn-sm"
                               onClick={() => {
-                                remis3(doc)
+                                remis3(doc);
                               }}
                             >
-                              Valider Remise
+                              {translations.validate_return}
                             </Button>
-                            :
-                            <p style={{margin: "10px",fontSize: "14px"}}>
-                              Le document a déjà été remis.
+                          ) : (
+                            <p style={{ margin: "10px", fontSize: "14px" }}>
+                              {translations.document_returned}
                             </p>
-                          }
+                          )}
                         </div>
                       </td>
 
-                      <td style={{margin: "10px",fontSize: "14px"}}>{doc.etat}</td>
+                      <td style={{ margin: "10px", fontSize: "14px" }}>{doc.etat}</td>
                     </tr>
                   );
                 }
@@ -264,9 +241,9 @@ function Emprunts() {
               })}
             </tbody>
           </Table>
-          :
+        ) : (
           <Loading />
-        }
+        )}
       </Section>
     </div>
   );
@@ -275,13 +252,11 @@ function Emprunts() {
 export default Emprunts;
 
 const Section = styled.section`
-    overflow: auto;
-    margin-top: 20px;
-    margin-bottom: 20px;
+  overflow: auto;
+  margin-top: 20px;
+  margin-bottom: 20px;
 
-    td, tr {
-        text-align: center;
-    }
+  td, tr {
+    text-align: center;
+  }
 `;
-
-

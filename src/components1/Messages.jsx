@@ -6,38 +6,36 @@ import { UserContext } from "../App";
 import Loading from "./Loading";
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
+import { useI18n } from "../Context/I18nContext";
+import { BiMessageDetail } from 'react-icons/bi';
+import { IoPersonOutline } from 'react-icons/io5';
+import { BsPlusLg } from 'react-icons/bs';
+import { AiOutlineHome } from 'react-icons/ai';
 
 export default function Messages() {
     const { setMessages, setEmail, setNom } = useContext(UserContext);
-
+    const { language } = useI18n();
     const refUser = firebase.firestore().collection("BiblioUser");
-
     const [data, setData] = useState([]);
-    const [ dataMes, setDataMes] = useState([]);
+    const [dataMes, setDataMes] = useState([]);
     const [loader, setLoader] = useState(false);
 
     const getDataUser = useCallback(() => {
         refUser.onSnapshot((querySnapshot) => {
             const items = [];
             const itemsMes = [];
-
             querySnapshot.forEach((doc) => {
                 const userData = doc.data();
-
                 if (userData.messages && userData.messages.length > 1) {
                     items.push(userData);
                 }
-
                 if (userData.messages) {
                     itemsMes.push(userData.messages);
                 }
             });
-
             setData(items);
             setDataMes(itemsMes);
             setLoader(true);
-
-            console.log("Données récupérées:", items);
         });
     }, [refUser]);
 
@@ -52,7 +50,16 @@ export default function Messages() {
     };
 
     const newMessage = () => {
-        setEmail(""); // Assurez-vous de passer une valeur correcte
+        setEmail("");
+    };
+
+    const translations = {
+        message_history: language === "FR" ? "Historique des discussions" : "Message History",
+        names: language === "FR" ? "Noms" : "Names",
+        recent_messages: language === "FR" ? "Messages récents" : "Recent Messages",
+        no_message: language === "FR" ? "Aucun message" : "No Message",
+        new_message: language === "FR" ? "Nouveau Message" : "New Message",
+        go_to_home: language === "FR" ? "Accueil" : "Home"
     };
 
     return (
@@ -60,164 +67,220 @@ export default function Messages() {
             <Sidebar />
             <Navbar />
             <Section>
-                <div className="mess">Historique des discussions</div>
+                <div className="title-container">
+                    <BiMessageDetail className="title-icon" />
+                    <h1 className="title">{translations.message_history}</h1>
+                </div>
+
                 {loader ? (
-                    <>
+                    <div className="messages-container">
                         <div className="header-mess">
-                            <div className="header-name">Noms</div>
-                            <div className="header-me">Messages les plus récents</div>
-                        </div>
-                        {data.map((msg, index) => (
-                            <div
-                                className="horizon-div"
-                                key={index}
-                                onClick={() => changerCat(msg.messages, msg.email, msg.name)}
-                            >
-                                <NavLink className="lin" to="/discuss" end>
-                                    <div className="mess-name">{msg.name} :</div>
-                                    <div className="mess-mess">
-                                        {msg.messages && msg.messages.length > 0
-                                            ? msg.messages[msg.messages.length - 1].texte
-                                            : "Aucun message"}
-                                    </div>
-                                </NavLink>
+                            <div className="header-name">
+                                <IoPersonOutline className="header-icon" />
+                                {translations.names}
                             </div>
-                        ))}
-                    </>
+                            <div className="header-me">
+                                <BiMessageDetail className="header-icon" />
+                                {translations.recent_messages}
+                            </div>
+                        </div>
+
+                        <div className="messages-list">
+                            {data.map((msg, index) => (
+                                <div
+                                    className="message-item"
+                                    key={index}
+                                    onClick={() => changerCat(msg.messages, msg.email, msg.name)}
+                                >
+                                    <NavLink className="message-link" to="/discuss" end>
+                                        <div className="message-name">
+                                            <IoPersonOutline className="user-icon" />
+                                            {msg.name}
+                                        </div>
+                                        <div className="message-content">
+                                            {msg.messages && msg.messages.length > 0
+                                                ? msg.messages[msg.messages.length - 1].texte
+                                                : translations.no_message}
+                                        </div>
+                                    </NavLink>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 ) : (
                     <Loading />
                 )}
 
-                <NavLink onClick={newMessage} className="new-message-link" to="/sendMessage" end>
-                    <div className="new-message"><span>+</span></div>
+                <NavLink onClick={newMessage} className="new-message-button" to="/sendMessage" end>
+                    <span>{translations.new_message}</span>
                 </NavLink>
 
-                <NavLink to="/accueil" className="home">
-                    Aller à Accueil
-                </NavLink>
+                
             </Section>
         </div>
     );
 }
 
+// Modifier le style :
 const Section = styled.section`
+    padding: 2rem;
     margin-top: 40px;
-    .mess {
-        color: black;
-        text-align: center;
-        font-size: 40px;
-        margin-bottom: 20px;
-        text-decoration: underline;
-        border: 2px solid black;
+
+    .title-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2rem;
+        gap: 1rem;
+
+        .title-icon {
+            font-size: 2.5rem;
+            color: #2c3e50;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+    }
+
+    .messages-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
     }
 
     .header-mess {
         display: flex;
-        width: 100%;
-        height: 50px;
-        color: black;
-        margin: 0 0 20px 0;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        padding: 1rem;
+
+        .header-name, .header-me {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: chocolate;
+            padding: 0 1rem;
+        }
 
         .header-name {
-            padding-top: 10px;
             width: 30%;
-            height: 100%;
-            text-align: center;
-            font-size: 30px;
+            padding-left: 3rem;
         }
+
         .header-me {
-            padding-top: 10px;
-            text-align: center;
             width: 70%;
-            height: 100%;
-            font-size: 30px;
+            padding-left: 3rem;
+        }
+
+        .header-icon {
+            font-size: 1.2rem;
         }
     }
 
-    .horizon-div {
+    .messages-list {
+        /* Suppression de max-height et overflow-y */
+        
+        .message-item {
+            transition: all 0.2s ease;
+            border-bottom: 1px solid #e9ecef;
+
+            &:hover {
+                background: #f8f9fa;
+            }
+
+            .message-link {
+                display: flex;
+                text-decoration: none;
+                padding: 1rem;
+                color: #2c3e50;
+
+                .message-name {
+                    width: 30%;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    font-weight: 500;
+                    padding-left: 2rem;
+
+                    .user-icon {
+                        color: #6c757d;
+                    }
+                }
+
+                .message-content {
+                    width: 70%;
+                    padding-left: 2rem;
+                    color: #6c757d;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+            }
+        }
+    }
+
+    .new-message-button {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: chocolate;
+        border-radius: 25px;
         display: flex;
-        margin-top: 10px;
-
-        a {
-            display: flex;
-            text-decoration: none;
-            width: 100%;
-            height: 50px;
-            color: black;
-
-            .mess-name {
-                padding-top: 10px;
-                width: 30%;
-                height: 100%;
-                text-overflow: ellipsis;
-                text-align: center;
-                white-space: nowrap;
-                overflow: hidden;
-                font-family: Consolas;
-                font-size: 20px;
-                font-weight: bold;
-            }
-
-            .mess-mess {
-                padding-top: 10px;
-                width: 70%;
-                height: 100%;
-                text-overflow: ellipsis;
-                text-align: center;
-                white-space: nowrap;
-                overflow: hidden;
-                font-size: 20px;
-            }
+        align-items: center;
+        justify-content: center;
+        padding: 0.8rem 1.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        transition: all 0.2s ease;
+        text-decoration: none;
+        
+        span {
+            color: white;
+            font-weight: 500;
+            font-size: 1rem;
         }
 
         &:hover {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.322);
-            background-color: transparent;
-            border-radius: 10px;
+            transform: scale(1.05);
+            background: #411900;
         }
     }
 
-    .horizon-div:nth-child(2n + 1) {
-        background: white;
-        border-radius: 10px;
-    }
+    @media (max-width: 768px) {
+        padding: 1rem;
 
-    .home {
-        display: flex;
-        position: fixed;
-        background-color: rgb(219, 153, 29);
-        color: white;
-        width: 100px;
-        height: 50px;
-        bottom: 50px;
-        border-radius: 5px;
-        text-align: center;
-        padding: 10px;
-        font-weight: bold;
-        text-decoration: none;
-        justify-content: center;
-        align-items: center;
-    }
+        .title {
+            font-size: 2rem;
+        }
 
-    .new-message-link {
-        .new-message {
-            display: flex;
-            position: fixed;
-            background-color: rgb(219, 153, 29);
-            color: white;
-            width: 50px;
-            height: 50px;
-            bottom: 50px;
-            right: 50px;
-            border-radius: 30px;
-            z-index: 5;
-            font-size: 60px;
-            justify-content: center;
-            align-items: center;
-            transition: 0.5s ease-in-out;
+        .header-mess {
+            .header-name, .header-me {
+                font-size: 1rem;
+                padding-left: 1rem;
+            }
+        }
 
-            &:hover {
-                transform: scale(1.1);
+        .message-item {
+            .message-link {
+                flex-direction: column;
+
+                .message-name, .message-content {
+                    width: 100%;
+                    padding: 0.5rem 1rem;
+                }
+            }
+        }
+
+        .new-message-button {
+            padding: 0.6rem 1.2rem;
+            
+            span {
+                font-size: 0.9rem;
             }
         }
     }

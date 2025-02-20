@@ -1,0 +1,12 @@
+{
+    "navbar": {
+      "search_student": "Rechercher un étudiant",
+      "search_document": "Rechercher un document",
+      "change_language": "Changer de langue",
+      "light_mode": "Mode clair",
+      "dark_mode": "Mode sombre",
+      "profile": "Profil",
+      "logout": "Déconnexion"
+    }
+  }
+  

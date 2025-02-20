@@ -1,0 +1,12 @@
+{
+    "navbar": {
+        "search_student": "Search for a student",
+        "search_document": "Search for a document",
+        "change_language": "Change language",
+        "light_mode": "Light mode",
+        "dark_mode": "Dark mode",
+        "profile": "Profile",
+        "logout": "Logout"
+    }
+  }
+  

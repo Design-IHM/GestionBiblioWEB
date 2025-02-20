@@ -13,17 +13,18 @@ import firebase from "../metro.config";
 import { Button, Modal, Form } from 'react-bootstrap';
 import ReactJsAlert from "reactjs-alert";
 import { v4 as uuidv4 } from 'uuid';
+import { useI18n } from "../Context/I18nContext";
 
 export default function AdminMemoriesHome() {
   // États pour la liste des mémoires et le modal
   const [memories, setMemories] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  
+
   // États pour les alertes
   const [status, setStatus] = useState(false);
   const [type, setType] = useState("");
   const [title, setTitle] = useState("");
-  
+
   // États du formulaire
   const [name, setName] = useState('');
   const [matricule, setMatricule] = useState('');
@@ -31,17 +32,18 @@ export default function AdminMemoriesHome() {
   const [departement, setDepartement] = useState('');
   const [annee, setAnnee] = useState('');
   const [etagere, setEtagere] = useState('');
-  
+
   // États pour la gestion de l'image
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const { language } = useI18n();
 
   const departements = [
     "Génie informatique",
-    "Genie Civile",
+    "Génie Civil",
     "Génie Télécom",
     "Génie électrique",
     "Génie industriel mécanique",
@@ -49,7 +51,23 @@ export default function AdminMemoriesHome() {
   ];
 
   const images = [img1, img2, img3, img4, img5, img6];
-
+  
+  // Traductions directes pour la gestion des mémoires
+  const translations = {
+    admin_memories: language === "FR" ? "Administration des mémoires" : "Memories Administration",
+    student_name: language === "FR" ? "Nom de l'étudiant" : "Student Name",
+    student_matricule: language === "FR" ? "Matricule de l'étudiant" : "Student Matricule",
+    defense_theme: language === "FR" ? "Thème de soutenance" : "Defense Theme",
+    defense_year: language === "FR" ? "Année de soutenance" : "Defense Year",
+    shelf_number: language === "FR" ? "Étagère" : "Shelf Number",
+    memory_image: language === "FR" ? "Image du mémoire" : "Memory Image",
+    add: language === "FR" ? "Ajouter" : "Add",
+    view: language === "FR" ? "Visualiser" : "View",
+    select_image: language === "FR" ? "Veuillez sélectionner une image" : "Please select an image",
+    memory_added: language === "FR" ? "Mémoire ajouté avec succès" : "Memory added successfully",
+    error_saving: language === "FR" ? "Erreur lors de l'enregistrement du mémoire" : "Error saving memory",
+    select_year: language === "FR" ? "Sélectionnez une année" : "Select a year"
+  };
   // Récupérer les mémoires depuis Firebase
   const fetchMemories = () => {
     const ref = firebase.firestore().collection("Memoire");
@@ -94,7 +112,7 @@ export default function AdminMemoriesHome() {
 
   const uploadImage = async (file) => {
     if (!file) return null;
-    
+
     try {
       const storageRef = firebase.storage().ref();
       const fileRef = storageRef.child(`memoires/${Date.now()}-${file.name}`);
@@ -108,11 +126,11 @@ export default function AdminMemoriesHome() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!image) {
       setStatus(true);
       setType("error");
-      setTitle("Veuillez sélectionner une image");
+      setTitle(translations.select_image);
       return;
     }
 
@@ -120,7 +138,7 @@ export default function AdminMemoriesHome() {
 
     try {
       const imageUrl = await uploadImage(image);
-      
+
       await firebase.firestore().collection('Memoire').doc(matricule).set({
         name,
         matricule,
@@ -141,14 +159,13 @@ export default function AdminMemoriesHome() {
 
       setStatus(true);
       setType("success");
-      setTitle("Mémoire ajouté avec succès");
+      setTitle(translations.memory_added);
       handleModalClose();
-      ;
     } catch (error) {
       console.error("Erreur lors de l'enregistrement:", error);
       setStatus(true);
       setType("error");
-      setTitle("Erreur lors de l'enregistrement du mémoire");
+      setTitle(translations.error_saving);
     } finally {
       setLoading(false);
     }
@@ -157,11 +174,11 @@ export default function AdminMemoriesHome() {
   // Gestion des actions par département
   const handleVisualiser = (departement) => {
     const filteredMemories = memories.filter((memoire) => memoire.département === departement);
-    navigate('/memoireParDepartement', { 
-      state: { 
-        memories: filteredMemories, 
-        departement: departement 
-      } 
+    navigate('/memoireParDepartement', {
+      state: {
+        memories: filteredMemories,
+        departement: departement
+      }
     });
   };
 
@@ -186,17 +203,17 @@ export default function AdminMemoriesHome() {
           <div className="card-body text-center">
             <h5 className="card-title">{departement}</h5>
             <div className="d-flex justify-content-between">
-              <button className="btn "  style={{ backgroundColor: 'chocolate' }}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = 'darkorange'}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = 'chocolate'} 
-                     onClick={() => handleVisualiser(departement)}>
-                Visualiser
+              <button className="btn" style={{ backgroundColor: 'chocolate' }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'darkorange'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'chocolate'}
+                onClick={() => handleVisualiser(departement)}>
+                {translations.view}
               </button>
-              <button className="btn"  style={{ backgroundColor: 'green' }} 
+              <button className="btn" style={{ backgroundColor: 'green' }}
                 onMouseEnter={(e) => e.target.style.backgroundColor = 'darkgreen'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = 'green'} 
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'green'}
                 onClick={() => handleAjouter(departement)}>
-                Ajouter
+                {translations.add}
               </button>
             </div>
           </div>
@@ -214,66 +231,67 @@ export default function AdminMemoriesHome() {
     }
   });
 
+  
+
   return (
     <div className="content-box">
       <Sidebar />
       <Navbar />
       <div className="d-flex align-items-center justify-content-center mb-4">
-        <h1 className="mr-2 " >Administration des mémoires</h1>
-        
+        <h1 className="mr-2">{translations.admin_memories}</h1>
       </div>
       {departementRows}
 
       <Modal show={showModal} onHide={handleModalClose} style={{ backgroundColor: 'transparent' }}>
         <Modal.Header closeButton>
           <Modal.Title className='text-center'>
-            <h2 className='text-center'>Ajouter Mémoire de {departement}</h2>
+            <h2 className='text-center'>{translations.add} Mémoire de {departement}</h2>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
             <Form.Group className='mb-3'>
-              <Form.Label className="labelForm">Nom de l'étudiant</Form.Label>
-              <Form.Control 
-                type="text" 
-                placeholder="name" 
-                value={name} 
-                onChange={(e) => setName(e.target.value)} 
-                required 
+              <Form.Label className="labelForm">{translations.student_name}</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder={translations.student_name}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
               />
             </Form.Group>
 
             <Form.Group className='mb-3'>
-              <Form.Label className="labelForm">Matricule de l'étudiant</Form.Label>
-              <Form.Control 
-                type="text" 
-                placeholder="20P123" 
-                value={matricule} 
-                onChange={(e) => setMatricule(e.target.value)} 
-                required 
+              <Form.Label className="labelForm">{translations.student_matricule}</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="20P123"
+                value={matricule}
+                onChange={(e) => setMatricule(e.target.value)}
+                required
               />
             </Form.Group>
 
             <Form.Group className='mb-3'>
-              <Form.Label className="labelForm">Thème de soutenance</Form.Label>
-              <Form.Control 
-                type="text" 
-                placeholder="Gestion de la bibliothèque" 
-                value={theme} 
-                onChange={(e) => setTheme(e.target.value)} 
-                required 
+              <Form.Label className="labelForm">{translations.defense_theme}</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Gestion de la bibliothèque"
+                value={theme}
+                onChange={(e) => setTheme(e.target.value)}
+                required
               />
             </Form.Group>
 
             <Form.Group className='mb-3'>
-              <Form.Label className="labelForm">Année de soutenance</Form.Label>
+              <Form.Label className="labelForm">{translations.defense_year}</Form.Label>
               <Form.Control
                 as="select"
                 value={annee}
                 onChange={(e) => setAnnee(e.target.value)}
                 required
               >
-                <option value="">Sélectionnez une année</option>
+                <option value="">{translations.select_year}</option>
                 {years.map((year) => (
                   <option key={year} value={year}>{year}</option>
                 ))}
@@ -281,30 +299,30 @@ export default function AdminMemoriesHome() {
             </Form.Group>
 
             <Form.Group className='mb-3'>
-              <Form.Label className="labelForm">Étagère</Form.Label>
-              <Form.Control 
-                type="text" 
-                placeholder="Étagère" 
-                value={etagere} 
-                onChange={(e) => setEtagere(e.target.value)} 
-                required 
+              <Form.Label className="labelForm">{translations.shelf_number}</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder={translations.shelf_number}
+                value={etagere}
+                onChange={(e) => setEtagere(e.target.value)}
+                required
               />
             </Form.Group>
 
             <Form.Group className='mb-3'>
-              <Form.Label className="labelForm">Image du mémoire</Form.Label>
-              <Form.Control 
-                type="file" 
+              <Form.Label className="labelForm">{translations.memory_image}</Form.Label>
+              <Form.Control
+                type="file"
                 accept="image/*"
-                onChange={handleImageChange} 
-                required 
+                onChange={handleImageChange}
+                required
               />
               {imagePreview && (
                 <div className="mt-2 text-center">
-                  <img 
-                    src={imagePreview} 
-                    alt="Aperçu" 
-                    style={{ maxWidth: '200px', maxHeight: '200px' }} 
+                  <img
+                    src={imagePreview}
+                    alt="Aperçu"
+                    style={{ maxWidth: '200px', maxHeight: '200px' }}
                   />
                 </div>
               )}
@@ -315,7 +333,7 @@ export default function AdminMemoriesHome() {
               className='btn btn-success w-100'
               disabled={loading}
             >
-              {loading ? 'Enregistrement en cours...' : 'Ajouter'}
+              {loading ? 'Enregistrement en cours...' : translations.add}
             </button>
           </Form>
         </Modal.Body>

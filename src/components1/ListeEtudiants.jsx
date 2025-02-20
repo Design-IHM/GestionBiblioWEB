@@ -8,16 +8,17 @@ import Loading from "./Loading";
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
 import { FaLock, FaUnlock } from "react-icons/fa";
+import { useI18n } from "../Context/I18nContext";
 
 Modal.setAppElement('#root');
 
 function ListeEtudiants() {
   const { searchWord, darkMode } = useContext(UserContext);
+  const { language } = useI18n();
 
   const ref = firebase.firestore().collection("BiblioUser");
   const [data, setData] = useState([]);
   const [loader, setLoader] = useState(false);
-
 
   const [tooltipText, setTooltipText] = useState('');
   const [showTooltip, setShowTooltip] = useState(false);
@@ -28,7 +29,6 @@ function ListeEtudiants() {
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      // top: '50%',
       left: '50%',
       right: 'auto',
       bottom: 'auto',
@@ -41,7 +41,6 @@ function ListeEtudiants() {
   const closeStyle = {
     position: "absolute",
     right: '10px',
-    // top: '10px',
     cursor: 'pointer',
   };
 
@@ -107,7 +106,16 @@ function ListeEtudiants() {
     setShowTooltip(false);
   };
 
-
+  // Traductions directes pour la liste des étudiants
+  const translations = {
+    profile_picture: language === "FR" ? "Photo de profil" : "Profile Picture",
+    information: language === "FR" ? "Information" : "Information",
+    phone: language === "FR" ? "Téléphone" : "Phone",
+    status: language === "FR" ? "Statut" : "Status",
+    possible_action: language === "FR" ? "Action possible" : "Possible Action",
+    unlock: language === "FR" ? "Débloquer" : "Unlock",
+    lock: language === "FR" ? "Bloquer" : "Lock"
+  };
 
   const Section = styled.section`
   overflow: auto;
@@ -129,12 +137,10 @@ function ListeEtudiants() {
   }
 
   .btn-bloc-etudiant {
-    //margin-top: 10px;
     margin-bottom: 10px;
   }
 
   .table {
-    //margin-top: 40px;
     margin-bottom: 20px;
     flex:1;
     overflow-y:auto;
@@ -190,148 +196,99 @@ function ListeEtudiants() {
   z-index: 999;
   `;
 
-
   return (
-
-      <div className="content-box">
-
+    <div className="content-box">
       <Sidebar />
       <Navbar />
-      <Section>
+      <Section darkMode={darkMode}>
         {loader ? (
           <div className="table">
             <Table variant={darkMode ? "dark" : undefined} bordered>
               <thead>
-              <tr>
-                <th style={{
-                  backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px"
-                }}>
-                  Photo de profil
-                </th>
-                <th style={{
-                  backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px"
-                }}>
-                  Information
-                </th>
-                <th style={{
-                  backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px"
-                }}>
-                  Téléphone
-                </th>
-                <th style={{
-                  backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px"
-                }}>
-                  Statut
-                </th>
-                <th style={{
-                  backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px"
-                }}>
-                  Action possible
-                </th>
-              </tr>
+                <tr>
+                  <th style={{ backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px" }}>
+                    {translations.profile_picture}
+                  </th>
+                  <th style={{ backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px" }}>
+                    {translations.information}
+                  </th>
+                  <th style={{ backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px" }}>
+                    {translations.phone}
+                  </th>
+                  <th style={{ backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px" }}>
+                    {translations.status}
+                  </th>
+                  <th style={{ backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px" }}>
+                    {translations.possible_action}
+                  </th>
+                </tr>
               </thead>
               <tbody>
-              {data.map((etudiant, index) => {
-                if (etudiant.name && etudiant.name.toUpperCase().includes(searchWord.toUpperCase())) {
-                  return (
-                    <tr key={index + 1}>
-                      <td>
-                        <a href={etudiant.image}>
-                          <img src={etudiant.image} className="img-pfl" alt="profil"/>
-                        </a>
-                      </td>
-                      <td>
-                        <div className="d-flex flex-column justify-content-between">
-                          <h5>
-                            {etudiant.name}
-                          </h5>
-                          <div className="mx-3 mt-4 justify-content-between d-flex flex-row ">
-                          <span style={{fontSize: "12px"}}>matricule: <p
-                              style={{fontSize: "12px", color: "grey"}}>{etudiant.matricule}</p></span>
-                            <span style={{fontSize: "12px"}}>class: <p
-                                style={{fontSize: "12px", color: "grey"}}>{etudiant.niveau}</p></span>
+                {data.map((etudiant, index) => {
+                  if (etudiant.name && etudiant.name.toUpperCase().includes(searchWord.toUpperCase())) {
+                    return (
+                      <tr key={index + 1}>
+                        <td>
+                          <a href={etudiant.image}>
+                            <img src={etudiant.image} className="img-pfl" alt="profil" />
+                          </a>
+                        </td>
+                        <td>
+                          <div className="d-flex flex-column justify-content-between">
+                            <h5>{etudiant.name}</h5>
+                            <div className="mx-3 mt-4 justify-content-between d-flex flex-row ">
+                              <span style={{ fontSize: "12px" }}>matricule: <p style={{ fontSize: "12px", color: "grey" }}>{etudiant.matricule}</p></span>
+                              <span style={{ fontSize: "12px" }}>class: <p style={{ fontSize: "12px", color: "grey" }}>{etudiant.niveau}</p></span>
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="fw-bold">{etudiant.tel}</td>
-                      <td className="fw-bold">{etudiant.etat}</td>
-                      <td>
-                        <div className="btn-bloc-etudiant">
+                        </td>
+                        <td className="fw-bold">{etudiant.tel}</td>
+                        <td className="fw-bold">{etudiant.etat}</td>
+                        <td>
+                          <div className="btn-bloc-etudiant">
                             <button
-                                onClick={() => updates(etudiant)}
-                                onMouseEnter={(e) =>
-                                    handleMouseEnter(
-                                        e,
-                                        etudiant.etat === "bloc" ? "Débloquer" : "Bloquer"
-                                    )
-                                }
-                                onMouseLeave={handleMouseLeave}
+                              onClick={() => updates(etudiant)}
+                              onMouseEnter={(e) =>
+                                handleMouseEnter(
+                                  e,
+                                  etudiant.etat === "bloc" ? translations.unlock : translations.lock
+                                )
+                              }
+                              onMouseLeave={handleMouseLeave}
                             >
                               {etudiant.etat === "bloc" ? (
-                                  <FaUnlock color="green" size="20"/>
+                                <FaUnlock color="green" size="20" />
                               ) : (
-                                  <FaLock color="red" size="20"/>
+                                <FaLock color="red" size="20" />
                               )}
                             </button>
                           </div>
                         </td>
                       </tr>
-                  );
-                }
-                return null;
-              })}
+                    );
+                  }
+                  return null;
+                })}
               </tbody>
             </Table>
           </div>
         ) : (
-            <Loading/>
+          <Loading />
         )}
 
         {showTooltip && (
-            <TooltipContainer
-                style={{
-                  top: tooltipPosition.y,
-                  left: tooltipPosition.x,
-                }}
-            >
-              {tooltipText}
-            </TooltipContainer>
+          <TooltipContainer
+            style={{
+              top: tooltipPosition.y,
+              left: tooltipPosition.x,
+            }}
+          >
+            {tooltipText}
+          </TooltipContainer>
         )}
-
-        {/*<div className="resp-modal">*/}
-        {/*  <Modal*/}
-        {/*      isOpen={modalIsOpens}*/}
-        {/*      onAfterOpen={afterOpenModal}*/}
-        {/*      onRequestClose={closeModal}*/}
-        {/*      style={customStyles}*/}
-        {/*      contentLabel="Example Modal"*/}
-        {/*  >*/}
-        {/*  <button onClick={closeModal} style={closeStyle}>*/}
-        {/*      <GrFormClose />*/}
-        {/*    </button>*/}
-        {/*    <h2 ref={(_subtitle) => (subtitle = _subtitle)}>*/}
-        {/*      Informations personnelles sur l'étudiant: {name}*/}
-        {/*    </h2>*/}
-        {/*    <div style={modalDiv}>*/}
-        {/*      <div>*/}
-        {/*        <img style={imgP} src={image} alt="profil" />*/}
-        {/*      </div>*/}
-        {/*      <div style={infor}>*/}
-        {/*        <span>Matricule : {matricule}</span>*/}
-        {/*        <span>Classe : {niveau}</span>*/}
-        {/*        <span>Téléphone : {tel}</span>*/}
-        {/*        <span>Statut : {stat}</span>*/}
-        {/*      </div>*/}
-        {/*    </div>*/}
-        {/*  </Modal>*/}
-        {/*</div>*/}
       </Section>
     </div>
-
-
   );
 }
 
 export default ListeEtudiants;
-
-

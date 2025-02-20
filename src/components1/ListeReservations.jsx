@@ -6,11 +6,14 @@ import Loading from "./Loading";
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
 import { UserContext } from "../App";
+import { useI18n } from "../Context/I18nContext";
 
 function ListeReservations() {
   const ref = firebase.firestore().collection("BiblioUser");
   const [data, setData] = useState([]);
   const [loader, setLoader] = useState(false);
+  const { darkMode } = useContext(UserContext);
+  const { language } = useI18n();
 
   const getData = useCallback(() => {
     ref.onSnapshot((querySnapshot) => {
@@ -26,7 +29,6 @@ function ListeReservations() {
   useEffect(() => {
     getData();
   }, [getData]);
-
 
   const d = new Date();
 
@@ -66,7 +68,16 @@ function ListeReservations() {
     }
   }
 
-  const { darkMode } = useContext(UserContext);
+  // Traductions directes pour la liste des réservations
+  const translations = {
+    information: language === "FR" ? "Information" : "Information",
+    document1: language === "FR" ? "Document 1" : "Document 1",
+    document2: language === "FR" ? "Document 2" : "Document 2",
+    document3: language === "FR" ? "Document 3" : "Document 3",
+    status: language === "FR" ? "Etat" : "Status",
+    validate_loan: language === "FR" ? "Valider Emprunt" : "Validate Loan",
+    available_space: language === "FR" ? "Espace disponible pour une réservation" : "Space available for reservation"
+  };
 
   return (
     <div className="content-box">
@@ -76,32 +87,23 @@ function ListeReservations() {
         {loader ?
           <Table variant={darkMode ? "dark" : undefined} bordered hover>
             <thead>
-            <tr>
-              <th style={{
-                backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px"
-              }}>
-                Information
-              </th>
-              <th style={{
-                backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px"
-              }}>
-                Document 1
-              </th>
-              <th style={{
-                backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px"
-              }}>
-                Document 2
-              </th>
-              <th style={{
-                backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px"
-              }}>
-                Document 3
-              </th>
-              <th style={{
-                backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px"
-              }}>
-                Etat</th>
-            </tr>
+              <tr>
+                <th style={{ backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px" }}>
+                  {translations.information}
+                </th>
+                <th style={{ backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px" }}>
+                  {translations.document1}
+                </th>
+                <th style={{ backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px" }}>
+                  {translations.document2}
+                </th>
+                <th style={{ backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px" }}>
+                  {translations.document3}
+                </th>
+                <th style={{ backgroundColor: "#E7DAC1FF", color: "chocolate", fontSize: "20px", fontWeight: "bold", width: "250px" }}>
+                  {translations.status}
+                </th>
+              </tr>
             </thead>
             <tbody>
               {data.map((doc, index) => {
@@ -111,13 +113,11 @@ function ListeReservations() {
                       <td>
                         <div className="d-flex flex-column justify-content-between">
                           <h5 className="text-center">
-                              {doc.name}
-                            </h5>
+                            {doc.name}
+                          </h5>
                           <div className="mx-3 mt-4 justify-content-between d-flex flex-row ">
-                            <span style={{fontSize: "12px"}}>id: <p
-                                style={{fontSize: "12px", color: "grey"}}>{index + 1}</p></span>
-                            <span style={{fontSize: "12px"}}>class: <p
-                                  style={{fontSize: "12px", color: "grey"}}>{doc.niveau}</p></span>
+                            <span style={{ fontSize: "12px" }}>id: <p style={{ fontSize: "12px", color: "grey" }}>{index + 1}</p></span>
+                            <span style={{ fontSize: "12px" }}>class: <p style={{ fontSize: "12px", color: "grey" }}>{doc.niveau}</p></span>
                           </div>
                         </div>
                       </td>
@@ -125,15 +125,9 @@ function ListeReservations() {
                       <td>
                         <h5>{doc.etat1 === 'reserv' ? doc.tabEtat1[0] + '\n' : ''}</h5>
                         {doc.etat1 === 'reserv' ? (
-                          <span style={{fontSize: "12px"}}>Date: </span>
-                          ) : ""
-                        }
-                        <span
-                          style={{
-                            fontSize: "12px",
-                            color: "grey"
-                          }}
-                        >
+                          <span style={{ fontSize: "12px" }}>Date: </span>
+                        ) : ""}
+                        <span style={{ fontSize: "12px", color: "grey" }}>
                           {doc.etat1 === 'reserv' ? doc.tabEtat1[5]?.toLocaleString().slice(0, 16) + '\n' : ''}
                         </span>
                         <div>
@@ -151,104 +145,91 @@ function ListeReservations() {
                                 reserv1(doc);
                               }}
                             >
-                              Valider Emprunt
+                              {translations.validate_loan}
                             </Button>
-                            ) : (
-                              <p style={{margin: "10px", fontSize: "14px"}}>
-                                Espace disponible pour une réservation
-                              </p>
-                            )}
-                          </div>
+                          ) : (
+                            <p style={{ margin: "10px", fontSize: "14px" }}>
+                              {translations.available_space}
+                            </p>
+                          )}
+                        </div>
                       </td>
 
-                        <td>
-                          <h5>{doc.etat2 === 'reserv' ? doc.tabEtat2[0] + '\n' : ''}</h5>
+                      <td>
+                        <h5>{doc.etat2 === 'reserv' ? doc.tabEtat2[0] + '\n' : ''}</h5>
+                        {doc.etat2 === 'reserv' ? (
+                          <span style={{ fontSize: "12px" }}>Date: </span>
+                        ) : ""}
+                        <span style={{ fontSize: "12px", color: "grey" }}>
+                          {doc.etat2 === 'reserv' ? doc.tabEtat2[5]?.toLocaleString().slice(0, 16) + '\n' : ''}
+                        </span>
+                        <div>
                           {doc.etat2 === 'reserv' ? (
-                              <span style={{fontSize: "12px"}}>Date: </span>
-                          ) : ""
-                          }
-                          <span
-                            style={{
-                              fontSize: "12px",
-                              color: "grey"
-                            }}
-                          >
-                            {doc.etat2 === 'reserv' ? doc.tabEtat2[5]?.toLocaleString().slice(0, 16) + '\n' : ''}
-                          </span>
-
-                          <div>
-                            {doc.etat2 === 'reserv' ? (
-                              <Button
-                                style={{
-                                  backgroundColor: 'chocolate',
-                                  marginTop: "5px",
-                                  fontSize: "12px",
-                                  fontWeight: 'bold',
-                                  borderColor: "chocolate",
-                                  padding: "3px"
-                                }}
-                                onClick={() => {
-                                  reserv2(doc);
-                                }}
-                              >
-                                Valider Emprunt
-                              </Button>
-                            ) : (
-                              <p style={{margin: "10px", fontSize: "14px"}}>
-                                Espace disponible pour une réservation
-                              </p>
-                            )}
-                          </div>
-                        </td>
-
-                        <td>
-                          <h5>{doc.etat3 === 'reserv' ? doc.tabEtat3[0] + '\n' : ''}</h5>
-                          {doc.etat3 === 'reserv' ? (
-                              <span style={{fontSize: "12px"}}>Date: </span>
-                          ) : ""
-                          }
-                          <span
+                            <Button
                               style={{
+                                backgroundColor: 'chocolate',
+                                marginTop: "5px",
                                 fontSize: "12px",
-                                color: "grey"
+                                fontWeight: 'bold',
+                                borderColor: "chocolate",
+                                padding: "3px"
                               }}
-                          >
+                              onClick={() => {
+                                reserv2(doc);
+                              }}
+                            >
+                              {translations.validate_loan}
+                            </Button>
+                          ) : (
+                            <p style={{ margin: "10px", fontSize: "14px" }}>
+                              {translations.available_space}
+                            </p>
+                          )}
+                        </div>
+                      </td>
+
+                      <td>
+                        <h5>{doc.etat3 === 'reserv' ? doc.tabEtat3[0] + '\n' : ''}</h5>
+                        {doc.etat3 === 'reserv' ? (
+                          <span style={{ fontSize: "12px" }}>Date: </span>
+                        ) : ""}
+                        <span style={{ fontSize: "12px", color: "grey" }}>
                           {doc.etat3 === 'reserv' ? doc.tabEtat3[5]?.toLocaleString().slice(0, 16) + '\n' : ''}
                         </span>
-                          <div>
-                            {doc.etat3 === 'reserv' ? (
-                              <Button
-                                style={{
-                                  backgroundColor: 'chocolate',
-                                  marginTop: "5px",
-                                  fontSize: "12px",
-                                  fontWeight: 'bold',
-                                  borderColor: "chocolate",
-                                  padding: "3px"
-                                }}
-                                onClick={() => {
-                                  reserv3(doc);
-                                }}
-                              >
-                                Valider Emprunt
-                              </Button>
-                              ) : (
-                              <p style={{margin: "10px", fontSize: "14px"}}>
-                                Espace disponible pour une réservation
-                              </p>
-                            )}
-                          </div>
-                        </td>
+                        <div>
+                          {doc.etat3 === 'reserv' ? (
+                            <Button
+                              style={{
+                                backgroundColor: 'chocolate',
+                                marginTop: "5px",
+                                fontSize: "12px",
+                                fontWeight: 'bold',
+                                borderColor: "chocolate",
+                                padding: "3px"
+                              }}
+                              onClick={() => {
+                                reserv3(doc);
+                              }}
+                            >
+                              {translations.validate_loan}
+                            </Button>
+                          ) : (
+                            <p style={{ margin: "10px", fontSize: "14px" }}>
+                              {translations.available_space}
+                            </p>
+                          )}
+                        </div>
+                      </td>
 
-                        <td>{doc.etat}</td>
-                      </tr>
+                      <td>{doc.etat}</td>
+                    </tr>
                   );
                 }
-                return null; // Ajoute cette ligne pour retourner quelque chose même si la condition n'est pas remplie
+                return null;
               })}
             </tbody>
           </Table> :
-            <Loading/>
+          <Loading />
         }
       </Section>
     </div>

@@ -28,6 +28,8 @@ import Navbar from './Navbar';
 import styled from "styled-components";
 import firebase from "../metro.config";
 import { UserContext } from "../App";
+import Loading from "./Loading";
+import { useI18n } from "../Context/I18nContext";
 
 const styles = {
   cardGrid: {
@@ -52,33 +54,32 @@ const styles = {
     gap: '12px',
   },
   iconContainer: {
-    backgroundColor: '#f3f0ff',
+    backgroundColor: '#FFF0E6',
     padding: '8px',
     borderRadius: '8px',
   },
   icon: {
     width: '24px',
     height: '24px',
-    color: '#7c3aed',
+    color: 'chocolate',
   },
 };
 
-const DashboardCard = ({ icon: Icon, title, value, percentage, isNegative }) => (
+const DashboardCard = ({ icon: Icon, title, value, percentage, isNegative, hidePercentageSign }) => (
   <div style={styles.dashboardCard}>
     <div style={styles.cardHeader}>
       <div style={styles.iconContainer}>
         <Icon style={styles.icon} />
       </div>
-      <div style={{flex: 1}}>
-        <p style={{color: '#4b5563', fontSize: '14px', marginBottom: '4px'}}>{title}</p>
-        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-          <span style={{fontSize: '20px', fontWeight: '600'}}>{value}</span>
+      <div style={{ flex: 1 }}>
+        <p style={{ color: '#4b5563', fontSize: '14px', marginBottom: '4px' }}>{title}</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: '20px', fontWeight: '600' }}>{value}</span>
           {percentage !== undefined && (
             <span style={{
               fontSize: '14px',
-              color: isNegative ? '#ef4444' : '#10b981'
+              color: '#10b981'
             }}>
-              {isNegative ? '' : '+'}
               {percentage}%
             </span>
           )}
@@ -113,6 +114,7 @@ const Dashboard = () => {
   });
 
   const [loading, setLoading] = useState(true);
+  const { language } = useI18n();
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -136,7 +138,6 @@ const Dashboard = () => {
               totalTheses: items.length,
               thesesByDepartment
             }));
-            console.log(items);
           });
         };
 
@@ -159,7 +160,6 @@ const Dashboard = () => {
               totalBooks: items.length,
               booksByCathegorie
             }));
-            console.log(items);
           });
         };
 
@@ -180,26 +180,39 @@ const Dashboard = () => {
               const data = doc.data();
               items.push(data);
               totalStudents++;
-              if (data.etat === 'suspendu') {
+
+              // Vérifier les étudiants suspendus
+              if (data.etat === 'bloc') {
                 suspendedStudents++;
               }
-              if (data.etat1 === 'emprunt' || data.etat2 === 'emprunt' || data.etat3 === 'emprunt') {
-                borrowedDocuments++;
+
+              // Nouvelle logique pour compter les réservations, emprunts et retours
+              const states = [data.etat1, data.etat2, data.etat3];
+
+              // Compter les emprunts par utilisateur (un utilisateur qui a emprunté)
+              if (states.includes('emprunt')) {
                 totalEmprunts++;
+
+                // Ajouter aux statistiques par département
                 if (empruntsByDepartment[data.niveau]) {
                   empruntsByDepartment[data.niveau]++;
                 } else {
                   empruntsByDepartment[data.niveau] = 1;
                 }
+
                 studentsWithEmprunts.push(data);
               }
-              if (data.etat1 === 'ras' || data.etat2 === 'ras' || data.etat3 === 'ras') {
-                returnedDocuments++;
-              }
-              if (data.etat1 === 'reservation' || data.etat2 === 'reservation' || data.etat3 === 'reservation') {
-                totalReservations++;
-              }
+
+              // Compter le nombre total de documents empruntés
+              states.forEach(state => {
+                if (state === 'emprunt') {
+                  borrowedDocuments++;
+                } else if (state === 'reserv') {
+                  totalReservations++;
+                }
+              });
             });
+
             setStats((prevStats) => ({
               ...prevStats,
               totalStudents,
@@ -210,7 +223,6 @@ const Dashboard = () => {
               totalEmprunts,
               empruntsByDepartment
             }));
-            console.log("Liste des étudiants ayant fait des emprunts :", studentsWithEmprunts);
           });
         };
 
@@ -261,6 +273,21 @@ const Dashboard = () => {
     fetchStats();
   }, []);
 
+  // Traductions directes pour le tableau de bord
+  const translations = {
+    total_books: language === "FR" ? "Total Livres" : "Total Books",
+    total_theses: language === "FR" ? "Total Mémoires" : "Total Theses",
+    registered_students: language === "FR" ? "Étudiants Inscrits" : "Registered Students",
+    borrowed_documents: language === "FR" ? "Documents Empruntés" : "Borrowed Documents",
+    people_borrowed: language === "FR" ? "Personnes ayant emprunté" : "People who Borrowed",
+    suspended_students: language === "FR" ? "Étudiants Suspendus" : "Suspended Students",
+    total_reservations: language === "FR" ? "Total Réservations" : "Total Reservations",
+    monthly_borrows: language === "FR" ? "Emprunts Mensuels" : "Monthly Borrows",
+    borrows_by_department: language === "FR" ? "Emprunts par Département" : "Borrows by Department",
+    books_by_category: language === "FR" ? "Livres par Département" : "Books by Department",
+    theses_by_department: language === "FR" ? "Mémoires par Département" : "Theses by Department"
+  };
+
   if (loading) return <LoadingOverlay>Chargement...</LoadingOverlay>;
 
   return (
@@ -272,75 +299,46 @@ const Dashboard = () => {
           <StatsGrid>
             <DashboardCard
               icon={Book}
-              title="Total Livres"
+              title={translations.total_books}
               value={stats.totalBooks}
-              percentage={5}
             />
             <DashboardCard
               icon={GraduationCap}
-              title="Total Mémoires"
+              title={translations.total_theses}
               value={stats.totalTheses}
-              percentage={8}
             />
             <DashboardCard
               icon={Users}
-              title="Étudiants Inscrits"
+              title={translations.registered_students}
               value={stats.totalStudents}
-              percentage={-2}
-              isNegative
             />
             <DashboardCard
               icon={CreditCard}
-              title="Documents Empruntés"
+              title={translations.borrowed_documents}
               value={stats.borrowedDocuments}
-              percentage={15}
+              percentage={(((stats.borrowedDocuments) / (stats.totalBooks + stats.totalTheses)) * 100).toFixed(2)}
             />
             <DashboardCard
               icon={CreditCard}
-              title="Total Emprunts"
+              title={translations.people_borrowed}
               value={stats.totalEmprunts}
-              percentage={10}
+              percentage={((stats.totalEmprunts / stats.totalStudents) * 100).toFixed(2)}
+            />
+            <DashboardCard
+              icon={Clock}
+              title={translations.suspended_students}
+              value={stats.suspendedStudents}
+              percentage={((stats.suspendedStudents / stats.totalStudents) * 100).toFixed(2)}
+            />
+            <DashboardCard
+              icon={BarChart3}
+              title={translations.total_reservations}
+              value={stats.totalReservations}
             />
           </StatsGrid>
 
           <ChartsContainer>
-            <ChartCard title="Emprunts Mensuels">
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={stats.monthlyBorrows}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="borrows" stroke="#8884d8" />
-                </LineChart>
-              </ResponsiveContainer>
-            </ChartCard>
-
-            <ChartCard title="Livres par Catégorie">
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={Object.entries(stats.booksByCathegorie).map(([cathegorie, count]) => ({ cathegorie, books: count }))}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="cathegorie" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="books" fill="#82ca9d" />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartCard>
-
-            <ChartCard title="Mémoires par Département">
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={Object.entries(stats.thesesByDepartment).map(([department, count]) => ({ department, theses: count }))}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="department" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="theses" fill="#8884d8" />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartCard>
-
-            <ChartCard title="Emprunts par Département">
+            <ChartCard title={translations.borrows_by_department}>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
@@ -358,29 +356,43 @@ const Dashboard = () => {
                 </PieChart>
               </ResponsiveContainer>
             </ChartCard>
+
+            <ChartCard title={translations.books_by_category}>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={Object.entries(stats.booksByCathegorie).map(([cathegorie, count]) => ({ cathegorie, books: count }))}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="cathegorie" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="books" fill="#82ca9d" />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard title={translations.theses_by_department}>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={Object.entries(stats.thesesByDepartment).map(([department, count]) => ({ department, theses: count }))}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="department" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="theses" fill="#8884d8" />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
           </ChartsContainer>
 
-          <AdditionalStatsGrid>
-            <DashboardCard
-              icon={Clock}
-              title="Étudiants Suspendus"
-              value={stats.suspendedStudents}
-              percentage={-10}
-              isNegative
-            />
-            <DashboardCard
-              icon={BarChart3}
-              title="Total Réservations"
-              value={stats.totalReservations}
-              percentage={5}
-            />
-            <DashboardCard
-              icon={TrendingUp}
-              title="Documents Rendus"
-              value={stats.returnedDocuments}
-              percentage={12}
-            />
-          </AdditionalStatsGrid>
+          <ChartCard title={translations.monthly_borrows}>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={stats.monthlyBorrows}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="borrows" stroke="#8884d8" />
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartCard>
         </MainContent>
       </Container>
     </div>
@@ -393,7 +405,6 @@ const Container = styled.div`
 
 const MainContent = styled.div`
   padding: 2rem;
-  background-color: #f4f6f9;
 `;
 
 const StatsGrid = styled.div`
@@ -434,23 +445,9 @@ const ChartContainer = styled.div`
 `;
 
 const ChartTitle = styled.h2`
-  color: #7c3aed;
+  color: chocolate;
   margin-bottom: 16px;
   text-align: center;
-`;
-
-const AdditionalStatsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-
-  @media (max-width: 1024px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
 `;
 
 const LoadingOverlay = styled.div`
@@ -459,7 +456,7 @@ const LoadingOverlay = styled.div`
   align-items: center;
   height: 100vh;
   font-size: 24px;
-  color: #7c3aed;
+  color: chocolate;
 `;
 
 export default Dashboard;

@@ -7,6 +7,7 @@ import Sidebar from "../components1/Sidebar";
 import Navbar from "../components1/Navbar";
 import Loading from "./Loading";
 import firebase from '../metro.config'; // Assurez-vous d'importer Firebase
+import { useI18n } from "../Context/I18nContext";
 
 export default function MemoireParDepartement() {
     const { searchWord } = useContext(UserContext);
@@ -88,21 +89,19 @@ export default function MemoireParDepartement() {
     const updateMemoire = async (e) => {
         e.preventDefault(); // Empêcher le comportement par défaut du formulaire
         try {
-            // Vérifiez que le champ `matricule` a une valeur définie
+            // Vérifier que le champ `matricule` a une valeur définie
             if (!selectedMemoire.matricule) {
                 console.error("Le champ 'matricule' est undefined.");
                 return;
             }
 
-
-            // Utilisez le champ `matricule` pour mettre à jour le document
+            // Utiliser le champ `matricule` pour mettre à jour le document
             setLoading(true); // Afficher l'effet de chargement
             await firebase.firestore().collection('Memoire').doc(selectedMemoire.matricule).update(editedMemoire);
             console.log("Mémoire mis à jour avec succès");
 
             // Récupérer les données mises à jour depuis Firestore
             const updatedDoc = await firebase.firestore().collection('Memoire').doc(selectedMemoire.matricule).get();
-            
 
             // Mettre à jour l'état local
             setSelectedMemoire(updatedDoc.data());
@@ -128,6 +127,29 @@ export default function MemoireParDepartement() {
         }
     }, [selectedMemoire]);
 
+    const { language } = useI18n();
+
+    // Traductions directes pour la gestion des mémoires
+    const translations = {
+        list_memoires: language === "FR" ? "Liste des Mémoires du" : "List of Memories from",
+        name_asc: language === "FR" ? "Nom A-Z" : "Name A-Z",
+        name_desc: language === "FR" ? "Nom Z-A" : "Name Z-A",
+        year_asc: language === "FR" ? "Année croissante" : "Year Ascending",
+        year_desc: language === "FR" ? "Année décroissante" : "Year Descending",
+        theme: language === "FR" ? "Thème" : "Theme",
+        department: language === "FR" ? "Département" : "Department",
+        year: language === "FR" ? "Année" : "Year",
+        shelf_number: language === "FR" ? "Étagère" : "Shelf Number",
+        image: language === "FR" ? "Image" : "Image",
+        edit: language === "FR" ? "Modifier" : "Edit",
+        save: language === "FR" ? "Enregistrer" : "Save",
+        close: language === "FR" ? "Fermer" : "Close",
+        previous: language === "FR" ? "Précédent" : "Previous",
+        next: language === "FR" ? "Suivant" : "Next",
+        page: language === "FR" ? "Page" : "Page",
+        details: language === "FR" ? "Détails du Mémoire" : "Memory Details",
+    };
+
     return (
         <div className="content-box">
             <Container>
@@ -136,14 +158,14 @@ export default function MemoireParDepartement() {
                 <MainContent>
                     <Title>
                         <FiBook className="icon" />
-                        Liste des Mémoires du {departement}
+                        {translations.list_memoires} {departement}
                     </Title>
                     <SortContainer>
                         <SortSelect value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
-                            <option value="nameAsc">Nom A-Z</option>
-                            <option value="nameDesc">Nom Z-A</option>
-                            <option value="anneeAsc">Année croissante</option>
-                            <option value="anneeDesc">Année décroissante</option>
+                            <option value="nameAsc">{translations.name_asc}</option>
+                            <option value="nameDesc">{translations.name_desc}</option>
+                            <option value="anneeAsc">{translations.year_asc}</option>
+                            <option value="anneeDesc">{translations.year_desc}</option>
                         </SortSelect>
                     </SortContainer>
                     <Section>
@@ -172,7 +194,7 @@ export default function MemoireParDepartement() {
                                             </InfoItem>
                                             <InfoItem>
                                                 <FiHardDrive className="icon" />
-                                                <span>Etagère: {doc.etagere}</span>
+                                                <span>{translations.shelf_number}: {doc.etagere}</span>
                                             </InfoItem>
                                         </CardInfo>
                                         <CardImage>
@@ -192,14 +214,14 @@ export default function MemoireParDepartement() {
                                 onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
                                 disabled={currentPage === 1}
                             >
-                                Précédent
+                                {translations.previous}
                             </PaginationButton>
                             <PageIndicator>Page {currentPage} / {totalPages}</PageIndicator>
                             <PaginationButton
                                 onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
                                 disabled={currentPage === totalPages}
                             >
-                                Suivant
+                                {translations.next}
                             </PaginationButton>
                         </PaginationContainer>
                     )}
@@ -210,7 +232,7 @@ export default function MemoireParDepartement() {
                                 <CloseButton onClick={closePopup}>
                                     <FiX />
                                 </CloseButton>
-                                <h2>Détails du Mémoire</h2>
+                                <h2>{translations.details}</h2>
                                 <PopupForm onSubmit={updateMemoire}>
                                     {Object.entries(selectedMemoire).map(([key, value]) => {
                                         // Ignorer certaines clés si nécessaire
