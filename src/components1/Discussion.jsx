@@ -104,7 +104,7 @@ export default function Discussion() {
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      background-color: #1a73e8;
+      background-color: chocolate;
       color: white;
       display: flex;
       align-items: center;
@@ -126,11 +126,11 @@ export default function Discussion() {
       flex: 1;
       overflow-y: auto;
       padding: 20px;
-      background-color: #f5f7f9;
+     
     `,
     dateDivider: `
       text-align: center;
-      color: #80868b;
+      color: chocolate;
       font-size: 12px;
       margin: 20px 0;
       position: relative;
@@ -138,14 +138,14 @@ export default function Discussion() {
     dateDividerLine: `
       display: block;
       height: 1px;
-      background: #e0e0e0;
+      background: chocolate;
       position: absolute;
       top: 50%;
       width: 100%;
       z-index: 1;
     `,
     dateDividerText: `
-      background: #f5f7f9;
+      background: white;
       padding: 0 10px;
       position: relative;
       z-index: 2;

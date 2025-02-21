@@ -33,23 +33,57 @@ export default function Messages() {
     const [type, setType] = useState("");
     const [title, setTitle] = useState("");
 
+    // Fonction pour marquer les messages comme lus
+    const markMessagesAsRead = async (userEmail) => {
+        try {
+            const userRef = refUser.doc(userEmail);
+            const userDoc = await userRef.get();
+
+            if (userDoc.exists) { // Utilisez `exists` comme propriété
+                const messages = userDoc.data().messages;
+                console.log("Messages avant mise à jour:", messages); // Log des messages avant mise à jour
+
+                const updatedMessages = messages.map(msg => ({ ...msg, lu: true })); // Marquer tous les messages comme lus
+                console.log("Messages après mise à jour:", updatedMessages); // Log des messages après mise à jour
+
+                await userRef.update({ messages: updatedMessages });
+                console.log("Messages marqués comme lus pour l'utilisateur:", userEmail); // Log de confirmation
+            } else {
+                console.error("Document does not exist:", userEmail);
+            }
+        } catch (error) {
+            console.error("Error marking messages as read:", error);
+        }
+    };
+
+     // Fonction pour compter les messages non lus
+     const countUnreadMessages = (messages) => {
+        if (!messages) return 0;
+        return messages.filter(msg => msg.lu === false).length;
+    };
+
+    // Fonction pour mettre à jour le nombre de messages non lus
+    const updateUnreadMessagesCount = (data) => {
+        const totalUnread = data.reduce((acc, userData) => {
+            return acc + countUnreadMessages(userData.messages);
+        }, 0);
+
+        // Émettre un événement personnalisé avec le nombre de messages non lus
+        const event = new CustomEvent("unreadMessagesUpdate", { detail: totalUnread });
+        window.dispatchEvent(event);
+    };
+
     // Modified getDataUser to include search functionality
     const getDataUser = useCallback(() => {
         refUser.onSnapshot((querySnapshot) => {
             const items = [];
-            const itemsMes = [];
             querySnapshot.forEach((doc) => {
                 const userData = doc.data();
-                if (userData.messages && userData.messages.length > 1) {
-                    items.push(userData);
-                }
-                if (userData.messages) {
-                    itemsMes.push(userData.messages);
-                }
+                items.push(userData);
             });
             setData(items);
-            setFilteredData(items); // Initialize filtered data with all items
-            setDataMes(itemsMes);
+            setFilteredData(items);
+            updateUnreadMessagesCount(items); // Mettre à jour le nombre de messages non lus
             setLoader(true);
         });
     }, [refUser]);
@@ -84,9 +118,11 @@ export default function Messages() {
     }, [getDataUser]);
 
     const changerCat = (mes, mail, nom) => {
+        console.log("Discussion sélectionnée:", { mail, nom, mes }); // Log de la discussion sélectionnée
         setMessages(mes);
         setNom(nom);
         setEmail(mail);
+        markMessagesAsRead(mail); // Marquer les messages comme lus lors du clic sur la discussion
     };
 
     const newMessage = () => {
@@ -102,7 +138,7 @@ export default function Messages() {
         var dt = Timestamp.fromDate(new Date());
         const washingtonRef = firebase.firestore().collection("BiblioUser").doc(email);
         washingtonRef.update({
-            messages: arrayUnion({ "recue": "R", "texte": message, "heure": dt })
+            messages: arrayUnion({ "recue": "R", "texte": message, "heure": dt, "lu": false })
         });
     };
 
@@ -110,7 +146,7 @@ export default function Messages() {
         await firebase.firestore().collection('MessagesRecue').doc(message).set({
             email: email,
             messages: message,
-            lue: false // Ajout de l'attribut ici
+            lu: false // Ajout de l'attribut ici
         });
         setStatus(true);
         setType("success");
@@ -194,6 +230,12 @@ export default function Messages() {
                                             <div className="message-name">
                                                 <IoPersonOutline className="user-icon" />
                                                 {msg.name}
+                                                {/* Bulle pour les messages non lus */}
+                                                {countUnreadMessages(msg.messages) > 0 && (
+                                                    <UnreadBadge>
+                                                        {countUnreadMessages(msg.messages)}
+                                                    </UnreadBadge>
+                                                )}
                                             </div>
                                             <div className="message-content">
                                                 {msg.messages && msg.messages.length > 0
@@ -297,6 +339,20 @@ export default function Messages() {
         </div>
     );
 }
+
+// Style pour la bulle des messages non lus
+const UnreadBadge = styled.div`
+    background: green;
+    color: black;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 50%;
+    margin-left: 8px;
+`;
+
+
+
 
 // Style pour le composant Messages
 const Section = styled.section`

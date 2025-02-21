@@ -6,6 +6,7 @@ import left from "../assets/Left.png";
 import { BookHalf, Memory } from "react-bootstrap-icons";
 import "./WelcomePage.css";
 import { useI18n } from "../Context/I18nContext";
+import styled from "styled-components";
 
 const Accueil = () => {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ const Accueil = () => {
     book_management: language === "FR" ? "Gestion des livres" : "Book Management",
     thesis_management: language === "FR" ? "Gestion des mémoires" : "Thesis Management"
   };
+ 
 
   return (
     <div className="content-box">

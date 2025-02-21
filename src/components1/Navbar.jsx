@@ -1,112 +1,147 @@
 import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
-import { BiSearch, BiUserCircle, BiLogOut, BiGlobe } from "react-icons/bi";
+import { BiSearch, BiUserCircle, BiLogOut, BiGlobe, BiMessageDetail } from "react-icons/bi";
 import { IoIosArrowBack } from "react-icons/io";
 import { RiSunFill, RiMoonFill } from "react-icons/ri";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useI18n } from "../Context/I18nContext";
-import { useTheme } from "../Context/ThemeContext"; // Importer le hook useTheme
+import { useTheme } from "../Context/ThemeContext";
 import { UserContext } from "../App";
 
 export default function Navbar() {
-  const { isDarkMode, toggleTheme } = useTheme(); // Utiliser le hook useTheme pour accéder à isDarkMode et toggleTheme
-  const { language, changeLanguage } = useI18n();
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const {setSearchWord, searchWord } = useContext(UserContext);
-  // Déterminer si la page actuelle devrait avoir une barre de recherche
-  const [searchConfig, setSearchConfig] = useState({ show: false, type: "" });
+    const { isDarkMode, toggleTheme } = useTheme();
+    const { language, changeLanguage } = useI18n();
+    const [showMobileMenu, setShowMobileMenu] = useState(false);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [unreadMessagesCount, setUnreadMessagesCount] = useState(0); 
+    const {setSearchWord, searchWord } = useContext(UserContext);
 
-  useEffect(() => {
-    const path = location.pathname;
+    
 
-    if (path === "/listeEtudiant") {
-      setSearchConfig({ show: true, type: "etudiant" });
-    } else if (["/catalogue", "/memoireParDepartement"].includes(path)) {
-      setSearchConfig({ show: true, type: "document" });
-    } else {
-      setSearchConfig({ show: false, type: "" });
-    }
-  }, [location]);
+    // Écouter l'événement personnalisé pour mettre à jour le nombre de messages non lus
+    useEffect(() => {
+        const handleUnreadMessagesUpdate = (event) => {
+            setUnreadMessagesCount(event.detail);
+        };
 
-  const goBack = () => {
-    window.history.back();
-  };
+        window.addEventListener("unreadMessagesUpdate", handleUnreadMessagesUpdate);
 
-  const handleLogout = () => {
-    console.log("Logout clicked");
-  };
+        // Nettoyer l'écouteur d'événement
+        return () => {
+            window.removeEventListener("unreadMessagesUpdate", handleUnreadMessagesUpdate);
+        };
+    }, []);
 
-  // Traductions directes pour la Navbar
-  const translations = {
-    search_student: language === "FR" ? "Rechercher un étudiant" : "Search for a student",
-    search_document: language === "FR" ? "Rechercher un document" : "Search for a document",
-    change_language: language === "FR" ? "Changer de langue" : "Change language",
-    light_mode: language === "FR" ? "Mode clair" : "Light mode",
-    dark_mode: language === "FR" ? "Mode sombre" : "Dark mode",
-    profile: language === "FR" ? "Profil" : "Profile",
-    logout: language === "FR" ? "Déconnexion" : "Logout"
-  };
+    // Déterminer si la page actuelle devrait avoir une barre de recherche
+    const [searchConfig, setSearchConfig] = useState({ show: false, type: "" });
 
-  return (
-    <NavbarContainer darkMode={isDarkMode}>
-      <LogoSection>
-        <BackButton onClick={goBack} darkMode={isDarkMode}>
-          <IoIosArrowBack />
-        </BackButton>
-        <Logo darkMode={isDarkMode}></Logo>
-        <MobileMenuToggle
-          darkMode={isDarkMode}
-          onClick={() => setShowMobileMenu(!showMobileMenu)}
-        >
-          <span></span>
-          <span></span>
-          <span></span>
-        </MobileMenuToggle>
-      </LogoSection>
+    useEffect(() => {
+        const path = location.pathname;
 
-      {searchConfig.show && (
-        <SearchSection darkMode={isDarkMode}>
-          <SearchIcon darkMode={isDarkMode}>
-            <BiSearch />
-          </SearchIcon>
-          <SearchInput
-            onChange={(e) => setSearchWord(e.target.value)}
-            value={searchWord}
-            type="text"
-            placeholder={searchConfig.type === "etudiant" ? translations.search_student : translations.search_document}
-            darkMode={isDarkMode}
-          />
-        </SearchSection>
-      )}
+        if (path === "/listeEtudiant") {
+            setSearchConfig({ show: true, type: "etudiant" });
+        } else if (["/catalogue", "/memoireParDepartement"].includes(path)) {
+            setSearchConfig({ show: true, type: "document" });
+        } else {
+            setSearchConfig({ show: false, type: "" });
+        }
+    }, [location]);
 
-      <NavActions showMobile={showMobileMenu} darkMode={isDarkMode}>
-        <NavButton onClick={() => changeLanguage(language === "FR" ? "EN" : "FR")} darkMode={isDarkMode} title={translations.change_language}>
-          <BiGlobe />
-          <ButtonLabel>{language}</ButtonLabel>
-        </NavButton>
+    const goBack = () => {
+        window.history.back();
+    };
 
-        <NavButton onClick={toggleTheme} darkMode={isDarkMode} title={isDarkMode ? translations.light_mode : translations.dark_mode}>
-          {isDarkMode ? <RiSunFill /> : <RiMoonFill />}
-          <ButtonLabel>{isDarkMode ? translations.light_mode : translations.dark_mode}</ButtonLabel>
-        </NavButton>
+    const handleLogout = () => {
+        console.log("Logout clicked");
+    };
 
-        <NavButton onClick={() => navigate("/profil")} darkMode={isDarkMode} title={translations.profile}>
-          <BiUserCircle />
-          <ButtonLabel>{translations.profile}</ButtonLabel>
-        </NavButton>
+    // Traductions directes pour la Navbar
+    const translations = {
+        search_student: language === "FR" ? "Rechercher un étudiant" : "Search for a student",
+        search_document: language === "FR" ? "Rechercher un document" : "Search for a document",
+        change_language: language === "FR" ? "Changer de langue" : "Change language",
+        light_mode: language === "FR" ? "Mode clair" : "Light mode",
+        dark_mode: language === "FR" ? "Mode sombre" : "Dark mode",
+        profile: language === "FR" ? "Profil" : "Profile",
+        logout: language === "FR" ? "Déconnexion" : "Logout"
+    };
 
-        <NavButton onClick={() => navigate("/logoutPage")} darkMode={isDarkMode} title={translations.logout}>
-          <BiLogOut />
-          <ButtonLabel>{translations.logout}</ButtonLabel>
-        </NavButton>
-      </NavActions>
-    </NavbarContainer>
-  );
+    return (
+        <NavbarContainer darkMode={isDarkMode}>
+            <LogoSection>
+                <BackButton onClick={goBack} darkMode={isDarkMode}>
+                    <IoIosArrowBack />
+                </BackButton>
+                <Logo darkMode={isDarkMode}></Logo>
+                <MobileMenuToggle
+                    darkMode={isDarkMode}
+                    onClick={() => setShowMobileMenu(!showMobileMenu)}
+                >
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </MobileMenuToggle>
+            </LogoSection>
+
+            {searchConfig.show && (
+                <SearchSection darkMode={isDarkMode}>
+                    <SearchIcon darkMode={isDarkMode}>
+                        <BiSearch />
+                    </SearchIcon>
+                    <SearchInput
+                        onChange={(e) => setSearchWord(e.target.value)}
+                        value={searchWord}
+                        type="text"
+                        placeholder={searchConfig.type === "etudiant" ? translations.search_student : translations.search_document}
+                        darkMode={isDarkMode}
+                    />
+                </SearchSection>
+            )}
+
+            <NavActions showMobile={showMobileMenu} darkMode={isDarkMode}>
+                {/* Bouton pour les messages */}
+                <NavButton onClick={() => navigate("/messages")} darkMode={isDarkMode} title="Messages">
+                    <BiMessageDetail />
+                    {unreadMessagesCount > 0 && (
+                        <UnreadBadge>{unreadMessagesCount}</UnreadBadge>
+                    )}
+                </NavButton>
+
+                <NavButton onClick={() => changeLanguage(language === "FR" ? "EN" : "FR")} darkMode={isDarkMode} title={translations.change_language}>
+                    <BiGlobe />
+                    <ButtonLabel>{language}</ButtonLabel>
+                </NavButton>
+
+                <NavButton onClick={toggleTheme} darkMode={isDarkMode} title={isDarkMode ? translations.light_mode : translations.dark_mode}>
+                    {isDarkMode ? <RiSunFill /> : <RiMoonFill />}
+                    <ButtonLabel>{isDarkMode ? translations.light_mode : translations.dark_mode}</ButtonLabel>
+                </NavButton>
+
+                <NavButton onClick={() => navigate("/profil")} darkMode={isDarkMode} title={translations.profile}>
+                    <BiUserCircle />
+                    <ButtonLabel>{translations.profile}</ButtonLabel>
+                </NavButton>
+
+                <NavButton onClick={() => navigate("/logoutPage")} darkMode={isDarkMode} title={translations.logout}>
+                    <BiLogOut />
+                    <ButtonLabel>{translations.logout}</ButtonLabel>
+                </NavButton>
+            </NavActions>
+        </NavbarContainer>
+    );
 }
 
 // Styled Components (rest of your code)
+const UnreadBadge = styled.div`
+    background: #db991d;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 50%;
+    margin-left: 8px;
+`;
 const NavbarContainer = styled.nav`
   display: flex;
   align-items: center;
