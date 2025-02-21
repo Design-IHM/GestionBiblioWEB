@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
@@ -15,7 +16,7 @@ import ReactJsAlert from "reactjs-alert";
 import { arrayUnion, Timestamp } from "firebase/firestore";
 
 export default function Messages() {
-    const { setMessages, email, setEmail,setNom } = useContext(UserContext);
+    const { setMessages, email, setEmail, setNom } = useContext(UserContext);
     const { language } = useI18n();
     const refUser = firebase.firestore().collection("BiblioUser");
     const [data, setData] = useState([]);
@@ -38,15 +39,10 @@ export default function Messages() {
             const userRef = refUser.doc(userEmail);
             const userDoc = await userRef.get();
 
-            if (userDoc.exists) { // Utilisez `exists` comme propriété
+            if (userDoc.exists) {
                 const messages = userDoc.data().messages;
-                console.log("Messages avant mise à jour:", messages); // Log des messages avant mise à jour
-
-                const updatedMessages = messages.map(msg => ({ ...msg, lu: true })); // Marquer tous les messages comme lus
-                console.log("Messages après mise à jour:", updatedMessages); // Log des messages après mise à jour
-
+                const updatedMessages = messages.map(msg => ({ ...msg, lu: true }));
                 await userRef.update({ messages: updatedMessages });
-                console.log("Messages marqués comme lus pour l'utilisateur:", userEmail); // Log de confirmation
             } else {
                 console.error("Document does not exist:", userEmail);
             }
@@ -55,8 +51,8 @@ export default function Messages() {
         }
     };
 
-     // Fonction pour compter les messages non lus
-     const countUnreadMessages = (messages) => {
+    // Fonction pour compter les messages non lus
+    const countUnreadMessages = (messages) => {
         if (!messages) return 0;
         return messages.filter(msg => msg.lu === false).length;
     };
@@ -72,16 +68,36 @@ export default function Messages() {
         window.dispatchEvent(event);
     };
 
-    // Modified getDataUser to include search functionality
+    // Modified getDataUser to include sorting by latest message
     const getDataUser = useCallback(() => {
         refUser.onSnapshot((querySnapshot) => {
             const items = [];
             querySnapshot.forEach((doc) => {
                 const userData = doc.data();
+                if (userData.messages && userData.messages.length > 0) {
+                    // Trouver le message le plus récent
+                    const latestMessage = userData.messages.reduce((latest, msg) => {
+                        // Vérifier que le message a un champ `heure` valide
+                        if (msg.heure && msg.heure.seconds) {
+                            return msg.heure.seconds > latest.heure.seconds ? msg : latest;
+                        }
+                        return latest; // Ignorer les messages sans `heure` valide
+                    }, { heure: { seconds: 0, nanoseconds: 0 } }); // Valeur par défaut
+
+                    // Ajouter la date du dernier message à l'objet userData
+                    userData.latestMessageTime = latestMessage.heure;
+                } else {
+                    // Si aucun message, définir une date très ancienne
+                    userData.latestMessageTime = { seconds: 0, nanoseconds: 0 };
+                }
                 items.push(userData);
             });
+
+            // Trier les discussions par date du dernier message (du plus récent au plus ancien)
+            items.sort((a, b) => b.latestMessageTime.seconds - a.latestMessageTime.seconds);
+
             setData(items);
-            setFilteredData(items);
+            setFilteredData(items); // Initialiser les données filtrées avec tous les éléments
             updateUnreadMessagesCount(items); // Mettre à jour le nombre de messages non lus
             setLoader(true);
         });
@@ -117,7 +133,6 @@ export default function Messages() {
     }, [getDataUser]);
 
     const changerCat = (mes, mail, nom) => {
-        console.log("Discussion sélectionnée:", { mail, nom, mes }); // Log de la discussion sélectionnée
         setMessages(mes);
         setNom(nom);
         setEmail(mail);
@@ -350,9 +365,7 @@ const UnreadBadge = styled.div`
     margin-left: 8px;
 `;
 
-
-
-
+// Le reste des styles reste inchangé...
 // Style pour le composant Messages
 const Section = styled.section`
     padding: 2rem;

@@ -11,7 +11,7 @@ import { IoSearchOutline, IoClose } from "react-icons/io5";
 export default function Discussion() {
   const { email, nom } = useContext(UserContext);
   const [datUserTest, setDatUserTest] = useState(true);
-  const [setDat] = useState({ messages: [] });
+  const [dat, setDat] = useState({ messages: [] });
   const [message, setMessage] = useState('');
   const [localMessages, setLocalMessages] = useState([]);
   const messagesEndRef = useRef(null);
@@ -311,7 +311,7 @@ export default function Discussion() {
           }
         });
     }
-  }, [email, setDat]);
+  }, [email]);
 
   useEffect(() => {
     subscriber();
