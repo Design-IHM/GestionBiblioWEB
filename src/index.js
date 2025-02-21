@@ -4,13 +4,17 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { I18nProvider } from './Context/I18nContext';
+import { ThemeProvider } from './Context/ThemeContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <I18nProvider>
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+   <ThemeProvider>
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+   </ThemeProvider>
+  
   </I18nProvider>
 );
 

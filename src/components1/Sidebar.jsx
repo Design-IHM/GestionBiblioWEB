@@ -13,12 +13,14 @@ import { AiFillMessage } from "react-icons/ai";
 import { NavLink } from "react-router-dom";
 import { UserContext } from "../App";
 import { useI18n } from "../Context/I18nContext";
+import { useTheme } from "../Context/ThemeContext"; // Importer le hook useTheme
 
 export default function Sidebar() {
   const [currentLink, setCurrentLink] = useState(0);
   const [navbarState, setNavbarState] = useState(false);
-  const { setSearchPage, darkMode } = useContext(UserContext);
+  const { setSearchPage } = useContext(UserContext);
   const { language, changeLanguage } = useI18n();
+  const { isDarkMode } = useTheme(); 
 
   const html = document.querySelector("html");
   html.addEventListener("click", () => setNavbarState(false));
@@ -77,7 +79,7 @@ export default function Sidebar() {
 
   return (
     <>
-      <Section style={{ backgroundColor: darkMode ? "#333333" : "rgb(231, 218, 193)", color: darkMode ? 'white' : 'black' }}>
+      <Section darkMode={isDarkMode}>
         <div className="top">
           <div className="brandSide">
             <a href="/accueil">
@@ -176,7 +178,7 @@ export default function Sidebar() {
         </div>
       </Section>
 
-      <ResponsiveNav state={navbarState} className={navbarState ? "show" : ""}>
+      <ResponsiveNav state={navbarState} darkMode={isDarkMode} className={navbarState ? "show" : ""}>
         <div className="responsive__links">
           <ul>
             <li className={currentLink === 6 ? "active" : "none"} onClick={() => changerCat()}>
@@ -238,7 +240,7 @@ const Section = styled.section`
   position: fixed;
   top: 0;
   left: 0;
-  background-color: rgb(231, 218, 193);
+  background-color: ${props => props.darkMode ? "#111827" : "rgb(231, 218, 193)"};
   height: 100vh;
   width: 18vw;
   display: flex;
@@ -296,7 +298,7 @@ const Section = styled.section`
           border-radius: 0.6rem;
 
           &:hover {
-            background-color: #ececec;
+            background-color: ${props => props.darkMode ? "#4b5563" : "#ececec"};
 
             .linkin {
               color: chocolate;
@@ -309,16 +311,16 @@ const Section = styled.section`
             border-radius: 0.6rem;
             display: flex;
             gap: 1rem;
-            color: #888888;
+            color: ${props => props.darkMode ? "white" : "#888888"};
             font-weight: bold;
           }
         }
 
         .active {
-          background-color: #ececec;
+          background-color: ${props => props.darkMode ? "#4b5563" : "#ececec"};
 
           .linkin {
-            color: #fe7a3f;
+            color: chocolate;
             border-radius: 0.6rem;
           }
         }
@@ -395,7 +397,7 @@ const ResponsiveNav = styled.div`
   right: -10vw;
   top: 0;
   z-index: 10;
-  background-color: rgb(231, 218, 193);
+  background-color: ${props => props.darkMode ? "#111827" : "rgb(231, 218, 193)"};
   height: 100vh;
   width: ${({ state }) => (state ? "60vh" : "0%")};
   transition: 0.4s ease-in-out;
@@ -412,9 +414,9 @@ const ResponsiveNav = styled.div`
       li {
         border-radius: 0.6rem;
         &:hover {
-          background-color: #fe7a3f;
+          background-color: ${props => props.darkMode ? "#4b5563" : "#fe7a3f"};
           .linkin {
-            color: white;
+            color: ${props => props.darkMode ? "chocolate" : "white"};
             font-weight: bold;
           }
         }
@@ -423,7 +425,7 @@ const ResponsiveNav = styled.div`
           text-decoration: none;
           display: flex;
           gap: 1rem;
-          color: black;
+          color: ${props => props.darkMode ? "white" : "black"};
         }
       }
     }

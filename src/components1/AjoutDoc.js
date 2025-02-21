@@ -83,7 +83,9 @@ export default function AjoutDoc(props) {
         document_description: language === "FR" ? "Description du document" : "Document Description",
         add: language === "FR" ? "Ajouter" : "Add",
         cancel: language === "FR" ? "Annuler" : "Cancel",
-        document_added: language === "FR" ? "Document ajouté avec succès" : "Document added successfully"
+        document_added: language === "FR" ? "Document ajouté avec succès" : "Document added successfully",
+        imgBook: language === "FR" ? "LIVRE": "BOOK",
+        imgTheses: language === "FR"? "MEMOIRE": "THESES"
     };
 
     return (
@@ -108,15 +110,15 @@ export default function AjoutDoc(props) {
                             >
                                 <Card.Img variant="top" src={livre} />
                                 <Card.Body>
-                                    <Card.Text style={{ color: 'chocolate', fontWeight: 'bold' }}>LIVRE</Card.Text>
+                                    <Card.Text style={{ color: 'chocolate', fontWeight: 'bold' }}>{translations.imgBook}</Card.Text>
                                 </Card.Body>
                             </Card>
                         </Col>
                         <Col md={3} className="mb-3">
-                            <Card className="text-center p-3" onClick={() => navigate('/ajouterMemoire')} style={{ cursor: 'pointer' }}>
+                            <Card className="text-center p-3" onClick={() => navigate('/ajoutermémoire')} style={{ cursor: 'pointer' }}>
                                 <Card.Img variant="top" src={memoire} />
                                 <Card.Body>
-                                    <Card.Text style={{ color: 'chocolate', fontWeight: 'bold' }}>MÉMOIRE</Card.Text>
+                                    <Card.Text style={{ color: 'chocolate', fontWeight: 'bold' }}>{translations.imgTheses}</Card.Text>
                                 </Card.Body>
                             </Card>
                         </Col>

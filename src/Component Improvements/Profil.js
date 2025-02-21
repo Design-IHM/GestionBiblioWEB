@@ -11,10 +11,12 @@ import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
 import styled from 'styled-components';
 import { FaCamera } from 'react-icons/fa';
+import { useI18n } from "../Context/I18nContext";
 
 export default function Profil() {
     // ... [Tout le code des states et des fonctions reste identique] ...
     const [name, setName] = useState('');
+    const { language } = useI18n();
     const [cathegorie] = useState('');
     const [desc, setDesc] = useState('');
     const [etagere] = useState('');
@@ -79,6 +81,19 @@ export default function Profil() {
         setTitle("Document ajouté avec succès");
     };
 
+    const translations = {
+        nom: language === "FR" ? "Nom " : "Name",
+        email: language === "FR" ? "E-mail": "E-mail",
+        genre: language === "FR" ? "Genre" : "Gender",
+        desc: language ==="FR"? "Description" : "Description",
+        save: language === "FR" ? "Enregistrer": "Save",
+        ann: language ==="FR"? "Annuler": "Close",
+        select: language==="FR"? "Selectionner votre genre": "Select your gender",
+        male: language ==="FR"? "Homme": "male",
+        femelle : language ==="FR"?"Femme": "Female",
+        modify: language === "FR"? "modifier": "modify"
+    }
+
     return (
         <div className="content-box">
               <Container>
@@ -92,7 +107,7 @@ export default function Profil() {
                                 <StyledAvatar src={url} />
                                 <UploadOverlay onClick={triggerFileInput}>
                                     <FaCamera size={24} />
-                                    <span>Modifier</span>
+                                    <span>{translations.modify}</span>
                                 </UploadOverlay>
                             </AvatarWrapper>
                             <input
@@ -105,7 +120,7 @@ export default function Profil() {
 
                         <FormGrid>
                             <FormGroup>
-                                <Label>Nom</Label>
+                                <Label>{translations.nom}</Label>
                                 <StyledInput
                                     type="text"
                                     placeholder="ex: Jason Derulo"
@@ -116,7 +131,7 @@ export default function Profil() {
                             </FormGroup>
 
                             <FormGroup>
-                                <Label>E-mail</Label>
+                                <Label>{translations.email}</Label>
                                 <StyledInput
                                     type="email"
                                     placeholder="ex: exemple@email.com"
@@ -127,20 +142,20 @@ export default function Profil() {
                             </FormGroup>
 
                             <FormGroup>
-                                <Label>Genre</Label>
+                                <Label>{translations.genre}</Label>
                                 <StyledSelect
                                     value={typ}
                                     onChange={(e) => setTyp(e.target.value)}
                                     required
                                 >
-                                    <option value="">Sélectionnez votre genre</option>
-                                    <option value="Homme">Homme</option>
-                                    <option value="Femme">Femme</option>
+                                    <option value="">{translations.select}</option>
+                                    <option value="Homme">{translations.male}</option>
+                                    <option value="Femme">{translations.femelle}</option>
                                 </StyledSelect>
                             </FormGroup>
 
                             <FormGroup>
-                                <Label>Description</Label>
+                                <Label>{translations.desc}</Label>
                                 <StyledTextarea
                                     rows={3}
                                     placeholder="Description"
@@ -152,10 +167,10 @@ export default function Profil() {
 
                         <ButtonGroup>
                             <Button type="submit" $primary style={{backgroundColor:"chocolate"}}>
-                                Enregistrer
+                                {translations.save}
                             </Button>
                             <Button type="button" onClick={() => navigate("/")}>
-                                Annuler
+                                {translations.ann}
                             </Button>
                         </ButtonGroup>
                     </Form>

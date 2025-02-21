@@ -1,26 +1,26 @@
-
-import React, { useContext, useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
 import { BiSearch, BiUserCircle, BiLogOut, BiGlobe } from "react-icons/bi";
 import { IoIosArrowBack } from "react-icons/io";
 import { RiSunFill, RiMoonFill } from "react-icons/ri";
-import { UserContext } from "../App";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useI18n } from "../Context/I18nContext";
+import { useTheme } from "../Context/ThemeContext"; // Importer le hook useTheme
+import { UserContext } from "../App";
 
 export default function Navbar() {
-  const { darkMode, toggleDarkMode, setSearchWord, searchWord } = useContext(UserContext);
+  const { isDarkMode, toggleTheme } = useTheme(); // Utiliser le hook useTheme pour accéder à isDarkMode et toggleTheme
   const { language, changeLanguage } = useI18n();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  
+  const {setSearchWord, searchWord } = useContext(UserContext);
   // Déterminer si la page actuelle devrait avoir une barre de recherche
   const [searchConfig, setSearchConfig] = useState({ show: false, type: "" });
-  
+
   useEffect(() => {
     const path = location.pathname;
-    
+
     if (path === "/listeEtudiant") {
       setSearchConfig({ show: true, type: "etudiant" });
     } else if (["/catalogue", "/memoireParDepartement"].includes(path)) {
@@ -50,14 +50,14 @@ export default function Navbar() {
   };
 
   return (
-    <NavbarContainer darkMode={darkMode}>
+    <NavbarContainer darkMode={isDarkMode}>
       <LogoSection>
-        <BackButton onClick={goBack} darkMode={darkMode}>
+        <BackButton onClick={goBack} darkMode={isDarkMode}>
           <IoIosArrowBack />
         </BackButton>
-        <Logo darkMode={darkMode}></Logo>
+        <Logo darkMode={isDarkMode}></Logo>
         <MobileMenuToggle
-          darkMode={darkMode}
+          darkMode={isDarkMode}
           onClick={() => setShowMobileMenu(!showMobileMenu)}
         >
           <span></span>
@@ -67,8 +67,8 @@ export default function Navbar() {
       </LogoSection>
 
       {searchConfig.show && (
-        <SearchSection darkMode={darkMode}>
-          <SearchIcon darkMode={darkMode}>
+        <SearchSection darkMode={isDarkMode}>
+          <SearchIcon darkMode={isDarkMode}>
             <BiSearch />
           </SearchIcon>
           <SearchInput
@@ -76,28 +76,28 @@ export default function Navbar() {
             value={searchWord}
             type="text"
             placeholder={searchConfig.type === "etudiant" ? translations.search_student : translations.search_document}
-            darkMode={darkMode}
+            darkMode={isDarkMode}
           />
         </SearchSection>
       )}
 
-      <NavActions showMobile={showMobileMenu} darkMode={darkMode}>
-        <NavButton onClick={() => changeLanguage(language === "FR" ? "EN" : "FR")} darkMode={darkMode} title={translations.change_language}>
+      <NavActions showMobile={showMobileMenu} darkMode={isDarkMode}>
+        <NavButton onClick={() => changeLanguage(language === "FR" ? "EN" : "FR")} darkMode={isDarkMode} title={translations.change_language}>
           <BiGlobe />
           <ButtonLabel>{language}</ButtonLabel>
         </NavButton>
 
-        <NavButton onClick={toggleDarkMode} darkMode={darkMode} title={darkMode ? translations.light_mode : translations.dark_mode}>
-          {darkMode ? <RiSunFill /> : <RiMoonFill />}
-          <ButtonLabel>{darkMode ? translations.light_mode : translations.dark_mode}</ButtonLabel>
+        <NavButton onClick={toggleTheme} darkMode={isDarkMode} title={isDarkMode ? translations.light_mode : translations.dark_mode}>
+          {isDarkMode ? <RiSunFill /> : <RiMoonFill />}
+          <ButtonLabel>{isDarkMode ? translations.light_mode : translations.dark_mode}</ButtonLabel>
         </NavButton>
 
-        <NavButton onClick={() => navigate("/profil")} darkMode={darkMode} title={translations.profile}>
+        <NavButton onClick={() => navigate("/profil")} darkMode={isDarkMode} title={translations.profile}>
           <BiUserCircle />
           <ButtonLabel>{translations.profile}</ButtonLabel>
         </NavButton>
 
-        <NavButton onClick={() => navigate("/logoutPage")} darkMode={darkMode} title={translations.logout}>
+        <NavButton onClick={() => navigate("/logoutPage")} darkMode={isDarkMode} title={translations.logout}>
           <BiLogOut />
           <ButtonLabel>{translations.logout}</ButtonLabel>
         </NavButton>
@@ -105,8 +105,6 @@ export default function Navbar() {
     </NavbarContainer>
   );
 }
-
-
 
 // Styled Components (rest of your code)
 const NavbarContainer = styled.nav`
@@ -116,7 +114,7 @@ const NavbarContainer = styled.nav`
   background-color: ${props => props.darkMode ? "#1f2937" : "#ffffff"};
   color: ${props => props.darkMode ? "#f3f4f6" : "#1f2937"};
   padding: 0.75rem 1.5rem;
- 
+
   transition: all 0.3s ease;
   flex-wrap: wrap;
   position: sticky;
@@ -188,7 +186,7 @@ const SearchIcon = styled.div`
   align-items: center;
   justify-content: center;
   margin-right: 0.5rem;
-  
+
   svg {
     font-size: 1.25rem;
   }
@@ -212,7 +210,7 @@ const NavActions = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  
+
   @media (max-width: 768px) {
     flex-direction: column;
     position: absolute;
@@ -229,7 +227,7 @@ const NavActions = styled.div`
     pointer-events: ${props => props.showMobile ? "all" : "none"};
     z-index: 999;
     border-radius: 0 0 8px 8px;
-    
+
     & > button {
       width: 100%;
       justify-content: flex-start;
@@ -264,7 +262,7 @@ const ButtonLabel = styled.span`
   @media (max-width: 1024px) {
     display: none;
   }
-  
+
   @media (max-width: 768px) {
     display: inline;
   }
@@ -280,7 +278,7 @@ const MobileMenuToggle = styled.button`
   border: none;
   cursor: pointer;
   padding: 0;
-  
+
   span {
     display: block;
     height: 2px;
@@ -289,7 +287,7 @@ const MobileMenuToggle = styled.button`
     border-radius: 2px;
     transition: all 0.3s ease;
   }
-  
+
   @media (max-width: 768px) {
     display: flex;
     margin-left: auto;
