@@ -1,5 +1,4 @@
 import React from 'react';
-import { FaBook } from 'react-icons/fa';
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
 import DepartementBooksBtn from './DepartementBooksBtn';

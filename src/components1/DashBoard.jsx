@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import React, { useState, useEffect} from "react";
 import {
   LineChart,
   Line,
@@ -11,7 +11,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer
 } from 'recharts';
 import {
@@ -21,14 +20,11 @@ import {
   BarChart3,
   Clock,
   CreditCard,
-  TrendingUp
 } from 'lucide-react';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import styled from "styled-components";
 import firebase from "../metro.config";
-import { UserContext } from "../App";
-import Loading from "./Loading";
 import { useI18n } from "../Context/I18nContext";
 
 const styles = {

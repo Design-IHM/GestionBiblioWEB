@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import Sidebar from "../components1/Sidebar";
 import Navbar from "../components1/Navbar";
 import { useNavigate } from "react-router-dom";
@@ -6,7 +6,7 @@ import left from "../assets/Left.png";
 import { BookHalf, Memory } from "react-bootstrap-icons";
 import "./WelcomePage.css";
 import { useI18n } from "../Context/I18nContext";
-import styled from "styled-components";
+
 
 const Accueil = () => {
   const navigate = useNavigate();

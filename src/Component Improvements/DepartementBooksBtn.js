@@ -4,7 +4,6 @@ import { Button, Modal, Form } from 'react-bootstrap';
 import { FaBook, FaPlus } from 'react-icons/fa';
 import firebase from '../metro.config';
 import ReactJsAlert from "reactjs-alert";
-import { v4 as uuidv4 } from 'uuid';
 import { useI18n } from "../Context/I18nContext"; // Importez le contexte i18n
 
 export default function DepartementMemoriesBtn(props) {

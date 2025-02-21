@@ -71,7 +71,7 @@ export default function CatalogueMemoire() {
     console.log("Département reçu :", departement);
 
     getData();
-  }, [getData]);
+  }, [getData, departement]);
 
   function openModal(e) {
     setMatricule(e.matricule);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaBook } from 'react-icons/fa';
+
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
 import { useNavigate } from 'react-router-dom';
@@ -10,9 +10,8 @@ import img4 from '../assets/memoireGtel.jpg';
 import img5 from '../assets/memoireGM.jpg';
 import img6 from '../assets/Msp.jpg';
 import firebase from "../metro.config";
-import { Button, Modal, Form } from 'react-bootstrap';
+import {Modal, Form } from 'react-bootstrap';
 import ReactJsAlert from "reactjs-alert";
-import { v4 as uuidv4 } from 'uuid';
 import { useI18n } from "../Context/I18nContext";
 
 export default function AdminMemoriesHome() {

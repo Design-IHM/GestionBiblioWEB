@@ -15,11 +15,10 @@ import ReactJsAlert from "reactjs-alert";
 import { arrayUnion, Timestamp } from "firebase/firestore";
 
 export default function Messages() {
-    const { setMessages, email, setEmail, nom, setNom } = useContext(UserContext);
+    const { setMessages, email, setEmail,setNom } = useContext(UserContext);
     const { language } = useI18n();
     const refUser = firebase.firestore().collection("BiblioUser");
     const [data, setData] = useState([]);
-    const [dataMes, setDataMes] = useState([]);
     const [loader, setLoader] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredData, setFilteredData] = useState([]);

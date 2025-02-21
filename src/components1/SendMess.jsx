@@ -45,7 +45,7 @@ export default function SendMess() {
     console.log(email);
   };
 
-  const { email, setEmail, nom, setNom } = useContext(UserContext);
+  const { email, setEmail,setNom } = useContext(UserContext);
   const { language } = useI18n();
 
   const translations = {

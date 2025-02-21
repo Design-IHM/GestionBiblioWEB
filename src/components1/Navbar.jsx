@@ -52,9 +52,7 @@ export default function Navbar() {
         window.history.back();
     };
 
-    const handleLogout = () => {
-        console.log("Logout clicked");
-    };
+    
 
     // Traductions directes pour la Navbar
     const translations = {

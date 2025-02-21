@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useCallback } from "react";
+import React, { useState, useContext, useEffect} from "react";
 import styled from "styled-components";
 import { UserContext } from "../App";
 import { useLocation } from 'react-router-dom';
@@ -46,7 +46,7 @@ export default function MemoireParDepartement() {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const displayedMemoires = sortedMemoires.slice(startIndex, startIndex + itemsPerPage);
 
-    let subtitle;
+
 
     function openPopup(memoire) {
         console.log("Opening popup for:", memoire);

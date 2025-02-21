@@ -27,48 +27,6 @@ function ListeEtudiants() {
   const [showTooltip, setShowTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
-  const customStyles = {
-    content: {
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      left: '50%',
-      right: 'auto',
-      bottom: 'auto',
-      marginRight: '-50%',
-      padding: '10px 50px',
-      transform: 'translate(-50%, -50%)',
-    },
-  };
-
-  const closeStyle = {
-    position: "absolute",
-    right: '10px',
-    cursor: 'pointer',
-  };
-
-  const modalDiv = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '2rem'
-  };
-
-  const imgP = {
-    display: 'block',
-    width: '300px',
-    height: '300px',
-    borderRadius: '50px'
-  };
-
-  const infor = {
-    display: 'flex',
-    flexDirection: 'column',
-    color: 'black',
-    gap: '30px',
-    fontSize: '30px'
-  };
-
-  let subtitle;
 
   const getData = useCallback(() => {
     ref.onSnapshot((querySnapshot) => {

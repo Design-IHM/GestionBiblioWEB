@@ -1,10 +1,10 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext} from "react";
 import styled from "styled-components";
 import { BsListUl } from "react-icons/bs";
-import { FaUser } from "react-icons/fa";
+
 import { GrCatalog } from "react-icons/gr";
 import { FaArchive } from "react-icons/fa";
-import { FiLogOut } from "react-icons/fi";
+
 import { MdPostAdd, MdRuleFolder } from "react-icons/md";
 import { GiHamburgerMenu, GiBookPile } from "react-icons/gi";
 import { VscChromeClose } from "react-icons/vsc";
@@ -19,7 +19,7 @@ export default function Sidebar() {
   const [currentLink, setCurrentLink] = useState(0);
   const [navbarState, setNavbarState] = useState(false);
   const { setSearchPage } = useContext(UserContext);
-  const { language, changeLanguage } = useI18n();
+  const { language } = useI18n();
   const { isDarkMode } = useTheme(); 
 
   const html = document.querySelector("html");
@@ -30,9 +30,7 @@ export default function Sidebar() {
     setSearchPage("etudiant");
   };
 
-  const changerProfil = () => {
-    setCurrentLink(10);
-  };
+  
 
   const changerAc = () => {
     setCurrentLink(14);
