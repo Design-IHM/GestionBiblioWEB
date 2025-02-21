@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
@@ -12,8 +11,8 @@ import { BiMessageDetail, BiSearch } from 'react-icons/bi';
 import { IoPersonOutline } from 'react-icons/io5';
 import { BsPlusLg } from 'react-icons/bs';
 import { AiOutlineClose, AiFillMinusSquare, AiOutlineExpand } from 'react-icons/ai';
-import ReactJsAlert from "reactjs-alert";
 import { arrayUnion, Timestamp } from "firebase/firestore";
+import CustomAlert from "./CustomAlert"; // Importer le composant CustomAlert
 
 export default function Messages() {
     const { setMessages, email, setEmail, setNom } = useContext(UserContext);
@@ -29,9 +28,23 @@ export default function Messages() {
     const [minimized, setMinimized] = useState(false);
     const [objet, setObjet] = useState('');
     const [message, setMessage] = useState('');
-    const [status, setStatus] = useState(false);
-    const [type, setType] = useState("");
-    const [title, setTitle] = useState("");
+
+    // États pour l'alerte personnalisée
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertType, setAlertType] = useState("success"); // "success" ou "error"
+    const [alertMessage, setAlertMessage] = useState("");
+
+    // Fonction pour afficher l'alerte
+    const showCustomAlert = (type, message) => {
+        setAlertType(type);
+        setAlertMessage(message);
+        setShowAlert(true);
+
+        // Masquer l'alerte après 3 secondes
+        setTimeout(() => {
+            setShowAlert(false);
+        }, 3000);
+    };
 
     // Fonction pour marquer les messages comme lus
     const markMessagesAsRead = async (userEmail) => {
@@ -157,20 +170,22 @@ export default function Messages() {
     };
 
     const sendMessage = async () => {
-        await firebase.firestore().collection('MessagesRecue').doc(message).set({
-            email: email,
-            messages: message,
-            lu: false // Ajout de l'attribut ici
-        });
-        setStatus(true);
-        setType("success");
-        setTitle(translations.message_sent);
-        setNom("");
-        setMessage(translations.enter_message);
-        setEmail(translations.enter_email);
-        setObjet(translations.enter_subject);
-        ajouter();
-        setShowPopup(false);
+        try {
+            await firebase.firestore().collection('MessagesRecue').doc(message).set({
+                email: email,
+                messages: message,
+                lu: false // Ajout de l'attribut ici
+            });
+            showCustomAlert("success", translations.message_sent); // Afficher l'alerte de succès
+            setNom("");
+            setMessage(translations.enter_message);
+            setEmail(translations.enter_email);
+            setObjet(translations.enter_subject);
+            ajouter();
+            setShowPopup(false);
+        } catch (error) {
+            showCustomAlert("error", "Erreur lors de l'envoi du message"); // Afficher l'alerte d'erreur
+        }
     };
 
     const translations = {
@@ -342,14 +357,14 @@ export default function Messages() {
                 )}
             </Section>
 
-            <ReactJsAlert
-                status={status}
-                type={type}
-                title={title}
-                quotes={true}
-                quote=""
-                Close={() => setStatus(false)}
-            />
+            {/* Afficher l'alerte personnalisée */}
+            {showAlert && (
+                <CustomAlert
+                    type={alertType}
+                    message={alertMessage}
+                    onClose={() => setShowAlert(false)}
+                />
+            )}
         </div>
     );
 }
@@ -365,7 +380,6 @@ const UnreadBadge = styled.div`
     margin-left: 8px;
 `;
 
-// Le reste des styles reste inchangé...
 // Style pour le composant Messages
 const Section = styled.section`
     padding: 2rem;
