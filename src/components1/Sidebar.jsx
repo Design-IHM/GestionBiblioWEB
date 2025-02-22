@@ -200,13 +200,6 @@ export default function Sidebar() {
               </NavLink>
             </li>
 
-            <li className={currentLink === 10 ? "active" : "none"} onClick={() => changerProfil()}>
-              <NavLink className="linkin" to="/profil" end>
-                <FaUser/>
-                <span>Profil bibliothécaire</span>
-              </NavLink>
-            </li>
-
             <li
               className={currentLink === 6 ? "active" : "none"}
               onClick={() => changerCat()}
