@@ -11,8 +11,9 @@ import styled from 'styled-components';
 import memoire from "../../src/assets/mémoirecard.jpeg"
 import livre from "../../src/assets/livrecard.jpg"
 import {FaUpload} from "react-icons/fa";
+import { useI18n } from "../Context/I18nContext";
 
-export default function Ajoutermémoirec() {
+export default function Ajoutermémoire() {
     const [name, setName] = useState('')
     const [matricule, setMatricule] = useState('')
     const [theme, setTheme] = useState('')
@@ -22,6 +23,9 @@ export default function Ajoutermémoirec() {
     const [image, setImage] = useState('');
     const formRef = useRef()
     const navigate = useNavigate();
+
+     const { language } = useI18n();
+
     const [memories, setMemories] = useState([]);
 
     useEffect(() => {
@@ -91,6 +95,20 @@ export default function Ajoutermémoirec() {
         }
     };
 
+    const translations = {
+        name: language === "FR"? "Nom de l'étudiant" : "Student name",
+        mat: language === "FR"?"Matricule de l'étudiant": "Student number",
+        theme: language === "FR"?"Thème de soutenance": "Thesis theme",
+        dep: language === "FR"? "Département": "Deapartment",
+        annee: language === "FR"? "Année de soutenance":"Thesis year ",
+        etagère: language === "FR"? "Numéro de l'étagère":"Shelf number",
+        img: language === "FR"? "Photo du document": "Document image",
+        ajouter: language === "FR"?"Ajouter":"Add",
+        imgBook: language === "FR"?"LIVRE":"BOOK",
+        imgThesis: language === "FR"?"MEMOIRE":"THESIS"
+
+    }
+
     return (
         <MemoireContainer fluid>
             <Row>
@@ -105,7 +123,7 @@ export default function Ajoutermémoirec() {
                                 <Card.Img variant="top" src={livre} />
                                 <Card.Body>
                                     
-                                    <Card.Text style={{ color: 'chocolate', fontWeight: 'bold' }}>LIVRE</Card.Text>
+                                    <Card.Text style={{ color: 'chocolate', fontWeight: 'bold' }}>{translations.imgBook}</Card.Text>
                                 </Card.Body>
                             </Card>
                         </Col>
@@ -123,7 +141,7 @@ export default function Ajoutermémoirec() {
                                 <Card.Img variant="top" src={memoire} />
                                 <Card.Body>
                                     
-                                    <Card.Text style={{ color: 'chocolate', fontWeight: 'bold' }}>MÉMOIRE</Card.Text>
+                                    <Card.Text style={{ color: 'chocolate', fontWeight: 'bold' }}>{translations.imgThesis}</Card.Text>
                                 </Card.Body>
                             </Card>
                         </Col>
@@ -132,7 +150,7 @@ export default function Ajoutermémoirec() {
                         <Form ref={formRef} onSubmit={res}>
                             <FormGrid>
                                 <FormGroup>
-                                    <Label>Nom de l'étudiant</Label>
+                                    <Label>{translations.name}</Label>
                                     <StyledInput
                                         type="text"
                                         placeholder="Nom"
@@ -143,7 +161,7 @@ export default function Ajoutermémoirec() {
                                 </FormGroup>
 
                                 <FormGroup>
-                                    <Label>Matricule de l'étudiant</Label>
+                                    <Label>{translations.mat}</Label>
                                     <StyledInput
                                         type="text"
                                         placeholder="20P123"
@@ -154,7 +172,7 @@ export default function Ajoutermémoirec() {
                                 </FormGroup>
 
                                 <FormGroup>
-                                    <Label>Thème de soutenance</Label>
+                                    <Label>{translations.theme}</Label>
                                     <StyledInput
                                         type="text"
                                         placeholder="Gestion de la bibliothèque"
@@ -165,7 +183,9 @@ export default function Ajoutermémoirec() {
                                 </FormGroup>
 
                                 <FormGroup>
-                                    <Label>Departement</Label>
+
+                                    <Label>{translations.dep}</Label>
+
                                     <StyledSelect
                                         value={departement}
                                         onChange={(e) => setDepartement(e.target.value)}
@@ -180,7 +200,7 @@ export default function Ajoutermémoirec() {
                                 </FormGroup>
 
                                 <FormGroup>
-                                    <Label>Année de soutenance</Label>
+                                    <Label>{translations.annee}</Label>
                                     <StyledInput
                                         type="number"
                                         placeholder="2025"
@@ -191,7 +211,7 @@ export default function Ajoutermémoirec() {
                                 </FormGroup>
 
                                 <FormGroup>
-                                    <Label>Numéro de l'étagère</Label>
+                                    <Label>{translations.etagère}</Label>
                                     <StyledInput
                                         type="text"
                                         placeholder="Étagère"
@@ -212,7 +232,7 @@ export default function Ajoutermémoirec() {
                                 {/*</FormGroup>*/}
 
                                 <FileInputContainer>
-                                    <Label classname="text-left">Lien de l'image</Label>
+                                    <Label classname="text-left">{translations.img}</Label>
                                     {/* Hidden file input */}
                                     <HiddenFileInput
                                       type="file"
@@ -229,7 +249,7 @@ export default function Ajoutermémoirec() {
                             </FormGrid>
                             <ButtonGroup>
                                 <StyledButton type="button" onClick={res} $primary>
-                                    Ajouter
+                                    {translations.ajouter}
                                 </StyledButton>
                                 <StyledButton type="button" onClick={resetForm}>
                                     Annuler
@@ -358,27 +378,27 @@ const ButtonGroup = styled.div`
 `;
 
 const StyledButton = styled(BootstrapButton)`
-    padding: 0.75rem 2rem;
-    border: none;
-    border-radius: 6px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    background-color: ${props => props.$primary ? '#3b82f6' : '#ffffff'};
-    color: white;
-    min-width: 150px;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: ${props => props.$primary ? '#3b82f6' : '#9ca3af'};
+  color: white;
+  min-width: 150px;
 
-    &:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        background-color: ${props => props.$primary ? '#2563eb' : '#fffaf4'};
-    }
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: ${props => props.$primary ? '#2563eb' : '#6b7280'};
+  }
 
-    &:active {
-        transform: translateY(0);
-    }
+  &:active {
+    transform: translateY(0);
+  }
 
-    @media (max-width: 480px) {
-        width: 100%;
-    }
+  @media (max-width: 480px) {
+    width: 100%;
+  }
 `;

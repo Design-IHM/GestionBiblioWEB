@@ -6,23 +6,24 @@ import firebase from '../metro.config';
 import { useNavigate } from "react-router-dom";
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
-
 import styled from 'styled-components';
-import memoire from "../../src/assets/mémoirecard.jpeg"
-import livre from "../../src/assets/livrecard.jpg"
-import {FaUpload} from "react-icons/fa";
+import memoire from "../../src/assets/mémoirecard.jpeg";
+import livre from "../../src/assets/livrecard.jpg";
+import { FaUpload } from "react-icons/fa";
+import { useI18n } from "../Context/I18nContext";
 
 export default function AjoutDoc(props) {
-    const [name, setName] = useState('')
+    const [name, setName] = useState('');
     const [cathegorie, setCathegorie] = useState('');
-    const [desc, setDesc] = useState('')
-    const [etagere, setEtagere] = useState('')
-    const [exemplaire, setExemplaire] = useState(1)
-    const [image, setImage] = useState("")
-    const [salle, setSalle] = useState('')
-    const [typ] = useState('')
-    const formRef = useRef()
+    const [desc, setDesc] = useState('');
+    const [etagere, setEtagere] = useState('');
+    const [exemplaire, setExemplaire] = useState(1);
+    const [image, setImage] = useState("");
+    const [salle, setSalle] = useState('');
+    const [typ] = useState('');
+    const formRef = useRef();
     const navigate = useNavigate();
+    const { language } = useI18n();
 
     const res = async function () {
         await firebase.firestore().collection('BiblioInformatique').doc(name).set({
@@ -43,12 +44,12 @@ export default function AjoutDoc(props) {
                     note: 0
                 }
             ]
-        })
+        });
         setStatus(true);
         setType("success");
-        setTitle("Document ajouté avec succès");
-        navigate("/catalogue", { state: { departement: cathegorie } })
-    }
+        setTitle(translations.document_added);
+        navigate("/catalogue", { state: { departement: cathegorie } });
+    };
 
     const resetForm = () => {
         setName('');
@@ -58,7 +59,7 @@ export default function AjoutDoc(props) {
         setExemplaire(1);
         setImage(null);
         setSalle('');
-    }
+    };
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -71,6 +72,22 @@ export default function AjoutDoc(props) {
     const [type, setType] = useState("");
     const [title, setTitle] = useState("");
 
+    // Traductions directes pour le formulaire d'ajout de document
+    const translations = {
+        book_name: language === "FR" ? "Nom du livre" : "Book Name",
+        number_of_copies: language === "FR" ? "Nombre d'exemplaires" : "Number of Copies",
+        department: language === "FR" ? "Département" : "Department",
+        room_number: language === "FR" ? "Numéro de salle" : "Room Number",
+        shelf_number: language === "FR" ? "Numéro de l'étagère" : "Shelf Number",
+        image_link: language === "FR" ? "Lien de l'image" : "Image Link",
+        document_description: language === "FR" ? "Description du document" : "Document Description",
+        add: language === "FR" ? "Ajouter" : "Add",
+        cancel: language === "FR" ? "Annuler" : "Cancel",
+        document_added: language === "FR" ? "Document ajouté avec succès" : "Document added successfully",
+        imgBook: language === "FR" ? "LIVRE": "BOOK",
+        imgTheses: language === "FR"? "MEMOIRE": "THESES"
+    };
+
     return (
         <LivreContainer fluid>
             <Row>
@@ -82,26 +99,26 @@ export default function AjoutDoc(props) {
                     <Row className="justify-content-center mt-4">
                         <Col md={3} className="mb-3">
                             <Card
-                              className="text-center p-3 border"
-                              onClick={() => navigate('/ajouterDoc')}
-                              style={{
-                                  cursor: 'pointer',
-                                  borderColor: 'green',
-                                  borderWidth: '2px',
-                                  boxShadow: '0 4px 8px rgba(210, 105, 30, 1)', // Green drop shadow
-                              }}
+                                className="text-center p-3 border"
+                                onClick={() => navigate('/ajouterDoc')}
+                                style={{
+                                    cursor: 'pointer',
+                                    borderColor: 'green',
+                                    borderWidth: '2px',
+                                    boxShadow: '0 4px 8px rgba(210, 105, 30, 1)', // Green drop shadow
+                                }}
                             >
                                 <Card.Img variant="top" src={livre} />
                                 <Card.Body>
-                                    <Card.Text style={{ color: 'chocolate', fontWeight: 'bold' }}>LIVRE</Card.Text>
+                                    <Card.Text style={{ color: 'chocolate', fontWeight: 'bold' }}>{translations.imgBook}</Card.Text>
                                 </Card.Body>
                             </Card>
                         </Col>
                         <Col md={3} className="mb-3">
                             <Card className="text-center p-3" onClick={() => navigate('/ajoutermémoire')} style={{ cursor: 'pointer' }}>
-                                <Card.Img variant="top" src={memoire}/>
+                                <Card.Img variant="top" src={memoire} />
                                 <Card.Body>
-                                    <Card.Text style={{ color: 'chocolate', fontWeight: 'bold' }}>MÉMOIRE</Card.Text>
+                                    <Card.Text style={{ color: 'chocolate', fontWeight: 'bold' }}>{translations.imgTheses}</Card.Text>
                                 </Card.Body>
                             </Card>
                         </Col>
@@ -110,10 +127,10 @@ export default function AjoutDoc(props) {
                         <Form ref={formRef} onSubmit={res}>
                             <FormGrid>
                                 <FormGroup>
-                                    <Label>Nom du livre</Label>
+                                    <Label>{translations.book_name}</Label>
                                     <StyledInput
                                         type="text"
-                                        placeholder="Nom"
+                                        placeholder={translations.book_name}
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
                                         required
@@ -121,10 +138,10 @@ export default function AjoutDoc(props) {
                                 </FormGroup>
 
                                 <FormGroup>
-                                    <Label>Nombre d'exemplaires</Label>
+                                    <Label>{translations.number_of_copies}</Label>
                                     <StyledInput
                                         type="number"
-                                        placeholder="Nombre d'exemplaires"
+                                        placeholder={translations.number_of_copies}
                                         value={exemplaire}
                                         onChange={(e) => setExemplaire(e.target.value)}
                                         required
@@ -132,23 +149,25 @@ export default function AjoutDoc(props) {
                                 </FormGroup>
 
                                 <FormGroup>
-                                    <Label>Département</Label>
+                                    <Label>{translations.department}</Label>
                                     <StyledSelect
                                         value={cathegorie}
                                         onChange={(e) => setCathegorie(e.target.value)}
                                         required
                                     >
-                                        <option value='Département de MSP'>MSP</option>
-                                        <option value='Génie informatique'>Génie Informatique</option>
-                                        <option value="Genie Civile">Génie Civile</option>
-                                        <option value='Génie électrique'>Génie Électrique</option>
-                                        <option value='Génie industriel mécanique'>Génie Mécanique/Industriel</option>
-                                        <option value='Génie Télécom'>Génie Télécom</option>
+
+                                        <option value='Mathematique'>MSP</option>
+                                        <option value='Genie Informatique'>Génie informatique</option>
+                                        <option value="Genie Civil">Génie Civil</option>
+                                        <option value='Genie Electrique'>Génie Électrique</option>
+                                        <option value='Genie Mecanique'>Génie Mécanique/Industriel</option>
+                                        <option value='Genie Telecom'>Génie Télécom</option>
+
                                     </StyledSelect>
                                 </FormGroup>
 
                                 <FormGroup>
-                                    <Label>Numéro de salle</Label>
+                                    <Label>{translations.room_number}</Label>
                                     <StyledSelect
                                         value={salle}
                                         onChange={(e) => setSalle(e.target.value)}
@@ -162,10 +181,10 @@ export default function AjoutDoc(props) {
                                 </FormGroup>
 
                                 <FormGroup>
-                                    <Label>Numéro de l'étagère</Label>
+                                    <Label>{translations.shelf_number}</Label>
                                     <StyledInput
                                         type="text"
-                                        placeholder="Étagère"
+                                        placeholder={translations.shelf_number}
                                         value={etagere}
                                         onChange={(e) => setEtagere(e.target.value)}
                                         required
@@ -173,25 +192,25 @@ export default function AjoutDoc(props) {
                                 </FormGroup>
 
                                 <FileInputContainer>
-                                    <Label classname="text-left">Lien de l'image</Label>
+                                    <Label className="text-left">{translations.image_link}</Label>
                                     {/* Hidden file input */}
                                     <HiddenFileInput
-                                      type="file"
-                                      id="file-input"
-                                      onChange={handleFileChange}
+                                        type="file"
+                                        id="file-input"
+                                        onChange={handleFileChange}
                                     />
                                     {/* Custom file input button */}
                                     <CustomFileInput htmlFor="file-input">
                                         <FaUpload />
-                                        {image ? `Selected: ${image}` : "Choose a file"}
+                                        {image ? `Selected: ${image}` : translations.choose_file}
                                     </CustomFileInput>
                                 </FileInputContainer>
 
                                 <FormGroup>
-                                    <Label>Description du document</Label>
+                                    <Label>{translations.document_description}</Label>
                                     <StyledTextarea
                                         rows={3}
-                                        placeholder="Description"
+                                        placeholder={translations.document_description}
                                         value={desc}
                                         onChange={(e) => setDesc(e.target.value)}
                                     />
@@ -199,10 +218,10 @@ export default function AjoutDoc(props) {
                             </FormGrid>
                             <ButtonGroup>
                                 <StyledButton type="button" onClick={res} $primary>
-                                    Ajouter
+                                    {translations.add}
                                 </StyledButton>
                                 <StyledButton type="button" onClick={resetForm}>
-                                    Annuler
+                                    {translations.cancel}
                                 </StyledButton>
                             </ButtonGroup>
                         </Form>
@@ -218,13 +237,13 @@ export default function AjoutDoc(props) {
                 </Col>
             </Row>
         </LivreContainer>
-    )
+    );
 }
 
 // Styled components
 const FileInputContainer = styled.div`
   display: flex;
-    flex-direction: column;
+  flex-direction: column;
   gap: 10px;
 `;
 
@@ -251,110 +270,110 @@ const CustomFileInput = styled.label`
 `;
 
 const LivreContainer = styled(Container)`
-    min-height: 100vh;
-    background-color: #f5f5f5;
+  min-height: 100vh;
+  background-color: #f5f5f5;
 `;
 
 const FormContainer = styled.div`
-    background: white;
-    padding: 2.5rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
+  background: white;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
 `;
 
 const FormGrid = styled.div`
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
 
-    @media (max-width: 768px) {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
 `;
 
 const FormGroup = styled.div`
-    &:nth-last-child(1) {
-        grid-column: 1 / -1;
-    }
+  &:nth-last-child(1) {
+    grid-column: 1 / -1;
+  }
 `;
 
 const Label = styled.label`
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: #374151;
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #374151;
 `;
 
 const inputStyles = `
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 6px;
-    background-color: #fff;
-    transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background-color: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
 
-    &:focus {
-        outline: none;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
+  &:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
 
-    &::placeholder {
-        color: #9ca3af;
-    }
+  &::placeholder {
+    color: #9ca3af;
+  }
 `;
 
 const StyledInput = styled.input`
-    ${inputStyles}
+  ${inputStyles}
 `;
 
 const StyledSelect = styled.select`
-    ${inputStyles}
+  ${inputStyles}
 `;
 
 const StyledTextarea = styled.textarea`
-    ${inputStyles};
-    resize: vertical;
-    min-height: 100px;
+  ${inputStyles};
+  resize: vertical;
+  min-height: 100px;
 `;
 
 const ButtonGroup = styled.div`
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 3rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 3rem;
 
-    @media (max-width: 480px) {
-        flex-direction: column;
-    }
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
 `;
 
 const StyledButton = styled(BootstrapButton)`
-    padding: 0.75rem 2rem;
-    border: none;
-    border-radius: 6px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    background-color: ${props => props.$primary ? '#3b82f6' : '#9ca3af'};
-    color: white;
-    min-width: 150px;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: ${props => props.$primary ? '#3b82f6' : '#9ca3af'};
+  color: white;
+  min-width: 150px;
 
-    &:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        background-color: ${props => props.$primary ? '#2563eb' : '#6b7280'};
-    }
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: ${props => props.$primary ? '#2563eb' : '#6b7280'};
+  }
 
-    &:active {
-        transform: translateY(0);
-    }
+  &:active {
+    transform: translateY(0);
+  }
 
-    @media (max-width: 480px) {
-        width: 100%;
-    }
+  @media (max-width: 480px) {
+    width: 100%;
+  }
 `;

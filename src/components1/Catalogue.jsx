@@ -10,10 +10,34 @@ import { useLocation } from 'react-router-dom';
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
 import firebase from '../metro.config';
+import { useI18n } from "../Context/I18nContext"; // Importez le contexte i18n
 
 export default function Catalogue() {
     const location = useLocation();
     const departement = location.state.departement;
+
+    // Contexte i18n
+    const { language } = useI18n();
+
+    // Traductions
+    const translations = {
+        book_list: language === "FR" ? `Liste des Livres du ${departement}` : `Book List of ${departement}`,
+        sort_asc: language === "FR" ? "A-Z" : "A-Z",
+        sort_desc: language === "FR" ? "Z-A" : "Z-A",
+        previous: language === "FR" ? "Précédent" : "Previous",
+        next: language === "FR" ? "Suivant" : "Next",
+        page: language === "FR" ? "Page" : "Page",
+        edit_document: language === "FR" ? "Modifier le document" : "Edit Document",
+        enter_new_name: language === "FR" ? "Entrer le nouveau nom" : "Enter new name",
+        enter_new_quantity: language === "FR" ? "Entrer le nouveau nombre d'exemplaire" : "Enter new quantity",
+        enter_new_category: language === "FR" ? "Entrer la nouvelle matière" : "Enter new category",
+        enter_new_room: language === "FR" ? "Entrer son nouveau numero de salle" : "Enter new room number",
+        enter_new_shelf: language === "FR" ? "Entrer la position de l'étagère" : "Enter new shelf position",
+        enter_new_description: language === "FR" ? "Entrer la nouvelle description" : "Enter new description",
+        modify: language === "FR" ? "Modifier" : "Modify",
+        delete: language === "FR" ? "Supprimer" : "Delete",
+        document_added: language === "FR" ? "Document ajouté avec succès" : "Document added successfully",
+    };
 
     // Modal
     const [modalIsOpen, setIsOpen] = useState(false);
@@ -169,7 +193,7 @@ export default function Catalogue() {
         });
         setStatus(true);
         setType("success");
-        setTitle("Document ajouté avec succès");
+        setTitle(translations.document_added);
         setIsOpen(false);
     }
 
@@ -187,13 +211,15 @@ export default function Catalogue() {
                 <MainContent>
                     <Title>
                         <FiBook className="icon" />
-                        Liste des Livres du {departement}
+                        {translations.book_list}
                     </Title>
+                    <SortContainer>
+                        <SortSelect value={sortOrder} onChange={handleSortChange}>
+                            <option value="asc">{translations.sort_asc}</option>
+                            <option value="desc">{translations.sort_desc}</option>
+                        </SortSelect>
+                    </SortContainer>
                     
-                    <SortSelect value={sortOrder} onChange={handleSortChange}>
-                        <option value="asc">A-Z</option>
-                        <option value="desc">Z-A</option>
-                    </SortSelect>
                     <Section>
                         {loader ? (
                             displayedData.map((doc, index) => (
@@ -228,11 +254,11 @@ export default function Catalogue() {
                     {filteredData.length > itemsPerPage && (
                         <PaginationContainer>
                             <PaginationButton onClick={prevPage} disabled={currentPage === 1}>
-                                Précédent
+                                {translations.previous}
                             </PaginationButton>
-                            <PageIndicator>Page {currentPage} / {totalPages}</PageIndicator>
+                            <PageIndicator>{translations.page} {currentPage} / {totalPages}</PageIndicator>
                             <PaginationButton onClick={nextPage} disabled={currentPage === totalPages}>
-                                Suivant
+                                {translations.next}
                             </PaginationButton>
                         </PaginationContainer>
                     )}
@@ -245,13 +271,13 @@ export default function Catalogue() {
                             contentLabel="Example Modal"
                         >
                             <button onClick={closeModal} style={closeStyle}><GrFormClose /></button>
-                            <h2 ref={(_subtitle) => (subtitle = _subtitle)}>Modifier le document</h2>
+                            <h2 ref={(_subtitle) => (subtitle = _subtitle)}>{translations.edit_document}</h2>
                             <form ref={formRef} style={formClass}>
-                                <label className="labelForm" style={labelForm} htmlFor="name">Entrer le nouveau nom</label>
+                                <label className="labelForm" style={labelForm} htmlFor="name">{translations.enter_new_name}</label>
                                 <input style={labelInput} id="name" type="text" placeholder={name} name="name" value={name} onChange={(e) => setName(e.target.value)} />
-                                <label className="labelForm" style={labelForm} htmlFor="exemp">Entrer le nouveau nombre d'exemplaire</label>
+                                <label className="labelForm" style={labelForm} htmlFor="exemp">{translations.enter_new_quantity}</label>
                                 <input style={labelInput} id="exemp" type="text" placeholder="Nouveau nombre exemplaire..." name="exemplaire" value={exemplaire} onChange={(e) => setExemplaire(e.target.value)} />
-                                <label className="labelForm" style={labelForm} htmlFor="class">Entrer la nouvelle matière</label>
+                                <label className="labelForm" style={labelForm} htmlFor="class">{translations.enter_new_category}</label>
                                 <select style={labelInput} id="class" type="text" placeholder="Nouvelle catégorie..." name='cathegorie' value={cathegorie} onChange={(e) => setCathegorie(e.target.value)} >
                                     <option value=''></option>
                                     <option value='Mathematique'>Mathematique</option>
@@ -270,7 +296,7 @@ export default function Catalogue() {
                                     <option value='Memoire GIndus'>Memoire Genie Industriel</option>
                                     <option value='Memoire GM'>Memoire Genie Mecanique</option>
                                 </select>
-                                <label className="labelForm" style={labelForm} htmlFor="salle">Entrer son nouveau numero de salle</label>
+                                <label className="labelForm" style={labelForm} htmlFor="salle">{translations.enter_new_room}</label>
                                 <select style={labelInput} id="salle" type="text" placeholder="Nouvelle salle..." name="salle" value={salle} onChange={(e) => setSalle(e.target.value)}>
                                     <option value=''></option>
                                     <option value='1'>1</option>
@@ -278,9 +304,9 @@ export default function Catalogue() {
                                     <option value='3'>3</option>
                                     <option value='4'>4</option>
                                 </select>
-                                <label className="labelForm" style={labelForm} htmlFor="etagere">Entrer la position de l'étagère</label>
+                                <label className="labelForm" style={labelForm} htmlFor="etagere">{translations.enter_new_shelf}</label>
                                 <input style={labelInput} id="etagere" type="text" placeholder="Nouvelle étagère..." name="etagere" value={etagere} onChange={(e) => setEtagere(e.target.value)} />
-                                <label className="labelForm" style={labelForm} htmlFor="desc">Entrer la nouvelle description</label>
+                                <label className="labelForm" style={labelForm} htmlFor="desc">{translations.enter_new_description}</label>
                                 <textarea style={labelInput} id="etagere" type="desc" placeholder="Nouvelle description..." name="description" value={desc} onChange={(e) => setDesc(e.target.value)} />
                                 <ReactJsAlert
                                     status={status} // true or false
@@ -291,8 +317,8 @@ export default function Catalogue() {
                                     Close={() => setStatus(false)}
                                 />
                                 <div className="btn-sub" style={{ display: 'flex', gap: '160px' }}>
-                                    <button type='button' onClick={resUpdate} className='btn-btn-primary' style={{ display: 'flex', borderRadius: 5, textAlign: 'center', padding: 10, color: 'white', background: 'green', width: 100 }}>Modifier</button>
-                                    <button type='button' onClick={deleteDoc} className='btn-btn-primary' style={{ display: 'flex', borderRadius: 5, textAlign: 'center', padding: 10, color: 'white', background: 'red', width: 100 }}>Supprimer</button>
+                                    <button type='button' onClick={resUpdate} className='btn-btn-primary' style={{ display: 'flex', borderRadius: 5, textAlign: 'center', padding: 10, color: 'white', background: 'green', width: 100 }}>{translations.modify}</button>
+                                    <button type='button' onClick={deleteDoc} className='btn-btn-primary' style={{ display: 'flex', borderRadius: 5, textAlign: 'center', padding: 10, color: 'white', background: 'red', width: 100 }}>{translations.delete}</button>
                                 </div>
                             </form>
                         </Modal>
@@ -469,4 +495,10 @@ const PaginationButton = styled.button`
 const PageIndicator = styled.span`
   color: #4a5568;
   font-weight: 500;
+`;
+
+const SortContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
 `;

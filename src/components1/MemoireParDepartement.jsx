@@ -1,12 +1,13 @@
-import React, { useState, useContext, useEffect, useCallback } from "react";
+import React, { useState, useContext, useEffect} from "react";
 import styled from "styled-components";
 import { UserContext } from "../App";
 import { useLocation } from 'react-router-dom';
-import { FiEdit2, FiX, FiBook, FiUser, FiCalendar, FiGrid, FiBookmark, FiMessageSquare, FiArrowUp, FiArrowDown } from 'react-icons/fi';
+import { FiEdit2, FiX, FiBook, FiUser, FiCalendar, FiGrid, FiBookmark, FiHardDrive } from 'react-icons/fi';
 import Sidebar from "../components1/Sidebar";
 import Navbar from "../components1/Navbar";
 import Loading from "./Loading";
 import firebase from '../metro.config'; // Assurez-vous d'importer Firebase
+import { useI18n } from "../Context/I18nContext";
 
 export default function MemoireParDepartement() {
     const { searchWord } = useContext(UserContext);
@@ -17,8 +18,7 @@ export default function MemoireParDepartement() {
     const [editedMemoire, setEditedMemoire] = useState(null);
     const [loading, setLoading] = useState(false);
     const [memoires, setMemoires] = useState(state ? state.memories : []);
-    const [sortField, setSortField] = useState(null);
-    const [sortOrder, setSortOrder] = useState('asc');
+    const [sortOption, setSortOption] = useState('nameAsc');
     const departement = state ? state.departement : "";
 
     const itemsPerPage = 8;
@@ -31,9 +31,14 @@ export default function MemoireParDepartement() {
     });
 
     const sortedMemoires = [...filteredMemoires].sort((a, b) => {
-        if (sortField) {
-            if (a[sortField] < b[sortField]) return sortOrder === 'asc' ? -1 : 1;
-            if (a[sortField] > b[sortField]) return sortOrder === 'asc' ? 1 : -1;
+        if (sortOption === 'nameAsc') {
+            return a.name.localeCompare(b.name);
+        } else if (sortOption === 'nameDesc') {
+            return b.name.localeCompare(a.name);
+        } else if (sortOption === 'anneeAsc') {
+            return a.annee - b.annee;
+        } else if (sortOption === 'anneeDesc') {
+            return b.annee - a.annee;
         }
         return 0;
     });
@@ -41,7 +46,7 @@ export default function MemoireParDepartement() {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const displayedMemoires = sortedMemoires.slice(startIndex, startIndex + itemsPerPage);
 
-    let subtitle;
+
 
     function openPopup(memoire) {
         console.log("Opening popup for:", memoire);
@@ -84,24 +89,19 @@ export default function MemoireParDepartement() {
     const updateMemoire = async (e) => {
         e.preventDefault(); // Empêcher le comportement par défaut du formulaire
         try {
-            // Vérifiez que le champ `matricule` a une valeur définie
+            // Vérifier que le champ `matricule` a une valeur définie
             if (!selectedMemoire.matricule) {
                 console.error("Le champ 'matricule' est undefined.");
                 return;
             }
 
-            // Log des valeurs avant la mise à jour
-            console.log("Avant la mise à jour:", selectedMemoire);
-            console.log("Nouvelles valeurs:", editedMemoire);
-
-            // Utilisez le champ `matricule` pour mettre à jour le document
+            // Utiliser le champ `matricule` pour mettre à jour le document
             setLoading(true); // Afficher l'effet de chargement
             await firebase.firestore().collection('Memoire').doc(selectedMemoire.matricule).update(editedMemoire);
             console.log("Mémoire mis à jour avec succès");
 
             // Récupérer les données mises à jour depuis Firestore
             const updatedDoc = await firebase.firestore().collection('Memoire').doc(selectedMemoire.matricule).get();
-            console.log("Après la mise à jour:", updatedDoc.data());
 
             // Mettre à jour l'état local
             setSelectedMemoire(updatedDoc.data());
@@ -127,6 +127,29 @@ export default function MemoireParDepartement() {
         }
     }, [selectedMemoire]);
 
+    const { language } = useI18n();
+
+    // Traductions directes pour la gestion des mémoires
+    const translations = {
+        list_memoires: language === "FR" ? "Liste des Mémoires du" : "List of Memories from",
+        name_asc: language === "FR" ? "Nom A-Z" : "Name A-Z",
+        name_desc: language === "FR" ? "Nom Z-A" : "Name Z-A",
+        year_asc: language === "FR" ? "Année croissante" : "Year Ascending",
+        year_desc: language === "FR" ? "Année décroissante" : "Year Descending",
+        theme: language === "FR" ? "Thème" : "Theme",
+        department: language === "FR" ? "Département" : "Department",
+        year: language === "FR" ? "Année" : "Year",
+        shelf_number: language === "FR" ? "Étagère" : "Shelf Number",
+        image: language === "FR" ? "Image" : "Image",
+        edit: language === "FR" ? "Modifier" : "Edit",
+        save: language === "FR" ? "Enregistrer" : "Save",
+        close: language === "FR" ? "Fermer" : "Close",
+        previous: language === "FR" ? "Précédent" : "Previous",
+        next: language === "FR" ? "Suivant" : "Next",
+        page: language === "FR" ? "Page" : "Page",
+        details: language === "FR" ? "Détails du Mémoire" : "Memory Details",
+    };
+
     return (
         <div className="content-box">
             <Container>
@@ -135,15 +158,15 @@ export default function MemoireParDepartement() {
                 <MainContent>
                     <Title>
                         <FiBook className="icon" />
-                        Liste des Mémoires du {departement}
+                        {translations.list_memoires} {departement}
                     </Title>
                     <SortContainer>
-                        <SortButton onClick={() => setSortField('name')} disabled={sortField === 'name'}>
-                            Nom {sortField === 'name' ? (sortOrder === 'asc' ? <FiArrowUp /> : <FiArrowDown />) : <FiArrowUp />}
-                        </SortButton>
-                        <SortButton onClick={() => setSortField('annee')} disabled={sortField === 'annee'}>
-                            Année {sortField === 'annee' ? (sortOrder === 'asc' ? <FiArrowUp /> : <FiArrowDown />) : <FiArrowUp />}
-                        </SortButton>
+                        <SortSelect value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
+                            <option value="nameAsc">{translations.name_asc}</option>
+                            <option value="nameDesc">{translations.name_desc}</option>
+                            <option value="anneeAsc">{translations.year_asc}</option>
+                            <option value="anneeDesc">{translations.year_desc}</option>
+                        </SortSelect>
                     </SortContainer>
                     <Section>
                         {displayedMemoires.length > 0 ? (
@@ -169,6 +192,10 @@ export default function MemoireParDepartement() {
                                                 <FiCalendar className="icon" />
                                                 <span>{doc.annee}</span>
                                             </InfoItem>
+                                            <InfoItem>
+                                                <FiHardDrive className="icon" />
+                                                <span>{translations.shelf_number}: {doc.etagere}</span>
+                                            </InfoItem>
                                         </CardInfo>
                                         <CardImage>
                                             <img src={doc.image} alt="mémoire" />
@@ -187,14 +214,14 @@ export default function MemoireParDepartement() {
                                 onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
                                 disabled={currentPage === 1}
                             >
-                                Précédent
+                                {translations.previous}
                             </PaginationButton>
                             <PageIndicator>Page {currentPage} / {totalPages}</PageIndicator>
                             <PaginationButton
                                 onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
                                 disabled={currentPage === totalPages}
                             >
-                                Suivant
+                                {translations.next}
                             </PaginationButton>
                         </PaginationContainer>
                     )}
@@ -205,7 +232,7 @@ export default function MemoireParDepartement() {
                                 <CloseButton onClick={closePopup}>
                                     <FiX />
                                 </CloseButton>
-                                <h2>Détails du Mémoire</h2>
+                                <h2>{translations.details}</h2>
                                 <PopupForm onSubmit={updateMemoire}>
                                     {Object.entries(selectedMemoire).map(([key, value]) => {
                                         // Ignorer certaines clés si nécessaire
@@ -285,26 +312,26 @@ const Title = styled.h1`
 
 const SortContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   margin-bottom: 1rem;
 `;
 
-const SortButton = styled.button`
+const SortSelect = styled.select`
   background: white;
-  border: 1px solid #e2e8f0;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
+  border: 1px solid chocolate;
+  height: 40px;
+  width: 200px;
+  border-radius: 60px;
+  padding: 0.5rem;
+  color: chocolate;
+  font-weight: 500;
   cursor: pointer;
-  font-size: 1rem;
+  margin-bottom: 1rem;
   transition: all 0.2s ease;
 
   &:hover {
-    background: #f0f0f0;
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
+    background: chocolate;
+    color: white;
   }
 `;
 
