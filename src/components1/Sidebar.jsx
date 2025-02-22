@@ -190,6 +190,9 @@ export default function Sidebar() {
               <NavLink className="linkin" to="/listeEtudiant" end>
                 <HiUsers />
                 <span>{translations.registered_students}</span>
+              </NavLink>
+            </li>
+            
             <li className={currentLink === 14 ? "active" : "none"} onClick={() => changerAc()}>
               <NavLink className="linkin" to="/accueil" end>
                 <GrCatalog/>
@@ -224,17 +227,6 @@ export default function Sidebar() {
               </NavLink>
             </li>
 
-            <li
-              className={currentLink === 2 ? "active" : "none"}
-              onClick={() => changer()}
-            >
-              <NavLink className="linkin" to="/listeEtudiant" end>
-                <HiUsers/>
-                <span>Etudiants inscrits</span>
-
-              </NavLink>
-            </li>
-
             <li className={currentLink === 3 ? "active" : "none"} onClick={() => setCurrentLink(3)}>
               <NavLink className="linkin" to="/ajouterDoc" end>
 
@@ -247,9 +239,6 @@ export default function Sidebar() {
               <NavLink className="linkin" to="/listeReservation" end>
                 <BsListUl />
                 <span>{translations.reservation_list}</span>
-
-                <MdPostAdd/>
-                <span>Ajouter documents</span>
               </NavLink>
             </li>
 
