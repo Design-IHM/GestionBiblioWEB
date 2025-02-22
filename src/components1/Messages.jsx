@@ -19,6 +19,7 @@ export default function Messages() {
     const { language } = useI18n();
     const refUser = firebase.firestore().collection("BiblioUser");
     const [data, setData] = useState([]);
+
     const [loader, setLoader] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredData, setFilteredData] = useState([]);

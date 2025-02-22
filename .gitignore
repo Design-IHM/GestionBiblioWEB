@@ -21,15 +21,16 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-<<<<<<< HEAD
 /.idea/.gitignore
+=======
+/.idea
+/.gitignore
 
 codeStyleConfig.xml
 modules.xml
 vcs.xml
+/.vscode
 GestionBiblioWeb.iml
-=======
 /.idea
 /.gitignore
 /.vscode
->>>>>>> 7ea25be8a0a536a4c5d56e72700a129bc530192a

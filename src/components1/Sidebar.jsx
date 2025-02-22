@@ -190,11 +190,54 @@ export default function Sidebar() {
               <NavLink className="linkin" to="/listeEtudiant" end>
                 <HiUsers />
                 <span>{translations.registered_students}</span>
+            <li className={currentLink === 14 ? "active" : "none"} onClick={() => changerAc()}>
+              <NavLink className="linkin" to="/accueil" end>
+                <GrCatalog/>
+                <span>Accueil</span>
+              </NavLink>
+            </li>
+
+            <li className={currentLink === 10 ? "active" : "none"} onClick={() => changerProfil()}>
+              <NavLink className="linkin" to="/profil" end>
+                <FaUser/>
+                <span>Profil bibliothécaire</span>
+              </NavLink>
+            </li>
+
+            <li
+              className={currentLink === 6 ? "active" : "none"}
+              onClick={() => changerCat()}
+            >
+              <NavLink className="linkin" to="/departement" end>
+                <GrCatalog/>
+                <span>Gestion de Livres</span>
+              </NavLink>
+            </li>
+
+            <li
+              className={currentLink === 15 ? "active" : "none"}
+              onClick={() => changerCat()}
+            >
+              <NavLink className="linkin" to="/departementMem" end>
+                <MdRuleFolder/>
+                <span>Gestion de Memoires</span>
+              </NavLink>
+            </li>
+
+            <li
+              className={currentLink === 2 ? "active" : "none"}
+              onClick={() => changer()}
+            >
+              <NavLink className="linkin" to="/listeEtudiant" end>
+                <HiUsers/>
+                <span>Etudiants inscrits</span>
+
               </NavLink>
             </li>
 
             <li className={currentLink === 3 ? "active" : "none"} onClick={() => setCurrentLink(3)}>
               <NavLink className="linkin" to="/ajouterDoc" end>
+
                 <MdPostAdd />
                 <span>{translations.add_documents}</span>
               </NavLink>
@@ -204,13 +247,29 @@ export default function Sidebar() {
               <NavLink className="linkin" to="/listeReservation" end>
                 <BsListUl />
                 <span>{translations.reservation_list}</span>
+
+                <MdPostAdd/>
+                <span>Ajouter documents</span>
+              </NavLink>
+            </li>
+
+            <li
+              className={currentLink === 4 ? "active" : "none"}
+              onClick={() => changerReserv()}
+            >
+              <NavLink className="linkin" to="/listeReservation" end>
+                <BsListUl/>
+                <span>Liste de réservations</span>
+
               </NavLink>
             </li>
 
             <li className={currentLink === 5 ? "active" : "none"} onClick={() => changerEmprunt()}>
               <NavLink className="linkin" to="/emprunts" end>
+
                 <BsListUl />
                 <span>{translations.borrowed_documents}</span>
+
               </NavLink>
             </li>
 
@@ -218,6 +277,7 @@ export default function Sidebar() {
               <NavLink className="linkin" to="/messages" end>
                 <AiFillMessage />
                 <span>{translations.messages}</span>
+
               </NavLink>
             </li>
 
@@ -225,6 +285,7 @@ export default function Sidebar() {
               <NavLink className="linkin" to="/archives" end>
                 <FaArchive />
                 <span>{translations.archives}</span>
+                <span>Archives</span>
               </NavLink>
             </li>
           </ul>

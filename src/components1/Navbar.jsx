@@ -128,6 +128,7 @@ export default function Navbar() {
             </NavActions>
         </NavbarContainer>
     );
+
 }
 
 // Styled Components (rest of your code)

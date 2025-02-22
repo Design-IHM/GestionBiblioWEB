@@ -155,12 +155,14 @@ export default function AjoutDoc(props) {
                                         onChange={(e) => setCathegorie(e.target.value)}
                                         required
                                     >
+
                                         <option value='Mathematique'>MSP</option>
                                         <option value='Genie Informatique'>Génie informatique</option>
                                         <option value="Genie Civil">Génie Civil</option>
                                         <option value='Genie Electrique'>Génie Électrique</option>
                                         <option value='Genie Mecanique'>Génie Mécanique/Industriel</option>
                                         <option value='Genie Telecom'>Génie Télécom</option>
+
                                     </StyledSelect>
                                 </FormGroup>
 

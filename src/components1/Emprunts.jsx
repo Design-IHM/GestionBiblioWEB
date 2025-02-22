@@ -6,6 +6,7 @@ import styled from "styled-components";
 import Loading from "./Loading";
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
+import "./Table.css"
 import { UserContext } from "../App";
 import { useI18n } from "../Context/I18nContext";
 
@@ -143,6 +144,7 @@ function Emprunts() {
                   </th>
                 </tr>
               </thead>
+
 
               <tbody>
                 {currentItems.map((doc, index) => (
