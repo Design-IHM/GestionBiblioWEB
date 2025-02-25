@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
-import login from "../assets/img/login.jpg"
-import {BookHalf} from "react-bootstrap-icons";
+import login from "../assets/img/login.jpg";
+import { BookHalf } from "react-bootstrap-icons";
 
 const validateEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -29,6 +29,9 @@ const Login = () => {
     e.preventDefault();
     if (email && password && validateEmail(email)) {
       setValidationError("");
+      // Simuler la génération d'un token
+      const token = "fake-jwt-token";
+      localStorage.setItem("token", token);
       navigate("/accueil");
     } else if (!validateEmail(email)) {
       setValidationError("Please enter a valid email address");
@@ -63,9 +66,7 @@ const Login = () => {
         <div className="login-overlay">
           <div className="login-container">
             <h1>
-              <BookHalf
-                className="book-icon"
-              />
+              <BookHalf className="book-icon" />
               <span className="biblio-title">BIBLIO ENSPY</span>
             </h1>
             {validationError && (
@@ -73,7 +74,7 @@ const Login = () => {
             )}
             {registrationSuccess && (
               <p className="success-message">
-              You have been successfully registered! Please log in to access the platform.
+                You have been successfully registered! Please log in to access the platform.
               </p>
             )}
             <div className="content">
@@ -91,7 +92,7 @@ const Login = () => {
                           id="email"
                           name="email"
                           value={email}
-                          style={{width: "300px"}}
+                          style={{ width: "300px" }}
                           onChange={(e) => setEmail(e.target.value)}
                           aria-required="true"
                         />
@@ -107,7 +108,7 @@ const Login = () => {
                           id="password"
                           name="password"
                           value={password}
-                          style={{width: "300px"}}
+                          style={{ width: "300px" }}
                           onChange={(e) => setPassword(e.target.value)}
                           aria-required="true"
                         />
@@ -128,7 +129,7 @@ const Login = () => {
                           id="name"
                           name="name"
                           value={formData.name}
-                          style={{width: "300px"}}
+                          style={{ width: "300px" }}
                           onChange={handleRegisterChange}
                           aria-required="true"
                         />
@@ -143,7 +144,7 @@ const Login = () => {
                           id="email"
                           name="email"
                           value={formData.email}
-                          style={{width: "300px"}}
+                          style={{ width: "300px" }}
                           onChange={handleRegisterChange}
                           aria-required="true"
                         />
@@ -158,7 +159,7 @@ const Login = () => {
                           id="password"
                           name="password"
                           value={formData.password}
-                          style={{width: "300px"}}
+                          style={{ width: "300px" }}
                           onChange={handleRegisterChange}
                           aria-required="true"
                         />
@@ -173,7 +174,7 @@ const Login = () => {
                           id="confirmPassword"
                           name="confirmPassword"
                           value={formData.confirmPassword}
-                          style={{width: "300px"}}
+                          style={{ width: "300px" }}
                           onChange={handleRegisterChange}
                           aria-required="true"
                         />
@@ -198,11 +199,7 @@ const Login = () => {
                 </button>
               </div>
 
-              <img
-                src={login}
-                alt="login"
-                className="login-img"
-              />
+              <img src={login} alt="login" className="login-img" />
             </div>
           </div>
         </div>
