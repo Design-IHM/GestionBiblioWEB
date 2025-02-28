@@ -28,6 +28,7 @@ export default function Profil() {
     const [type, setType] = useState("");
     const [title, setTitle] = useState("");
     const [isEditing, setIsEditing] = useState(false);
+    const [isImageUploading, setIsImageUploading] = useState(false);
 
     const user_id = localStorage.getItem('user_id');
 
@@ -49,17 +50,45 @@ export default function Profil() {
 
     const handleChangeImage = (e) => {
         if (e.target.files[0]) {
-            setImage(e.target.files[0]);
+            const selectedImage = e.target.files[0];
+            setImage(selectedImage);
+            
+            // Créer une URL locale pour l'aperçu de l'image
+            const localImageUrl = URL.createObjectURL(selectedImage);
+            setUrl(localImageUrl);
         }
     };
 
-    const handleSubmit = async () => {
-        if (image) {
-            const imageRef = ref(storage, `images/${image.name + v4()}`);
+    const uploadImageToFirebase = async () => {
+        if (!image) return null;
+        
+        setIsImageUploading(true);
+        try {
+            // Générer un nom unique pour l'image
+            const imageName = image.name + v4();
+            const imageRef = ref(storage, `images/${imageName}`);
+            
+            // Télécharger l'image vers Firebase Storage
             await uploadBytes(imageRef, image);
-            const imageUrl = await getDownloadURL(imageRef);
-            setUrl(imageUrl);
-            setImage(null);
+            
+            // Obtenir l'URL de téléchargement
+            const downloadUrl = await getDownloadURL(imageRef);
+            
+            // Mettre à jour l'URL d'image dans l'état
+            setUrl(downloadUrl);
+            setIsImageUploading(false);
+            
+            return downloadUrl;
+        } catch (error) {
+            console.error("Erreur lors du téléchargement de l'image:", error);
+            setIsImageUploading(false);
+            
+            // Afficher une notification d'erreur
+            setStatus(true);
+            setType("error");
+            setTitle(language === "FR" ? "Erreur lors du téléchargement de l'image" : "Error uploading image");
+            
+            return null;
         }
     };
 
@@ -69,18 +98,45 @@ export default function Profil() {
 
     const updateAdmin = async (e) => {
         e.preventDefault();
-        if (user_id) {
-            await firebase.firestore().collection('BiblioAdmin').doc(user_id).update({
-                name,
-                email,
-                gender,
-                image: url,
-                updated_at: new Date()
-            });
+        
+        try {
+            let imageUrl = url;
+            
+            // Si une nouvelle image a été sélectionnée, la télécharger d'abord
+            if (image) {
+                setIsImageUploading(true);
+                imageUrl = await uploadImageToFirebase();
+                if (!imageUrl) {
+                    return; // Arrêter la mise à jour si l'upload a échoué
+                }
+            }
+            
+            // Mettre à jour le document dans Firestore
+            if (user_id) {
+                await firebase.firestore().collection('BiblioAdmin').doc(user_id).update({
+                    name,
+                    email,
+                    gender,
+                    image: imageUrl,
+                    updated_at: new Date()
+                });
+                
+                // Notification de succès
+                setStatus(true);
+                setType("success");
+                setTitle(language === "FR" ? "Informations mises à jour avec succès" : "Information updated successfully");
+                setIsEditing(false);
+                setImage(null); // Réinitialiser l'état de l'image après la mise à jour
+            }
+        } catch (error) {
+            console.error("Erreur lors de la mise à jour du profil:", error);
+            
+            // Notification d'erreur
             setStatus(true);
-            setType("success");
-            setTitle("Informations mises à jour avec succès");
-            setIsEditing(false);
+            setType("error");
+            setTitle(language === "FR" ? "Erreur lors de la mise à jour" : "Error updating profile");
+        } finally {
+            setIsImageUploading(false);
         }
     };
 
@@ -93,7 +149,9 @@ export default function Profil() {
         select: language === "FR" ? "Selectionner votre genre" : "Select your gender",
         male: language === "FR" ? "Homme" : "male",
         femelle: language === "FR" ? "Femme" : "Female",
-        modify: language === "FR" ? "modifier" : "modify"
+        modify: language === "FR" ? "modifier" : "modify",
+        uploading: language === "FR" ? "Téléchargement..." : "Uploading...",
+        imageSelected: language === "FR" ? "Image sélectionnée" : "Image selected"
     };
 
     return (
@@ -109,13 +167,20 @@ export default function Profil() {
                                     <StyledAvatar src={url} />
                                     <UploadOverlay onClick={triggerFileInput}>
                                         <FaCamera size={24} />
-                                        <span>{translations.modify}</span>
+                                        <span>
+                                            {isImageUploading 
+                                                ? translations.uploading 
+                                                : image 
+                                                    ? translations.imageSelected
+                                                    : translations.modify}
+                                        </span>
                                     </UploadOverlay>
                                 </AvatarWrapper>
                                 <input
                                     ref={fileInputRef}
                                     type="file"
                                     onChange={handleChangeImage}
+                                    accept="image/*"
                                     style={{ display: 'none' }}
                                 />
                             </AvatarSection>
@@ -123,49 +188,66 @@ export default function Profil() {
                             <FormGrid>
                                 <FormGroup>
                                     <Label>{translations.nom}</Label>
-                                    <StyledInput
-                                        type="text"
-                                        placeholder="ex: Jason Derulo"
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                        required
-                                        disabled={!isEditing}
-                                    />
-                                    <FaEdit onClick={() => setIsEditing(true)} style={{ cursor: 'pointer', marginLeft: '10px' }} />
+                                    <InputWrapper>
+                                        <StyledInput
+                                            type="text"
+                                            placeholder="ex: Jason Derulo"
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                            required
+                                            disabled={!isEditing}
+                                        />
+                                        <EditIcon onClick={() => setIsEditing(true)}>
+                                            <FaEdit />
+                                        </EditIcon>
+                                    </InputWrapper>
                                 </FormGroup>
 
                                 <FormGroup>
                                     <Label>{translations.email}</Label>
-                                    <StyledInput
-                                        type="email"
-                                        placeholder="ex: exemple@email.com"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        required
-                                        disabled={!isEditing}
-                                    />
-                                    <FaEdit onClick={() => setIsEditing(true)} style={{ cursor: 'pointer', marginLeft: '10px' }} />
+                                    <InputWrapper>
+                                        <StyledInput
+                                            type="email"
+                                            placeholder="ex: exemple@email.com"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            required
+                                            disabled={!isEditing}
+                                        />
+                                        <EditIcon onClick={() => setIsEditing(true)}>
+                                            <FaEdit />
+                                        </EditIcon>
+                                    </InputWrapper>
                                 </FormGroup>
 
                                 <FormGroup>
                                     <Label>{translations.genre}</Label>
-                                    <StyledSelect
-                                        value={gender}
-                                        onChange={(e) => setGender(e.target.value)}
-                                        required
-                                        disabled={!isEditing}
-                                    >
-                                        <option value="">{translations.select}</option>
-                                        <option value="Male">{translations.male}</option>
-                                        <option value="Female">{translations.femelle}</option>
-                                    </StyledSelect>
-                                    <FaEdit onClick={() => setIsEditing(true)} style={{ cursor: 'pointer', marginLeft: '10px' }} />
+                                    <InputWrapper>
+                                        <StyledSelect
+                                            value={gender}
+                                            onChange={(e) => setGender(e.target.value)}
+                                            required
+                                            disabled={!isEditing}
+                                        >
+                                            <option value="">{translations.select}</option>
+                                            <option value="Male">{translations.male}</option>
+                                            <option value="Female">{translations.femelle}</option>
+                                        </StyledSelect>
+                                        <EditIcon onClick={() => setIsEditing(true)}>
+                                            <FaEdit />
+                                        </EditIcon>
+                                    </InputWrapper>
                                 </FormGroup>
                             </FormGrid>
 
                             <ButtonGroup>
-                                <Button type="submit" $primary style={{ backgroundColor: "chocolate" }}>
-                                    {translations.save}
+                                <Button 
+                                    type="submit" 
+                                    $primary 
+                                    style={{ backgroundColor: "chocolate" }}
+                                    disabled={isImageUploading}
+                                >
+                                    {isImageUploading ? translations.uploading : translations.save}
                                 </Button>
                                 <Button type="button" onClick={() => navigate("/")}>
                                     {translations.ann}
@@ -270,7 +352,8 @@ const FormGrid = styled.div`
 
 const FormGroup = styled.div`
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    width: 100%;
 
     &:nth-last-child(1) {
         grid-column: 1 / -1;
@@ -283,6 +366,25 @@ const Label = styled.label`
     font-weight: 500;
     color: chocolate;
     font-size: 1.2rem;
+    width: 100%;
+    white-space: nowrap;
+    overflow: visible;
+`;
+
+const InputWrapper = styled.div`
+    display: flex;
+    align-items: center;
+    width: 100%;
+`;
+
+const EditIcon = styled.div`
+    cursor: pointer;
+    margin-left: 10px;
+    color: chocolate;
+    
+    &:hover {
+        color: #a0522d;
+    }
 `;
 
 const inputStyles = `
@@ -296,7 +398,7 @@ const inputStyles = `
     &:focus {
         outline: none;
         border-color: chocolate;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        box-shadow: 0 0 0 3px rgba(210, 105, 30, 0.1);
     }
 
     &::placeholder {
@@ -333,6 +435,8 @@ const Button = styled.button`
     background-color: ${props => props.$primary ? '#3b82f6' : '#9ca3af'};
     color: white;
     min-width: 150px;
+    opacity: ${props => props.disabled ? '0.7' : '1'};
+    pointer-events: ${props => props.disabled ? 'none' : 'auto'};
 
     &:hover {
         transform: translateY(-1px);

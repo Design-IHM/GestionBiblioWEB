@@ -239,6 +239,18 @@ const Login = () => {
                     ? "Don't have an account? Register here."
                     : "Already have an account? Login here."}
                 </button>
+
+                {isLogin && (
+                <button
+                  className="link-button"
+                  onClick={() => {
+                    setIsLogin(!isLogin);
+                    setValidationError("");
+                    setRegistrationSuccess(false);
+                  }}
+                > Forget password ?
+                </button>
+                )}
               </div>
 
               <img src={login} alt="login" className="login-img" />
