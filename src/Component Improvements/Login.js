@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import "./Login.css";
 import login from "../assets/img/login.jpg";
 import { BookHalf } from "react-bootstrap-icons";
+import firebase from '../metro.config';
+import bcrypt from 'bcryptjs';
 
 const validateEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -21,18 +23,30 @@ const Login = () => {
     email: "",
     password: "",
     confirmPassword: "",
+    gender: "",
   });
 
   const navigate = useNavigate();
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     if (email && password && validateEmail(email)) {
       setValidationError("");
-      // Simuler la génération d'un token
-      const token = "fake-jwt-token";
-      localStorage.setItem("token", token);
-      navigate("/accueil");
+      const adminSnapshot = await firebase.firestore().collection('BiblioAdmin').where('email', '==', email).get();
+      if (!adminSnapshot.empty) {
+        const adminData = adminSnapshot.docs[0].data();
+        const isPasswordValid = await bcrypt.compare(password, adminData.password);
+        if (isPasswordValid) {
+          const token = "fake-jwt-token";
+          localStorage.setItem("token", token);
+          localStorage.setItem("user_id", adminSnapshot.docs[0].id); // Stocker le user_id dans le localStorage
+          navigate("/accueil");
+        } else {
+          setValidationError("Oops! Email and/or password incorrect");
+        }
+      } else {
+        setValidationError("Oops! Email and/or password incorrect");
+      }
     } else if (!validateEmail(email)) {
       setValidationError("Please enter a valid email address");
     } else {
@@ -40,11 +54,11 @@ const Login = () => {
     }
   };
 
-  const handleRegisterSubmit = (e) => {
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
-    const { name, email, password, confirmPassword } = formData;
+    const { name, email, password, confirmPassword, gender } = formData;
 
-    if (!name || !email || !password || !confirmPassword) {
+    if (!name || !email || !password || !confirmPassword || !gender) {
       setValidationError("Please fill in all the fields");
     } else if (!validateEmail(email)) {
       setValidationError("Please enter a valid email address");
@@ -52,6 +66,17 @@ const Login = () => {
       setValidationError("Password does not match");
     } else {
       setValidationError("");
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newAdminRef = await firebase.firestore().collection('BiblioAdmin').add({
+        name,
+        email,
+        password: hashedPassword,
+        gender,
+        image: null,
+        created_at: new Date(),
+        updated_at: null,
+      });
+      localStorage.setItem("user_id", newAdminRef.id); // Stocker le user_id dans le localStorage après l'inscription
       setRegistrationSuccess(true);
     }
   };
@@ -178,6 +203,23 @@ const Login = () => {
                           onChange={handleRegisterChange}
                           aria-required="true"
                         />
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="gender">Gender</label>
+                      <div className="input-wrapper">
+                        <select
+                          id="gender"
+                          name="gender"
+                          value={formData.gender}
+                          style={{ width: "300px" }}
+                          onChange={handleRegisterChange}
+                          aria-required="true"
+                        >
+                          <option value="">Select your gender</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                        </select>
                       </div>
                     </div>
                     <button type="submit" className="login-button">

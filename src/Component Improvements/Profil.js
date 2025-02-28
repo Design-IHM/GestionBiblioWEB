@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Form } from "react-bootstrap";
 import ReactJsAlert from "reactjs-alert";
 import firebase from '../metro.config';
@@ -10,21 +10,16 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
 import styled from 'styled-components';
-import { FaCamera } from 'react-icons/fa';
+import { FaCamera, FaEdit } from 'react-icons/fa';
 import { useI18n } from "../Context/I18nContext";
 
 export default function Profil() {
-    // ... [Tout le code des states et des fonctions reste identique] ...
     const [name, setName] = useState('');
     const { language } = useI18n();
-    const [cathegorie] = useState('');
-    const [desc, setDesc] = useState('');
-    const [etagere] = useState('');
-    const [Email, setEmail] = useState("");
+    const [email, setEmail] = useState("");
     const [image, setImage] = useState(null);
     const [url, setUrl] = useState(null);
-    const [salle] = useState('');
-    const [typ, setTyp] = useState('');
+    const [gender, setGender] = useState('');
     const fileInputRef = useRef();
     const formRef = useRef();
     const navigate = useNavigate();
@@ -32,175 +27,173 @@ export default function Profil() {
     const [status, setStatus] = useState(false);
     const [type, setType] = useState("");
     const [title, setTitle] = useState("");
+    const [isEditing, setIsEditing] = useState(false);
+
+    const user_id = localStorage.getItem('user_id');
+
+    useEffect(() => {
+        const fetchAdminData = async () => {
+            if (user_id) {
+                const adminDoc = await firebase.firestore().collection('BiblioAdmin').doc(user_id).get();
+                if (adminDoc.exists) {
+                    const adminData = adminDoc.data();
+                    setName(adminData.name);
+                    setEmail(adminData.email);
+                    setGender(adminData.gender);
+                    setUrl(adminData.image);
+                }
+            }
+        };
+        fetchAdminData();
+    }, [user_id]);
 
     const handleChangeImage = (e) => {
         if (e.target.files[0]) {
             setImage(e.target.files[0]);
-            handleSubmit();
         }
     };
 
-    const handleSubmit = () => {
-        const imageRef = ref(storage, `images/${image.name + v4()}`);
-        uploadBytes(imageRef, image).then(() => {
-            getDownloadURL(imageRef).then((url) => {
-                setUrl(url);
-            }).catch((error) => {
-                console.log(error.message, "error getting the image url");
-            });
+    const handleSubmit = async () => {
+        if (image) {
+            const imageRef = ref(storage, `images/${image.name + v4()}`);
+            await uploadBytes(imageRef, image);
+            const imageUrl = await getDownloadURL(imageRef);
+            setUrl(imageUrl);
             setImage(null);
-        }).catch((error) => {
-            console.log(error.message);
-        });
+        }
     };
 
     const triggerFileInput = () => {
         fileInputRef.current.click();
     };
 
-    const res = async () => {
-        await firebase.firestore().collection('BiblioInformatique').doc(name).set({
-            name,
-            Email,
-            etagere,
-            salle,
-            image: url,
-            type: typ,
-            nomBD: name,
-            cathegorie,
-            desc,
-            commentaire: [{
-                heure: new Date(),
-                nomUser: '',
-                texte: '',
-                note: 0
-            }]
-        });
-        setStatus(true);
-        setType("success");
-        setTitle("Document ajouté avec succès");
+    const updateAdmin = async (e) => {
+        e.preventDefault();
+        if (user_id) {
+            await firebase.firestore().collection('BiblioAdmin').doc(user_id).update({
+                name,
+                email,
+                gender,
+                image: url,
+                updated_at: new Date()
+            });
+            setStatus(true);
+            setType("success");
+            setTitle("Informations mises à jour avec succès");
+            setIsEditing(false);
+        }
     };
 
     const translations = {
         nom: language === "FR" ? "Nom " : "Name",
-        email: language === "FR" ? "E-mail": "E-mail",
+        email: language === "FR" ? "E-mail" : "E-mail",
         genre: language === "FR" ? "Genre" : "Gender",
-        desc: language ==="FR"? "Description" : "Description",
-        save: language === "FR" ? "Enregistrer": "Save",
-        ann: language ==="FR"? "Annuler": "Close",
-        select: language==="FR"? "Selectionner votre genre": "Select your gender",
-        male: language ==="FR"? "Homme": "male",
-        femelle : language ==="FR"?"Femme": "Female",
-        modify: language === "FR"? "modifier": "modify"
-    }
+        save: language === "FR" ? "Enregistrer" : "Save",
+        ann: language === "FR" ? "Annuler" : "Close",
+        select: language === "FR" ? "Selectionner votre genre" : "Select your gender",
+        male: language === "FR" ? "Homme" : "male",
+        femelle: language === "FR" ? "Femme" : "Female",
+        modify: language === "FR" ? "modifier" : "modify"
+    };
 
     return (
         <div className="content-box">
-              <Container>
-            <Sidebar />
-            <Navbar />
-            <Content>
-                <FormContainer>
-                    <Form ref={formRef} onSubmit={res}>
-                        <AvatarSection>
-                            <AvatarWrapper>
-                                <StyledAvatar src={url} />
-                                <UploadOverlay onClick={triggerFileInput}>
-                                    <FaCamera size={24} />
-                                    <span>{translations.modify}</span>
-                                </UploadOverlay>
-                            </AvatarWrapper>
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                onChange={handleChangeImage}
-                                style={{ display: 'none' }}
-                            />
-                        </AvatarSection>
-
-                        <FormGrid>
-                            <FormGroup>
-                                <Label>{translations.nom}</Label>
-                                <StyledInput
-                                    type="text"
-                                    placeholder="ex: Jason Derulo"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    required
+            <Container>
+                <Sidebar />
+                <Navbar />
+                <Content>
+                    <FormContainer>
+                        <Form ref={formRef} onSubmit={updateAdmin}>
+                            <AvatarSection>
+                                <AvatarWrapper>
+                                    <StyledAvatar src={url} />
+                                    <UploadOverlay onClick={triggerFileInput}>
+                                        <FaCamera size={24} />
+                                        <span>{translations.modify}</span>
+                                    </UploadOverlay>
+                                </AvatarWrapper>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    onChange={handleChangeImage}
+                                    style={{ display: 'none' }}
                                 />
-                            </FormGroup>
+                            </AvatarSection>
 
-                            <FormGroup>
-                                <Label>{translations.email}</Label>
-                                <StyledInput
-                                    type="email"
-                                    placeholder="ex: exemple@email.com"
-                                    value={Email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
-                                />
-                            </FormGroup>
+                            <FormGrid>
+                                <FormGroup>
+                                    <Label>{translations.nom}</Label>
+                                    <StyledInput
+                                        type="text"
+                                        placeholder="ex: Jason Derulo"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        required
+                                        disabled={!isEditing}
+                                    />
+                                    <FaEdit onClick={() => setIsEditing(true)} style={{ cursor: 'pointer', marginLeft: '10px' }} />
+                                </FormGroup>
 
-                            <FormGroup>
-                                <Label>{translations.genre}</Label>
-                                <StyledSelect
-                                    value={typ}
-                                    onChange={(e) => setTyp(e.target.value)}
-                                    required
-                                >
-                                    <option value="">{translations.select}</option>
-                                    <option value="Homme">{translations.male}</option>
-                                    <option value="Femme">{translations.femelle}</option>
-                                </StyledSelect>
-                            </FormGroup>
+                                <FormGroup>
+                                    <Label>{translations.email}</Label>
+                                    <StyledInput
+                                        type="email"
+                                        placeholder="ex: exemple@email.com"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
+                                        disabled={!isEditing}
+                                    />
+                                    <FaEdit onClick={() => setIsEditing(true)} style={{ cursor: 'pointer', marginLeft: '10px' }} />
+                                </FormGroup>
 
-                            <FormGroup>
-                                <Label>{translations.desc}</Label>
-                                <StyledTextarea
-                                    rows={3}
-                                    placeholder="Description"
-                                    value={desc}
-                                    onChange={(e) => setDesc(e.target.value)}
-                                />
-                            </FormGroup>
-                        </FormGrid>
+                                <FormGroup>
+                                    <Label>{translations.genre}</Label>
+                                    <StyledSelect
+                                        value={gender}
+                                        onChange={(e) => setGender(e.target.value)}
+                                        required
+                                        disabled={!isEditing}
+                                    >
+                                        <option value="">{translations.select}</option>
+                                        <option value="Male">{translations.male}</option>
+                                        <option value="Female">{translations.femelle}</option>
+                                    </StyledSelect>
+                                    <FaEdit onClick={() => setIsEditing(true)} style={{ cursor: 'pointer', marginLeft: '10px' }} />
+                                </FormGroup>
+                            </FormGrid>
 
-                        <ButtonGroup>
-                            <Button type="submit" $primary style={{backgroundColor:"chocolate"}}>
-                                {translations.save}
-                            </Button>
-                            <Button type="button" onClick={() => navigate("/")}>
-                                {translations.ann}
-                            </Button>
-                        </ButtonGroup>
-                    </Form>
-                </FormContainer>
+                            <ButtonGroup>
+                                <Button type="submit" $primary style={{ backgroundColor: "chocolate" }}>
+                                    {translations.save}
+                                </Button>
+                                <Button type="button" onClick={() => navigate("/")}>
+                                    {translations.ann}
+                                </Button>
+                            </ButtonGroup>
+                        </Form>
+                    </FormContainer>
 
-                <ReactJsAlert
-                    status={status}
-                    type={type}
-                    title={title}
-                    quotes={true}
-                    quote=""
-                    Close={() => setStatus(false)}
-                />
-            </Content>
-        </Container>
+                    <ReactJsAlert
+                        status={status}
+                        type={type}
+                        title={title}
+                        quotes={true}
+                        quote=""
+                        Close={() => setStatus(false)}
+                    />
+                </Content>
+            </Container>
         </div>
-       
     );
 }
 
-// Tous les styles restent identiques
 const Container = styled.div`
-    min-height: 80vh;
-   
+    min-height: 90vh;
 `;
 
 const Content = styled.div`
     padding: 2rem;
-    
-   
     display: flex;
     justify-content: center;
 
@@ -212,12 +205,12 @@ const Content = styled.div`
 
 const FormContainer = styled.div`
     background: white;
-    padding: 1.5rem;
+    padding: 2rem;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 800px;
-    background-color:rgb(243, 239, 232);
+    background-color: rgb(243, 239, 232);
 `;
 
 const AvatarSection = styled.div`
@@ -229,7 +222,7 @@ const AvatarSection = styled.div`
 const AvatarWrapper = styled.div`
     position: relative;
     cursor: pointer;
-    
+
     &:hover div {
         opacity: 1;
     }
@@ -257,7 +250,7 @@ const UploadOverlay = styled.div`
     opacity: 0;
     transition: opacity 0.2s;
     color: white;
-    
+
     span {
         font-size: 14px;
         margin-top: 4px;
@@ -268,7 +261,7 @@ const FormGrid = styled.div`
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 2rem;
-    
+
     @media (max-width: 768px) {
         grid-template-columns: 1fr;
         gap: 1.5rem;
@@ -276,6 +269,9 @@ const FormGrid = styled.div`
 `;
 
 const FormGroup = styled.div`
+    display: flex;
+    align-items: center;
+
     &:nth-last-child(1) {
         grid-column: 1 / -1;
     }
@@ -286,6 +282,7 @@ const Label = styled.label`
     margin-bottom: 0.5rem;
     font-weight: 500;
     color: chocolate;
+    font-size: 1.2rem;
 `;
 
 const inputStyles = `
@@ -295,13 +292,13 @@ const inputStyles = `
     border-radius: 6px;
     background-color: #fff;
     transition: border-color 0.2s, box-shadow 0.2s;
-    
+
     &:focus {
         outline: none;
         border-color: chocolate;
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
-    
+
     &::placeholder {
         color: #9ca3af;
     }
@@ -313,12 +310,6 @@ const StyledInput = styled.input`
 
 const StyledSelect = styled.select`
     ${inputStyles}
-`;
-
-const StyledTextarea = styled.textarea`
-    ${inputStyles}
-    resize: vertical;
-    min-height: 100px;
 `;
 
 const ButtonGroup = styled.div`

@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import "./RegistrationValidation.css";
 import { useNavigate } from "react-router-dom";
+import firebase from '../metro.config';
+import bcrypt from 'bcryptjs';
 
 const RegistrationValidation = () => {
     const [formData, setFormData] = useState({
@@ -8,6 +10,7 @@ const RegistrationValidation = () => {
         email: "",
         password: "",
         confirmPassword: "",
+        gender: "",
     });
     const [validationError, setValidationError] = useState("");
 
@@ -15,17 +18,26 @@ const RegistrationValidation = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Effectuer la validation du formulaire ici
-        const { name, email, password, confirmPassword } = formData;
+        const { name, email, password, confirmPassword, gender } = formData;
 
-        if (!name || !email || !password || !confirmPassword) {
+        if (!name || !email || !password || !confirmPassword || !gender) {
             setValidationError("Please fill in all the fields");
         } else if (password !== confirmPassword) {
             setValidationError("Password does not match");
         } else {
             setValidationError("");
+            const hashedPassword = await bcrypt.hash(password, 10);
+            await firebase.firestore().collection('BiblioAdmin').add({
+                name,
+                email,
+                password: hashedPassword,
+                gender,
+                image: null,
+                created_at: new Date(),
+                updated_at: null,
+            });
             navigate("/registrationConfirmation");
             console.log("Registration successful!");
         }
@@ -72,20 +84,27 @@ const RegistrationValidation = () => {
                             value={formData.confirmPassword}
                             onChange={handleChange}
                         />
+                        <label htmlFor="gender">Gender</label>
+                        <select
+                            id="gender"
+                            name="gender"
+                            value={formData.gender}
+                            onChange={handleChange}
+                        >
+                            <option value="">Select your gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
                         {validationError && (
                             <p className="error-message">{validationError}</p>
                         )}
                         <button type="submit" className="submit-button" >Validate Registration</button>
                         <button className="link-btn" onClick={() => navigate("/")}>Already have an account? Login here.</button>
-
                     </form>
                 </div>
             </div>
         </div>
         </div>
-        
-            
-        
     );
 };
 
