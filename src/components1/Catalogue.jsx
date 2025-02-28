@@ -11,6 +11,7 @@ import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
 import firebase from '../metro.config';
 import { useI18n } from "../Context/I18nContext"; // Importez le contexte i18n
+import { useNavigate } from 'react-router-dom';
 
 export default function Catalogue() {
     const location = useLocation();
@@ -203,6 +204,9 @@ export default function Catalogue() {
         setIsOpen(false);
     }
 
+
+    const navigate = useNavigate();
+
     return (
         <div className="content-box">
             <Container>
@@ -223,7 +227,8 @@ export default function Catalogue() {
                     <Section>
                         {loader ? (
                             displayedData.map((doc, index) => (
-                                <Card key={index} onClick={() => openModal(doc)}>
+                                <Card key={index} onClick={() => navigate(`/book-details/${doc.nomBD}`, { state: { book: doc } })}>
+                                {/*<Card key={index} onClick={() => openModal(doc)}>                               */}
                                     <CardHeader>
                                         <ThemeTitle>
                                             <FiBookmark className="icon" />

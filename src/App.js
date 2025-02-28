@@ -36,6 +36,8 @@ import DepartementsList from "./Component Improvements/AdminBooksHome";
 import MemoireParDepartement from "./components1/MemoireParDepartement";
 import AboutPage from "./components1/AboutPage";
 import Dashboard from "./components1/DashBoard";
+import BookDetails from "./components1/BookDetails";
+import Modal from "react-modal";
 
 
 export const UserContext = createContext();
@@ -70,6 +72,8 @@ export default function App() {
       }
     );
   }, []);
+
+  Modal.setAppElement('#root'); // Ensure you set the app element for accessibility
 
   return (
     <>
@@ -128,6 +132,7 @@ export default function App() {
                 <Route path="/discuss" element={<Discussion />} />
                 <Route path="/logoutPage" element={<LogoutPage />} />
                 <Route path="/pagenation" element={<Pagenation />} />
+                <Route path="/book-details/:id" element={<BookDetails />} />
                 <Route
                   path="/catalogueMemoire"
                   element={<CatalogueMemoire/>}
