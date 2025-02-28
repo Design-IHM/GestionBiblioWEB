@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Form } from "react-bootstrap";
 import ReactJsAlert from "reactjs-alert";
 import firebase from '../metro.config';
@@ -10,21 +10,16 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
 import styled from 'styled-components';
-import { FaCamera } from 'react-icons/fa';
+import { FaCamera, FaEdit } from 'react-icons/fa';
 import { useI18n } from "../Context/I18nContext";
 
 export default function Profil() {
-    // ... [Tout le code des states et des fonctions reste identique] ...
     const [name, setName] = useState('');
     const { language } = useI18n();
-    const [cathegorie] = useState('');
-    const [desc, setDesc] = useState('');
-    const [etagere] = useState('');
-    const [Email, setEmail] = useState("");
+    const [email, setEmail] = useState("");
     const [image, setImage] = useState(null);
     const [url, setUrl] = useState(null);
-    const [salle] = useState('');
-    const [typ, setTyp] = useState('');
+    const [gender, setGender] = useState('');
     const fileInputRef = useRef();
     const formRef = useRef();
     const navigate = useNavigate();
@@ -32,175 +27,255 @@ export default function Profil() {
     const [status, setStatus] = useState(false);
     const [type, setType] = useState("");
     const [title, setTitle] = useState("");
+    const [isEditing, setIsEditing] = useState(false);
+    const [isImageUploading, setIsImageUploading] = useState(false);
+
+    const user_id = localStorage.getItem('user_id');
+
+    useEffect(() => {
+        const fetchAdminData = async () => {
+            if (user_id) {
+                const adminDoc = await firebase.firestore().collection('BiblioAdmin').doc(user_id).get();
+                if (adminDoc.exists) {
+                    const adminData = adminDoc.data();
+                    setName(adminData.name);
+                    setEmail(adminData.email);
+                    setGender(adminData.gender);
+                    setUrl(adminData.image);
+                }
+            }
+        };
+        fetchAdminData();
+    }, [user_id]);
 
     const handleChangeImage = (e) => {
         if (e.target.files[0]) {
-            setImage(e.target.files[0]);
-            handleSubmit();
+            const selectedImage = e.target.files[0];
+            setImage(selectedImage);
+            
+            // Créer une URL locale pour l'aperçu de l'image
+            const localImageUrl = URL.createObjectURL(selectedImage);
+            setUrl(localImageUrl);
         }
     };
 
-    const handleSubmit = () => {
-        const imageRef = ref(storage, `images/${image.name + v4()}`);
-        uploadBytes(imageRef, image).then(() => {
-            getDownloadURL(imageRef).then((url) => {
-                setUrl(url);
-            }).catch((error) => {
-                console.log(error.message, "error getting the image url");
-            });
-            setImage(null);
-        }).catch((error) => {
-            console.log(error.message);
-        });
+    const uploadImageToFirebase = async () => {
+        if (!image) return null;
+        
+        setIsImageUploading(true);
+        try {
+            // Générer un nom unique pour l'image
+            const imageName = image.name + v4();
+            const imageRef = ref(storage, `images/${imageName}`);
+            
+            // Télécharger l'image vers Firebase Storage
+            await uploadBytes(imageRef, image);
+            
+            // Obtenir l'URL de téléchargement
+            const downloadUrl = await getDownloadURL(imageRef);
+            
+            // Mettre à jour l'URL d'image dans l'état
+            setUrl(downloadUrl);
+            setIsImageUploading(false);
+            
+            return downloadUrl;
+        } catch (error) {
+            console.error("Erreur lors du téléchargement de l'image:", error);
+            setIsImageUploading(false);
+            
+            // Afficher une notification d'erreur
+            setStatus(true);
+            setType("error");
+            setTitle(language === "FR" ? "Erreur lors du téléchargement de l'image" : "Error uploading image");
+            
+            return null;
+        }
     };
 
     const triggerFileInput = () => {
         fileInputRef.current.click();
     };
 
-    const res = async () => {
-        await firebase.firestore().collection('BiblioInformatique').doc(name).set({
-            name,
-            Email,
-            etagere,
-            salle,
-            image: url,
-            type: typ,
-            nomBD: name,
-            cathegorie,
-            desc,
-            commentaire: [{
-                heure: new Date(),
-                nomUser: '',
-                texte: '',
-                note: 0
-            }]
-        });
-        setStatus(true);
-        setType("success");
-        setTitle("Document ajouté avec succès");
+    const updateAdmin = async (e) => {
+        e.preventDefault();
+        
+        try {
+            let imageUrl = url;
+            
+            // Si une nouvelle image a été sélectionnée, la télécharger d'abord
+            if (image) {
+                setIsImageUploading(true);
+                imageUrl = await uploadImageToFirebase();
+                if (!imageUrl) {
+                    return; // Arrêter la mise à jour si l'upload a échoué
+                }
+            }
+            
+            // Mettre à jour le document dans Firestore
+            if (user_id) {
+                await firebase.firestore().collection('BiblioAdmin').doc(user_id).update({
+                    name,
+                    email,
+                    gender,
+                    image: imageUrl,
+                    updated_at: new Date()
+                });
+                
+                // Notification de succès
+                setStatus(true);
+                setType("success");
+                setTitle(language === "FR" ? "Informations mises à jour avec succès" : "Information updated successfully");
+                setIsEditing(false);
+                setImage(null); // Réinitialiser l'état de l'image après la mise à jour
+            }
+        } catch (error) {
+            console.error("Erreur lors de la mise à jour du profil:", error);
+            
+            // Notification d'erreur
+            setStatus(true);
+            setType("error");
+            setTitle(language === "FR" ? "Erreur lors de la mise à jour" : "Error updating profile");
+        } finally {
+            setIsImageUploading(false);
+        }
     };
 
     const translations = {
         nom: language === "FR" ? "Nom " : "Name",
-        email: language === "FR" ? "E-mail": "E-mail",
+        email: language === "FR" ? "E-mail" : "E-mail",
         genre: language === "FR" ? "Genre" : "Gender",
-        desc: language ==="FR"? "Description" : "Description",
-        save: language === "FR" ? "Enregistrer": "Save",
-        ann: language ==="FR"? "Annuler": "Close",
-        select: language==="FR"? "Selectionner votre genre": "Select your gender",
-        male: language ==="FR"? "Homme": "male",
-        femelle : language ==="FR"?"Femme": "Female",
-        modify: language === "FR"? "modifier": "modify"
-    }
+        save: language === "FR" ? "Enregistrer" : "Save",
+        ann: language === "FR" ? "Annuler" : "Close",
+        select: language === "FR" ? "Selectionner votre genre" : "Select your gender",
+        male: language === "FR" ? "Homme" : "male",
+        femelle: language === "FR" ? "Femme" : "Female",
+        modify: language === "FR" ? "modifier" : "modify",
+        uploading: language === "FR" ? "Téléchargement..." : "Uploading...",
+        imageSelected: language === "FR" ? "Image sélectionnée" : "Image selected"
+    };
 
     return (
         <div className="content-box">
-              <Container>
-            <Sidebar />
-            <Navbar />
-            <Content>
-                <FormContainer>
-                    <Form ref={formRef} onSubmit={res}>
-                        <AvatarSection>
-                            <AvatarWrapper>
-                                <StyledAvatar src={url} />
-                                <UploadOverlay onClick={triggerFileInput}>
-                                    <FaCamera size={24} />
-                                    <span>{translations.modify}</span>
-                                </UploadOverlay>
-                            </AvatarWrapper>
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                onChange={handleChangeImage}
-                                style={{ display: 'none' }}
-                            />
-                        </AvatarSection>
-
-                        <FormGrid>
-                            <FormGroup>
-                                <Label>{translations.nom}</Label>
-                                <StyledInput
-                                    type="text"
-                                    placeholder="ex: Jason Derulo"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    required
+            <Container>
+                <Sidebar />
+                <Navbar />
+                <Content>
+                    <FormContainer>
+                        <Form ref={formRef} onSubmit={updateAdmin}>
+                            <AvatarSection>
+                                <AvatarWrapper>
+                                    <StyledAvatar src={url} />
+                                    <UploadOverlay onClick={triggerFileInput}>
+                                        <FaCamera size={24} />
+                                        <span>
+                                            {isImageUploading 
+                                                ? translations.uploading 
+                                                : image 
+                                                    ? translations.imageSelected
+                                                    : translations.modify}
+                                        </span>
+                                    </UploadOverlay>
+                                </AvatarWrapper>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    onChange={handleChangeImage}
+                                    accept="image/*"
+                                    style={{ display: 'none' }}
                                 />
-                            </FormGroup>
+                            </AvatarSection>
 
-                            <FormGroup>
-                                <Label>{translations.email}</Label>
-                                <StyledInput
-                                    type="email"
-                                    placeholder="ex: exemple@email.com"
-                                    value={Email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
-                                />
-                            </FormGroup>
+                            <FormGrid>
+                                <FormGroup>
+                                    <Label>{translations.nom}</Label>
+                                    <InputWrapper>
+                                        <StyledInput
+                                            type="text"
+                                            placeholder="ex: Jason Derulo"
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                            required
+                                            disabled={!isEditing}
+                                        />
+                                        <EditIcon onClick={() => setIsEditing(true)}>
+                                            <FaEdit />
+                                        </EditIcon>
+                                    </InputWrapper>
+                                </FormGroup>
 
-                            <FormGroup>
-                                <Label>{translations.genre}</Label>
-                                <StyledSelect
-                                    value={typ}
-                                    onChange={(e) => setTyp(e.target.value)}
-                                    required
+                                <FormGroup>
+                                    <Label>{translations.email}</Label>
+                                    <InputWrapper>
+                                        <StyledInput
+                                            type="email"
+                                            placeholder="ex: exemple@email.com"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            required
+                                            disabled={!isEditing}
+                                        />
+                                        <EditIcon onClick={() => setIsEditing(true)}>
+                                            <FaEdit />
+                                        </EditIcon>
+                                    </InputWrapper>
+                                </FormGroup>
+
+                                <FormGroup>
+                                    <Label>{translations.genre}</Label>
+                                    <InputWrapper>
+                                        <StyledSelect
+                                            value={gender}
+                                            onChange={(e) => setGender(e.target.value)}
+                                            required
+                                            disabled={!isEditing}
+                                        >
+                                            <option value="">{translations.select}</option>
+                                            <option value="Male">{translations.male}</option>
+                                            <option value="Female">{translations.femelle}</option>
+                                        </StyledSelect>
+                                        <EditIcon onClick={() => setIsEditing(true)}>
+                                            <FaEdit />
+                                        </EditIcon>
+                                    </InputWrapper>
+                                </FormGroup>
+                            </FormGrid>
+
+                            <ButtonGroup>
+                                <Button 
+                                    type="submit" 
+                                    $primary 
+                                    style={{ backgroundColor: "chocolate" }}
+                                    disabled={isImageUploading}
                                 >
-                                    <option value="">{translations.select}</option>
-                                    <option value="Homme">{translations.male}</option>
-                                    <option value="Femme">{translations.femelle}</option>
-                                </StyledSelect>
-                            </FormGroup>
+                                    {isImageUploading ? translations.uploading : translations.save}
+                                </Button>
+                                <Button type="button" onClick={() => navigate("/")}>
+                                    {translations.ann}
+                                </Button>
+                            </ButtonGroup>
+                        </Form>
+                    </FormContainer>
 
-                            <FormGroup>
-                                <Label>{translations.desc}</Label>
-                                <StyledTextarea
-                                    rows={3}
-                                    placeholder="Description"
-                                    value={desc}
-                                    onChange={(e) => setDesc(e.target.value)}
-                                />
-                            </FormGroup>
-                        </FormGrid>
-
-                        <ButtonGroup>
-                            <Button type="submit" $primary style={{backgroundColor:"chocolate"}}>
-                                {translations.save}
-                            </Button>
-                            <Button type="button" onClick={() => navigate("/")}>
-                                {translations.ann}
-                            </Button>
-                        </ButtonGroup>
-                    </Form>
-                </FormContainer>
-
-                <ReactJsAlert
-                    status={status}
-                    type={type}
-                    title={title}
-                    quotes={true}
-                    quote=""
-                    Close={() => setStatus(false)}
-                />
-            </Content>
-        </Container>
+                    <ReactJsAlert
+                        status={status}
+                        type={type}
+                        title={title}
+                        quotes={true}
+                        quote=""
+                        Close={() => setStatus(false)}
+                    />
+                </Content>
+            </Container>
         </div>
-       
     );
 }
 
-// Tous les styles restent identiques
 const Container = styled.div`
-    min-height: 80vh;
-   
+    min-height: 90vh;
 `;
 
 const Content = styled.div`
     padding: 2rem;
-    
-   
     display: flex;
     justify-content: center;
 
@@ -212,12 +287,12 @@ const Content = styled.div`
 
 const FormContainer = styled.div`
     background: white;
-    padding: 1.5rem;
+    padding: 2rem;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 800px;
-    background-color:rgb(243, 239, 232);
+    background-color: rgb(243, 239, 232);
 `;
 
 const AvatarSection = styled.div`
@@ -229,7 +304,7 @@ const AvatarSection = styled.div`
 const AvatarWrapper = styled.div`
     position: relative;
     cursor: pointer;
-    
+
     &:hover div {
         opacity: 1;
     }
@@ -257,7 +332,7 @@ const UploadOverlay = styled.div`
     opacity: 0;
     transition: opacity 0.2s;
     color: white;
-    
+
     span {
         font-size: 14px;
         margin-top: 4px;
@@ -268,7 +343,7 @@ const FormGrid = styled.div`
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 2rem;
-    
+
     @media (max-width: 768px) {
         grid-template-columns: 1fr;
         gap: 1.5rem;
@@ -276,6 +351,10 @@ const FormGrid = styled.div`
 `;
 
 const FormGroup = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
     &:nth-last-child(1) {
         grid-column: 1 / -1;
     }
@@ -286,6 +365,26 @@ const Label = styled.label`
     margin-bottom: 0.5rem;
     font-weight: 500;
     color: chocolate;
+    font-size: 1.2rem;
+    width: 100%;
+    white-space: nowrap;
+    overflow: visible;
+`;
+
+const InputWrapper = styled.div`
+    display: flex;
+    align-items: center;
+    width: 100%;
+`;
+
+const EditIcon = styled.div`
+    cursor: pointer;
+    margin-left: 10px;
+    color: chocolate;
+    
+    &:hover {
+        color: #a0522d;
+    }
 `;
 
 const inputStyles = `
@@ -295,13 +394,13 @@ const inputStyles = `
     border-radius: 6px;
     background-color: #fff;
     transition: border-color 0.2s, box-shadow 0.2s;
-    
+
     &:focus {
         outline: none;
         border-color: chocolate;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        box-shadow: 0 0 0 3px rgba(210, 105, 30, 0.1);
     }
-    
+
     &::placeholder {
         color: #9ca3af;
     }
@@ -313,12 +412,6 @@ const StyledInput = styled.input`
 
 const StyledSelect = styled.select`
     ${inputStyles}
-`;
-
-const StyledTextarea = styled.textarea`
-    ${inputStyles}
-    resize: vertical;
-    min-height: 100px;
 `;
 
 const ButtonGroup = styled.div`
@@ -342,6 +435,8 @@ const Button = styled.button`
     background-color: ${props => props.$primary ? '#3b82f6' : '#9ca3af'};
     color: white;
     min-width: 150px;
+    opacity: ${props => props.disabled ? '0.7' : '1'};
+    pointer-events: ${props => props.disabled ? 'none' : 'auto'};
 
     &:hover {
         transform: translateY(-1px);
