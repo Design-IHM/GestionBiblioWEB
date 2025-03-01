@@ -147,11 +147,12 @@ export default function Profil() {
         save: language === "FR" ? "Enregistrer" : "Save",
         ann: language === "FR" ? "Annuler" : "Close",
         select: language === "FR" ? "Selectionner votre genre" : "Select your gender",
-        male: language === "FR" ? "Homme" : "male",
+        male: language === "FR" ? "Homme" : "Male",
         femelle: language === "FR" ? "Femme" : "Female",
         modify: language === "FR" ? "modifier" : "modify",
         uploading: language === "FR" ? "Téléchargement..." : "Uploading...",
-        imageSelected: language === "FR" ? "Image sélectionnée" : "Image selected"
+        imageSelected: language === "FR" ? "Image sélectionnée" : "Image selected",
+        changePassword: language === "FR" ? "Changer le mot de passe" : "Change Password"
     };
 
     return (
@@ -251,6 +252,9 @@ export default function Profil() {
                                 </Button>
                                 <Button type="button" onClick={() => navigate("/")}>
                                     {translations.ann}
+                                </Button>
+                                <Button type="button" onClick={() => navigate("/change-password")}>
+                                    {translations.changePassword}
                                 </Button>
                             </ButtonGroup>
                         </Form>

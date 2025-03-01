@@ -97,7 +97,7 @@ const ResetPassword = () => {
                     </div>
                   </div>
                   <button type="submit" className="login-button">
-                    Reset Password
+                    Reset
                   </button>
                 </form>
               </div>

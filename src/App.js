@@ -38,6 +38,7 @@ import ForgetPassword from "./Component Improvements/ForgetPassword";
 import ResetPassword from "./Component Improvements/ResetPassword";
 import ProtectedRoute from "./Component Improvements/ProtectedRoute";
 import ProtectReset from "./Component Improvements/ProtectReset";
+import ChangePassword from "./Component Improvements/ChangePassword";
 
 export const UserContext = createContext();
 
@@ -108,6 +109,7 @@ export default function App() {
                   <Route path="/reset-password" element={<ResetPassword />} />
                 </Route>
                 <Route element={<ProtectedRoute />}>
+                  <Route path="/change-password" element={<ChangePassword />} />
                   <Route path="/gestlivre" element={<Cat />} />
                   <Route path="/departement" element={<Dept />} />
                   <Route path="/departementMem" element={<AdminMemoriesHome />} />
