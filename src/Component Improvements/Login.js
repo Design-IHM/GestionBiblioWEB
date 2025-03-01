@@ -32,14 +32,14 @@ const Login = () => {
     e.preventDefault();
     if (email && password && validateEmail(email)) {
       setValidationError("");
-      const adminSnapshot = await firebase.firestore().collection('BiblioAdmin').where('email', '==', email).get();
-      if (!adminSnapshot.empty) {
-        const adminData = adminSnapshot.docs[0].data();
+      const adminSnapshot = await firebase.firestore().collection('BiblioAdmin').doc(email).get();
+      if (adminSnapshot.exists) {
+        const adminData = adminSnapshot.data();
         const isPasswordValid = await bcrypt.compare(password, adminData.password);
         if (isPasswordValid) {
           const token = "fake-jwt-token";
           localStorage.setItem("token", token);
-          localStorage.setItem("user_id", adminSnapshot.docs[0].id); // Stocker le user_id dans le localStorage
+          localStorage.setItem("user_id", email); // Store the email as user_id
           navigate("/accueil");
         } else {
           setValidationError("Oops! Email and/or password incorrect");
@@ -66,18 +66,23 @@ const Login = () => {
       setValidationError("Password does not match");
     } else {
       setValidationError("");
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const newAdminRef = await firebase.firestore().collection('BiblioAdmin').add({
-        name,
-        email,
-        password: hashedPassword,
-        gender,
-        image: null,
-        created_at: new Date(),
-        updated_at: null,
-      });
-      localStorage.setItem("user_id", newAdminRef.id); // Stocker le user_id dans le localStorage après l'inscription
-      setRegistrationSuccess(true);
+      const adminSnapshot = await firebase.firestore().collection('BiblioAdmin').doc(email).get();
+      if (adminSnapshot.exists) {
+        setValidationError("This email is already registered");
+      } else {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await firebase.firestore().collection('BiblioAdmin').doc(email).set({
+          name,
+          email,
+          password: hashedPassword,
+          gender,
+          image: null,
+          created_at: new Date(),
+          updated_at: null,
+        });
+        localStorage.setItem("user_id", email); // Store the email as user_id after registration
+        setRegistrationSuccess(true);
+      }
     }
   };
 
@@ -244,9 +249,7 @@ const Login = () => {
                 <button
                   className="link-button"
                   onClick={() => {
-                    setIsLogin(!isLogin);
-                    setValidationError("");
-                    setRegistrationSuccess(false);
+                    navigate("/forget-password");
                   }}
                 > Forget password ?
                 </button>

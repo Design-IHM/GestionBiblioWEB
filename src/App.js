@@ -34,7 +34,10 @@ import DepartementsList from "./Component Improvements/AdminBooksHome";
 import MemoireParDepartement from "./components1/MemoireParDepartement";
 import AboutPage from "./components1/AboutPage";
 import Dashboard from "./components1/DashBoard";
-import ProtectedRoute from "./Component Improvements/ProtectedRoute"; // Import the ProtectedRoute component
+import ForgetPassword from "./Component Improvements/ForgetPassword";
+import ResetPassword from "./Component Improvements/ResetPassword";
+import ProtectedRoute from "./Component Improvements/ProtectedRoute";
+import ProtectReset from "./Component Improvements/ProtectReset";
 
 export const UserContext = createContext();
 
@@ -100,6 +103,10 @@ export default function App() {
                   path="/registrationValidation"
                   element={<RegistrationValidation />}
                 />
+                <Route path="/forget-password" element={<ForgetPassword />} />
+                <Route element={<ProtectReset />}>
+                  <Route path="/reset-password" element={<ResetPassword />} />
+                </Route>
                 <Route element={<ProtectedRoute />}>
                   <Route path="/gestlivre" element={<Cat />} />
                   <Route path="/departement" element={<Dept />} />
