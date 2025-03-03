@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Form } from "react-bootstrap";
+import { Form, OverlayTrigger, Tooltip } from "react-bootstrap";
 import ReactJsAlert from "reactjs-alert";
 import firebase from '../metro.config';
 import { storage } from "../firebase-config";
@@ -155,6 +155,14 @@ export default function Profil() {
         changePassword: language === "FR" ? "Changer le mot de passe" : "Change Password"
     };
 
+    const passwordTooltip = (
+        <Tooltip id="password-tooltip">
+            {language === "FR"
+                ? "Le mot de passe doit contenir au moins 8 caractères, dont des majuscules, des minuscules, des chiffres et des caractères spéciaux."
+                : "Password must contain at least 8 characters, including uppercase, lowercase, numbers, and special characters."}
+        </Tooltip>
+    );
+
     return (
         <div className="content-box">
             <Container>
@@ -253,9 +261,11 @@ export default function Profil() {
                                 <Button type="button" onClick={() => navigate("/")}>
                                     {translations.ann}
                                 </Button>
-                                <Button type="button" onClick={() => navigate("/change-password")}>
-                                    {translations.changePassword}
-                                </Button>
+                                <OverlayTrigger placement="top" overlay={passwordTooltip}>
+                                    <Button type="button" onClick={() => navigate("/change-password")}>
+                                        {translations.changePassword}
+                                    </Button>
+                                </OverlayTrigger>
                             </ButtonGroup>
                         </Form>
                     </FormContainer>

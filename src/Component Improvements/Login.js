@@ -17,6 +17,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [validationError, setValidationError] = useState("");
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState({});
 
   const [formData, setFormData] = useState({
     name: "",
@@ -65,29 +66,66 @@ const Login = () => {
     } else if (password !== confirmPassword) {
       setValidationError("Password does not match");
     } else {
-      setValidationError("");
-      const adminSnapshot = await firebase.firestore().collection('BiblioAdmin').doc(email).get();
-      if (adminSnapshot.exists) {
-        setValidationError("This email is already registered");
+      const errors = validatePassword(password);
+      if (Object.keys(errors).length > 0) {
+        setPasswordErrors(errors);
+        setValidationError("Password does not meet the requirements");
       } else {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await firebase.firestore().collection('BiblioAdmin').doc(email).set({
-          name,
-          email,
-          password: hashedPassword,
-          gender,
-          image: null,
-          created_at: new Date(),
-          updated_at: null,
-        });
-        localStorage.setItem("user_id", email); // Store the email as user_id after registration
-        setRegistrationSuccess(true);
+        setValidationError("");
+        setPasswordErrors({});
+        const adminSnapshot = await firebase.firestore().collection('BiblioAdmin').doc(email).get();
+        if (adminSnapshot.exists) {
+          setValidationError("This email is already registered");
+        } else {
+          const hashedPassword = await bcrypt.hash(password, 10);
+          await firebase.firestore().collection('BiblioAdmin').doc(email).set({
+            name,
+            email,
+            password: hashedPassword,
+            gender,
+            image: null,
+            created_at: new Date(),
+            updated_at: null,
+          });
+          localStorage.setItem("user_id", email); // Store the email as user_id after registration
+          setRegistrationSuccess(true);
+        }
       }
     }
   };
 
+  const validatePassword = (password) => {
+    const errors = {};
+    const minLengthRegex = /.{8,}/;
+    const upperCaseRegex = /[A-Z]/;
+    const lowerCaseRegex = /[a-z]/;
+    const numberRegex = /[0-9]/;
+    const specialCharRegex = /[!@#$%^&*(),.?":{}|<>]/;
+
+    if (!minLengthRegex.test(password)) {
+      errors.minLength = "Password must be at least 8 characters long";
+    }
+    if (!upperCaseRegex.test(password)) {
+      errors.upperCase = "Password must contain at least one uppercase letter";
+    }
+    if (!lowerCaseRegex.test(password)) {
+      errors.lowerCase = "Password must contain at least one lowercase letter";
+    }
+    if (!numberRegex.test(password)) {
+      errors.number = "Password must contain at least one number";
+    }
+    if (!specialCharRegex.test(password)) {
+      errors.specialChar = "Password must contain at least one special character";
+    }
+
+    return errors;
+  };
+
   const handleRegisterChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (e.target.name === "password") {
+      setPasswordErrors(validatePassword(e.target.value));
+    }
   };
 
   return (
@@ -194,6 +232,9 @@ const Login = () => {
                           aria-required="true"
                         />
                       </div>
+                      {Object.keys(passwordErrors).map((key) => (
+                        <p key={key} className="error-message">{passwordErrors[key]}</p>
+                      ))}
                     </div>
                     <div className="form-group">
                       <label htmlFor="confirmPassword">Confirm Password</label>
