@@ -41,7 +41,7 @@
     margin: 0.5rem;
   }
   .content-box {
-    margin-left: 0;
+    margin: 0;
   }
   
   
@@ -129,7 +129,13 @@ input:focus, textarea:focus, select:focus {
 }
 
 .content-box {
-  margin-left: 18vw;
+  margin-left: 0;
+}
+
+@media (min-width: 768px) {
+  .content-box {
+    margin-left: 18vw;
+  }
 }
 
 

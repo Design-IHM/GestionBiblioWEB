@@ -1,0 +1,1 @@
+export const front_end_url = 'http://localhost:3000';

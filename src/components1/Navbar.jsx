@@ -14,10 +14,8 @@ export default function Navbar() {
     const [showMobileMenu, setShowMobileMenu] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
-    const [unreadMessagesCount, setUnreadMessagesCount] = useState(0); 
-    const {setSearchWord, searchWord } = useContext(UserContext);
-
-    
+    const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
+    const { setSearchWord, searchWord } = useContext(UserContext);
 
     // Écouter l'événement personnalisé pour mettre à jour le nombre de messages non lus
     useEffect(() => {
@@ -52,7 +50,11 @@ export default function Navbar() {
         window.history.back();
     };
 
-    
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user_id");
+        navigate("/");
+    };
 
     // Traductions directes pour la Navbar
     const translations = {
@@ -118,7 +120,7 @@ export default function Navbar() {
                     <ButtonLabel>{translations.profile}</ButtonLabel>
                 </NavButton>
 
-                <NavButton onClick={() => navigate("/logoutPage")} darkMode={isDarkMode} title={translations.logout}>
+                <NavButton onClick={handleLogout} darkMode={isDarkMode} title={translations.logout}>
                     <BiLogOut />
                     <ButtonLabel>{translations.logout}</ButtonLabel>
                 </NavButton>
