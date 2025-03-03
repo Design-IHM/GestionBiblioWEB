@@ -108,6 +108,12 @@ export default function Sidebar() {
                   <span>{translations.home}</span>
                 </NavLink>
               </li>
+              <li className={currentLink === 16 ? "active" : "none"} onClick={() => changer()}>
+                <NavLink className="linkin" to="/dashboard" end>
+                  <MdRuleFolder />
+                  <span>{translations.statistics}</span>
+                </NavLink>
+              </li>
 
               <li className={currentLink === 6 ? "active" : "none"} onClick={() => changerCat()}>
                 <NavLink className="linkin" to="/departement" end>
@@ -151,12 +157,7 @@ export default function Sidebar() {
                 </NavLink>
               </li>
 
-              <li className={currentLink === 7 ? "active" : "none"} onClick={() => changerMsg()}>
-                <NavLink className="linkin" to="/messages" end>
-                  <AiFillMessage />
-                  <span>{translations.messages}</span>
-                </NavLink>
-              </li>
+              
 
               <li className={currentLink === 8 ? "active" : "none"} onClick={() => changerArch()}>
                 <NavLink className="linkin" to="/archives" end>
@@ -165,12 +166,7 @@ export default function Sidebar() {
                 </NavLink>
               </li>
 
-              <li className={currentLink === 16 ? "active" : "none"} onClick={() => changer()}>
-                <NavLink className="linkin" to="/dashboard" end>
-                  <MdRuleFolder />
-                  <span>{translations.statistics}</span>
-                </NavLink>
-              </li>
+              
             </ul>
           </div>
         </div>

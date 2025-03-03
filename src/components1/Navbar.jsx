@@ -111,10 +111,7 @@ export default function Navbar() {
                     <ButtonLabel>{language}</ButtonLabel>
                 </NavButton>
 
-                <NavButton onClick={toggleTheme} darkMode={isDarkMode} title={isDarkMode ? translations.light_mode : translations.dark_mode}>
-                    {isDarkMode ? <RiSunFill /> : <RiMoonFill />}
-                    <ButtonLabel>{isDarkMode ? translations.light_mode : translations.dark_mode}</ButtonLabel>
-                </NavButton>
+  
 
                 <NavButton onClick={() => navigate("/profil")} darkMode={isDarkMode} title={translations.profile}>
                     <BiUserCircle />
