@@ -684,7 +684,7 @@ const Send = ({ heure, texte }) => {
       margin-top: 2px;
       margin-right: 5px;
     `
-  };
+  }; 
 
   return (
     <div style={{ cssText: styles.container }}>
