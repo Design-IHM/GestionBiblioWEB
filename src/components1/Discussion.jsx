@@ -20,6 +20,7 @@ export default function Discussion() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [currentResultIndex, setCurrentResultIndex] = useState(0);
+  const [textareaFocused, setTextareaFocused] = useState(false);
 
   // Styles intégrés
   const styles = {
@@ -30,6 +31,9 @@ export default function Discussion() {
       display: ${isSearching ? 'flex' : 'none'};
       align-items: center;
       gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 9;
     `,
     searchInput: `
       flex: 1;
@@ -80,7 +84,7 @@ export default function Discussion() {
       align-items: center;
     `,
     discussionContainer: `
-      height: calc(100% - 30px);
+      height: calc(100vh - 120px);
       display: flex;
       flex-direction: column;
       background-color: #fff;
@@ -126,7 +130,6 @@ export default function Discussion() {
       flex: 1;
       overflow-y: auto;
       padding: 20px;
-     
     `,
     dateDivider: `
       text-align: center;
@@ -369,8 +372,6 @@ export default function Discussion() {
     }
   };
 
-  const [textareaFocused, setTextareaFocused] = useState(false);
-
   // Function to group messages by date
   const groupMessagesByDate = (messages) => {
     const groups = {};
@@ -528,7 +529,7 @@ export default function Discussion() {
               )}
             </div>
 
-            {/* Message Composer (resté inchangé) */}
+            {/* Message Composer */}
             <div style={{ cssText: styles.composeArea }}>
               <form
                 ref={formRef}
