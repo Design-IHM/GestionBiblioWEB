@@ -16,6 +16,7 @@ export default function Navbar() {
     const location = useLocation();
     const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
     const { setSearchWord, searchWord } = useContext(UserContext);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     // Écouter l'événement personnalisé pour mettre à jour le nombre de messages non lus
     useEffect(() => {
@@ -46,14 +47,37 @@ export default function Navbar() {
         }
     }, [location]);
 
+    // Fonction de retour arrière modifiée pour éviter les pages d'authentification
     const goBack = () => {
+        // Liste des routes d'authentification à éviter
+        const authRoutes = ['/', '/login', '/forget-password', '/registrationValidation', '/registrationConfirmation'];
+        
+        // Si nous sommes sur la page d'accueil, ne rien faire
+        if (location.pathname === "/accueil") {
+            return;
+        }
+        
+        // Utiliser l'historique natif du navigateur pour revenir en arrière
         window.history.back();
+        
+        // Vérifier après un court délai si on est sur une page d'authentification
+        setTimeout(() => {
+            if (authRoutes.includes(window.location.pathname)) {
+                navigate('/accueil');
+            }
+        }, 100);
     };
 
     const handleLogout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user_id");
-        navigate("/");
+        // Afficher la rétroaction de déconnexion
+        setIsLoggingOut(true);
+        
+        // Attendre un peu avant de rediriger vers la page de connexion
+        setTimeout(() => {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user_id");
+            navigate("/");
+        }, 1500);
     };
 
     // Traductions directes pour la Navbar
@@ -64,15 +88,21 @@ export default function Navbar() {
         light_mode: language === "FR" ? "Mode clair" : "Light mode",
         dark_mode: language === "FR" ? "Mode sombre" : "Dark mode",
         profile: language === "FR" ? "Profil" : "Profile",
-        logout: language === "FR" ? "Déconnexion" : "Logout"
+        logout: language === "FR" ? "Déconnexion" : "Logout",
+        logging_out: language === "FR" ? "Déconnexion..." : "Logging out..."
     };
+
+    // Vérifier si le bouton de retour doit être affiché
+    const shouldShowBackButton = location.pathname !== "/accueil";
 
     return (
         <NavbarContainer darkMode={isDarkMode}>
             <LogoSection>
-                <BackButton onClick={goBack} darkMode={isDarkMode}>
-                    <IoIosArrowBack />
-                </BackButton>
+                {shouldShowBackButton && (
+                    <BackButton onClick={goBack} darkMode={isDarkMode}>
+                        <IoIosArrowBack />
+                    </BackButton>
+                )}
                 <Logo darkMode={isDarkMode}></Logo>
                 <MobileMenuToggle
                     darkMode={isDarkMode}
@@ -113,23 +143,61 @@ export default function Navbar() {
                     <ButtonLabel>{language}</ButtonLabel>
                 </NavButton>
 
-  
-
                 <NavButton onClick={() => navigate("/profil")} darkMode={isDarkMode} title={translations.profile}>
                     <BiUserCircle />
                     <ButtonLabel>{translations.profile}</ButtonLabel>
                 </NavButton>
 
-                <NavButton onClick={handleLogout} darkMode={isDarkMode} title={translations.logout}>
+                <LogoutButton 
+                    onClick={handleLogout} 
+                    darkMode={isDarkMode} 
+                    title={translations.logout} 
+                    disabled={isLoggingOut}
+                    isLoggingOut={isLoggingOut}
+                >
                     <BiLogOut />
-                    <ButtonLabel>{translations.logout}</ButtonLabel>
-                </NavButton>
+                    <ButtonLabel>{isLoggingOut ? translations.logging_out : translations.logout}</ButtonLabel>
+                    {isLoggingOut && <LoadingDots />}
+                </LogoutButton>
             </NavActions>
         </NavbarContainer>
     );
 }
 
-// Styled Components (rest of your code)
+// Composant d'animation pour les points de chargement
+const LoadingDots = () => {
+    return (
+        <DotsContainer>
+            <Dot delay="0s" />
+            <Dot delay="0.2s" />
+            <Dot delay="0.4s" />
+        </DotsContainer>
+    );
+};
+
+// Styled Components
+const DotsContainer = styled.div`
+    display: flex;
+    align-items: center;
+    margin-left: 5px;
+`;
+
+const Dot = styled.span`
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: currentColor;
+    margin: 0 2px;
+    opacity: 0;
+    animation: fadeInOut 1.4s infinite;
+    animation-delay: ${props => props.delay || "0s"};
+    
+    @keyframes fadeInOut {
+        0%, 100% { opacity: 0; }
+        50% { opacity: 1; }
+    }
+`;
+
 const UnreadBadge = styled.div`
     background: #db991d;
     color: white;
@@ -139,6 +207,7 @@ const UnreadBadge = styled.div`
     border-radius: 50%;
     margin-left: 8px;
 `;
+
 const NavbarContainer = styled.nav`
   display: flex;
   align-items: center;
@@ -277,16 +346,33 @@ const NavButton = styled.button`
   color: ${props => props.darkMode ? "#f3f4f6" : "#1f2937"};
   padding: 0.5rem;
   border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+  cursor: ${props => props.disabled ? 'default' : 'pointer'};
+  transition: all 0.3s ease;
   font-size: 0.875rem;
+  opacity: ${props => props.disabled ? 0.7 : 1};
 
   &:hover {
-    background-color: ${props => props.darkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"};
+    background-color: ${props => !props.disabled && (props.darkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)")};
   }
 
   svg {
     font-size: 1.25rem;
+  }
+`;
+
+// Nouveau composant spécifique pour le bouton de déconnexion
+const LogoutButton = styled(NavButton)`
+  /* Couleur chocolate lorsqu'en déconnexion */
+  color: ${props => props.isLoggingOut ? 'chocolate' : props.darkMode ? "#f3f4f6" : "#1f2937"};
+  font-weight: ${props => props.isLoggingOut ? 'bold' : 'normal'};
+  
+  /* Animation de pulsation subtile lorsqu'en déconnexion */
+  animation: ${props => props.isLoggingOut ? 'pulse 1.5s infinite' : 'none'};
+  
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
   }
 `;
 

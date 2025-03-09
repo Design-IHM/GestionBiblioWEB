@@ -18,13 +18,14 @@ const Login = () => {
   const [validationError, setValidationError] = useState("");
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState({});
+  const [showFeedback, setShowFeedback] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
-    gender: "",
+    gender: "Male",
   });
 
   const navigate = useNavigate();
@@ -41,7 +42,14 @@ const Login = () => {
           const token = "fake-jwt-token";
           localStorage.setItem("token", token);
           localStorage.setItem("user_id", email); // Store the email as user_id
-          navigate("/accueil");
+          
+          // Afficher le message de succès avant de rediriger
+          setShowFeedback(true);
+          
+          // Rediriger après un délai
+          setTimeout(() => {
+            navigate("/accueil");
+          }, 2000);
         } else {
           setValidationError("Oops! Email and/or password incorrect");
         }
@@ -145,6 +153,11 @@ const Login = () => {
                 You have been successfully registered! Please log in to access the platform.
               </p>
             )}
+            {showFeedback && (
+              <p className="success-message">
+                Connexion réussie ! Redirection...
+              </p>
+            )}
             <div className="content">
               <div className="auth-form-container">
                 <h2>{isLogin ? "Login" : "Registration"}</h2>
@@ -160,7 +173,6 @@ const Login = () => {
                           id="email"
                           name="email"
                           value={email}
-                          style={{ width: "300px" }}
                           onChange={(e) => setEmail(e.target.value)}
                           aria-required="true"
                         />
@@ -176,7 +188,6 @@ const Login = () => {
                           id="password"
                           name="password"
                           value={password}
-                          style={{ width: "300px" }}
                           onChange={(e) => setPassword(e.target.value)}
                           aria-required="true"
                         />
@@ -197,7 +208,6 @@ const Login = () => {
                           id="name"
                           name="name"
                           value={formData.name}
-                          style={{ width: "300px" }}
                           onChange={handleRegisterChange}
                           aria-required="true"
                         />
@@ -212,7 +222,6 @@ const Login = () => {
                           id="email"
                           name="email"
                           value={formData.email}
-                          style={{ width: "300px" }}
                           onChange={handleRegisterChange}
                           aria-required="true"
                         />
@@ -227,13 +236,12 @@ const Login = () => {
                           id="password"
                           name="password"
                           value={formData.password}
-                          style={{ width: "300px" }}
                           onChange={handleRegisterChange}
                           aria-required="true"
                         />
                       </div>
                       {Object.keys(passwordErrors).map((key) => (
-                        <p key={key} className="error-message">{passwordErrors[key]}</p>
+                        <p key={key} className="password-error">{passwordErrors[key]}</p>
                       ))}
                     </div>
                     <div className="form-group">
@@ -245,27 +253,34 @@ const Login = () => {
                           id="confirmPassword"
                           name="confirmPassword"
                           value={formData.confirmPassword}
-                          style={{ width: "300px" }}
                           onChange={handleRegisterChange}
                           aria-required="true"
                         />
                       </div>
                     </div>
                     <div className="form-group">
-                      <label htmlFor="gender">Gender</label>
-                      <div className="input-wrapper">
-                        <select
-                          id="gender"
-                          name="gender"
-                          value={formData.gender}
-                          style={{ width: "300px" }}
-                          onChange={handleRegisterChange}
-                          aria-required="true"
-                        >
-                          <option value="">Select your gender</option>
-                          <option value="Male">Male</option>
-                          <option value="Female">Female</option>
-                        </select>
+                      <label>Gender</label>
+                      <div className="radio-group">
+                        <label className="radio-label">
+                          <input
+                            type="radio"
+                            name="gender"
+                            value="Male"
+                            checked={formData.gender === "Male"}
+                            onChange={handleRegisterChange}
+                          />
+                          Male
+                        </label>
+                        <label className="radio-label">
+                          <input
+                            type="radio"
+                            name="gender"
+                            value="Female"
+                            checked={formData.gender === "Female"}
+                            onChange={handleRegisterChange}
+                          />
+                          Female
+                        </label>
                       </div>
                     </div>
                     <button type="submit" className="login-button">
@@ -273,28 +288,31 @@ const Login = () => {
                     </button>
                   </form>
                 )}
-                <button
-                  className="link-button"
-                  onClick={() => {
-                    setIsLogin(!isLogin);
-                    setValidationError("");
-                    setRegistrationSuccess(false);
-                  }}
-                >
-                  {isLogin
-                    ? "Don't have an account? Register here."
-                    : "Already have an account? Login here."}
-                </button>
+                <div className="login-links">
+                  <button
+                    className="link-button"
+                    onClick={() => {
+                      setIsLogin(!isLogin);
+                      setValidationError("");
+                      setRegistrationSuccess(false);
+                      setShowFeedback(false);
+                    }}
+                  >
+                    {isLogin
+                      ? "Don't have an account? Register here."
+                      : "Already have an account? Login here."}
+                  </button>
 
-                {isLogin && (
-                <button
-                  className="link-button"
-                  onClick={() => {
-                    navigate("/forget-password");
-                  }}
-                > Forget password ?
-                </button>
-                )}
+                  {isLogin && (
+                  <button
+                    className="link-button"
+                    onClick={() => {
+                      navigate("/forget-password");
+                    }}
+                  > Forget password ?
+                  </button>
+                  )}
+                </div>
               </div>
 
               <img src={login} alt="login" className="login-img" />
