@@ -1,6 +1,8 @@
 import React, { useState, useEffect, createContext } from "react";
 import "./App.css";
+
 import "bootstrap/dist/css/bootstrap.min.css";
+
 import styled from "styled-components";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import scrollreveal from "scrollreveal";
@@ -39,6 +41,9 @@ import ResetPassword from "./Component Improvements/ResetPassword";
 import ProtectedRoute from "./Component Improvements/ProtectedRoute";
 import ProtectReset from "./Component Improvements/ProtectReset";
 import ChangePassword from "./Component Improvements/ChangePassword";
+import ProtectedRoute from "./Component Improvements/ProtectedRoute"; // Import the ProtectedRoute component
+import BookDetails from "./components1/BookDetails";
+import Modal from "react-modal";
 
 export const UserContext = createContext();
 
@@ -95,6 +100,10 @@ export default function App() {
           <Router>
             <Section>
               <Routes>
+                <Route path="/gestlivre" element={<Cat />} />
+                <Route path="/departement" element={<Dept />} />
+                <Route path="/departementMem" element={<AdminMemoriesHome />} />
+                <Route path="/memoireParDepartement" element={<MemoireParDepartement />} />
                 <Route path="/" element={<Login />} />
                 <Route
                   path="/registrationConfirmation"
@@ -134,9 +143,11 @@ export default function App() {
                   <Route path="/pagenation" element={<Pagenation />} />
                   <Route path="/catalogueMemoire" element={<CatalogueMemoire />} />
                   <Route path="/departementMemoriesBtn" element={<DepartementMemoriesBtn />} />
+                  <Route path="/book-details/:id" element={<BookDetails />} />
                   <Route path="/aboutUs" element={<AboutPage />} />
                 </Route>
                 <Route path="*" element={<NoPage />} />
+                <Route path="/aboutUs" element={<AboutPage />} />
               </Routes>
             </Section>
           </Router>
@@ -147,44 +158,45 @@ export default function App() {
 }
 
 const Div = styled.div`
-  position: relative;
-  background-color: #ffffff;
+    position: relative;
+    background-color: #ffffff;
 `;
 
 const Section = styled.section`
-  background-color: #ffffff;
-  padding: 2rem;
-  height: 100%;
-
-  .grid {
-    display: flex;
-    flex-direction: column;
+    //margin-left: 18vw;
+    background-color: #ffffff;
+    padding: 2rem;
     height: 100%;
-    gap: 1rem;
-    margin-top: 2rem;
 
-    .row__one {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      height: 50%;
-      gap: 1rem;
-    }
-
-    .row__two {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      height: 50%;
-    }
-  }
-
-  @media screen and (min-width: 280px) and (max-width: 1080px) {
-    margin-left: 0;
     .grid {
-      .row__one,
-      .row__two {
-        grid-template-columns: 1fr;
-      }
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        gap: 1rem;
+        margin-top: 2rem;
+
+        .row__one {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            height: 50%;
+            gap: 1rem;
+        }
+
+        .row__two {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            height: 50%;
+        }
     }
-  }
+
+    @media screen and (min-width: 280px) and (max-width: 1080px) {
+        margin-left: 0;
+        .grid {
+            .row__one,
+            .row__two {
+                grid-template-columns: 1fr;
+            }
+        }
+    }
 `;

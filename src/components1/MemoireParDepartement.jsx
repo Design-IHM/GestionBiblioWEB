@@ -6,7 +6,7 @@ import { FiEdit2, FiX, FiBook, FiUser, FiCalendar, FiGrid, FiBookmark, FiHardDri
 import Sidebar from "../components1/Sidebar";
 import Navbar from "../components1/Navbar";
 import Loading from "./Loading";
-import firebase from '../metro.config'; // Assurez-vous d'importer Firebase
+import firebase from '../metro.config';
 import { useI18n } from "../Context/I18nContext";
 
 export default function MemoireParDepartement() {
@@ -16,10 +16,10 @@ export default function MemoireParDepartement() {
     const [selectedMemoire, setSelectedMemoire] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [editedMemoire, setEditedMemoire] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [memoires, setMemoires] = useState(state ? state.memories : []);
+    const [loading, setLoading] = useState(true); // Start with loading true
+    const [memoires, setMemoires] = useState([]);
+    const [departement, setDepartement] = useState("");
     const [sortOption, setSortOption] = useState('nameAsc');
-    const departement = state ? state.departement : "";
 
     const itemsPerPage = 8;
     const [currentPage, setCurrentPage] = useState(1);
@@ -29,6 +29,47 @@ export default function MemoireParDepartement() {
         const docName = doc.name || "";
         return docName.toUpperCase().includes(searchWord.toUpperCase());
     });
+
+    useEffect(() => {
+        // First try to get data from navigation state
+        if (state && state.memories && state.memories.length > 0) {
+            console.log("Received memoires from navigation:", state.memories);
+            setMemoires(state.memories);
+            setDepartement(state.departement || "");
+            setLoading(false);
+        }
+        // If no data in navigation or empty array, fetch from Firestore
+        else {
+            const departmentName = state?.departement || "";
+            setDepartement(departmentName);
+
+            console.log("Fetching memoires for department:", departmentName);
+
+            const fetchMemoires = async () => {
+                try {
+                    let query = firebase.firestore().collection("Memoire");
+
+                    // If we have a department name, filter by it
+                    if (departmentName) {
+                        query = query.where("département", "==", departmentName);
+                    }
+
+                    const snapshot = await query.get();
+                    const items = [];
+                    snapshot.forEach(doc => items.push(doc.data()));
+
+                    console.log("Fetched memoires:", items);
+                    setMemoires(items);
+                } catch (error) {
+                    console.error("Error fetching memoires:", error);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            fetchMemoires();
+        }
+    }, [state]);
 
     const sortedMemoires = [...filteredMemoires].sort((a, b) => {
         if (sortOption === 'nameAsc') {
@@ -45,6 +86,7 @@ export default function MemoireParDepartement() {
 
     const startIndex = (currentPage - 1) * itemsPerPage;
     const displayedMemoires = sortedMemoires.slice(startIndex, startIndex + itemsPerPage);
+
 
 
 
@@ -168,43 +210,48 @@ export default function MemoireParDepartement() {
                             <option value="anneeDesc">{translations.year_desc}</option>
                         </SortSelect>
                     </SortContainer>
+
                     <Section>
-                        {displayedMemoires.length > 0 ? (
-                            displayedMemoires.map((doc, index) => (
-                                <Card key={index} onClick={() => openPopup(doc)}>
-                                    <CardHeader>
-                                        <ThemeTitle>
-                                            <FiBookmark className="icon" />
-                                            {doc.theme}
-                                        </ThemeTitle>
-                                    </CardHeader>
-                                    <CardBody>
-                                        <CardInfo>
-                                            <InfoItem>
-                                                <FiUser className="icon" />
-                                                <span>{doc.name}</span>
-                                            </InfoItem>
-                                            <InfoItem>
-                                                <FiGrid className="icon" />
-                                                <span>{doc.département}</span>
-                                            </InfoItem>
-                                            <InfoItem>
-                                                <FiCalendar className="icon" />
-                                                <span>{doc.annee}</span>
-                                            </InfoItem>
-                                            <InfoItem>
-                                                <FiHardDrive className="icon" />
-                                                <span>{translations.shelf_number}: {doc.etagere}</span>
-                                            </InfoItem>
-                                        </CardInfo>
-                                        <CardImage>
-                                            <img src={doc.image} alt="mémoire" />
-                                        </CardImage>
-                                    </CardBody>
-                                </Card>
-                            ))
+                        {loading ? (
+                          <Loading />
+                        ) : displayedMemoires.length > 0 ? (
+                          displayedMemoires.map((doc, index) => (
+                            <Card key={index} onClick={() => openPopup(doc)}>
+                                <CardHeader>
+                                    <ThemeTitle>
+                                        <FiBookmark className="icon" />
+                                        {doc.theme}
+                                    </ThemeTitle>
+                                </CardHeader>
+                                <CardBody>
+                                    <CardInfo>
+                                        <InfoItem>
+                                            <FiUser className="icon" />
+                                            <span>{doc.name}</span>
+                                        </InfoItem>
+                                        <InfoItem>
+                                            <FiGrid className="icon" />
+                                            <span>{doc.département}</span>
+                                        </InfoItem>
+                                        <InfoItem>
+                                            <FiCalendar className="icon" />
+                                            <span>{doc.annee}</span>
+                                        </InfoItem>
+                                        <InfoItem>
+                                            <FiHardDrive className="icon" />
+                                            <span>{translations.shelf_number}: {doc.etagere}</span>
+                                        </InfoItem>
+                                    </CardInfo>
+                                    <CardImage>
+                                        <img src={doc.image} alt="mémoire" />
+                                    </CardImage>
+                                </CardBody>
+                            </Card>
+                          ))
                         ) : (
-                            <Loading />
+                          <NoDataMessage>
+                              Aucun mémoire trouvé pour {departement || "ce département"}
+                          </NoDataMessage>
                         )}
                     </Section>
 
@@ -283,8 +330,6 @@ export default function MemoireParDepartement() {
     );
 }
 
-// Styles...
-
 const Container = styled.div`
   min-height: 100vh;
 `;
@@ -352,6 +397,14 @@ const Section = styled.section`
   @media (max-width: 768px) {
     grid-template-columns: repeat(1, 1fr);
   }
+`;
+
+const NoDataMessage = styled.div`
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-size: 1.2rem;
 `;
 
 const Card = styled.div`

@@ -11,6 +11,7 @@ import Sidebar from '../components1/Sidebar';
 import Navbar from '../components1/Navbar';
 import firebase from '../metro.config';
 import { useI18n } from "../Context/I18nContext"; // Importez le contexte i18n
+import { useNavigate } from 'react-router-dom';
 
 export default function Catalogue() {
     const location = useLocation();
@@ -130,20 +131,37 @@ export default function Catalogue() {
     const [loader, setLoader] = useState(false);
 
     const getData = useCallback(() => {
-        ref.where('cathegorie', '==', departement).onSnapshot((querySnapshot) => {
-            const items = [];
-            querySnapshot.forEach((doc) => {
-                items.push(doc.data());
-                setLoader(true);
-            });
-            setData(items);
-            console.log("Données récupérées :", items);
-        });
-    }, [ref, departement]);
+        // Only fetch if data hasn't been loaded yet
+        if (!loader) {
+            ref.where('cathegorie', '==', departement)
+              .get()
+              .then((querySnapshot) => {
+                  const items = [];
+                  querySnapshot.forEach((doc) => {
+                      items.push(doc.data());
+                  });
+                  setData(items);
+                  setLoader(true);
+                  console.log("Données récupérées :", items);
+              })
+              .catch((error) => {
+                  console.error("Error getting documents: ", error);
+                  setLoader(true);
+              });
+        }
+    }, [ref, departement, loader]);
 
+    // Initialize with loader set to false
     useEffect(() => {
-        getData();
-    }, [getData]);
+        setLoader(false);
+    }, [departement]); // Reset loader when department changes
+
+    // Call getData only when loader is false
+    useEffect(() => {
+        if (!loader) {
+            getData();
+        }
+    }, [getData, loader]);
 
     // Pagination
     const itemsPerPage = 8;
@@ -203,6 +221,9 @@ export default function Catalogue() {
         setIsOpen(false);
     }
 
+
+    const navigate = useNavigate();
+
     return (
         <div className="content-box">
             <Container>
@@ -219,11 +240,12 @@ export default function Catalogue() {
                             <option value="desc">{translations.sort_desc}</option>
                         </SortSelect>
                     </SortContainer>
-                    
+
                     <Section>
                         {loader ? (
                             displayedData.map((doc, index) => (
-                                <Card key={index} onClick={() => openModal(doc)}>
+                                <Card key={index} onClick={() => navigate(`/book-details/${doc.nomBD}`, { state: { book: doc } })}>
+                                {/*<Card key={index} onClick={() => openModal(doc)}>                               */}
                                     <CardHeader>
                                         <ThemeTitle>
                                             <FiBookmark className="icon" />
