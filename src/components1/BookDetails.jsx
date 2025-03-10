@@ -6,6 +6,7 @@ import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 import styled from 'styled-components';
 import { useI18n } from "../Context/I18nContext"; // Ensure this path is correct
+import CustomAlert from '../Component Improvements/Alert'
 
 // Styled components for the new design
 const Container = styled.div`
@@ -201,6 +202,10 @@ export default function BookDetails() {
   const [commentRating, setCommentRating] = useState(0);
   const [image, setImage] = useState(book.image);
   const [imageFile, setImageFile] = useState(null);
+  const [alertMessage, setAlertMessage] = useState('yo');
+  const [alertType, setAlertType] = useState('info');
+  const [alertOpen, setAlertOpen] = useState(false);
+
 
   // Contexte i18n
   const { language } = useI18n();
@@ -246,6 +251,7 @@ export default function BookDetails() {
     setImage(book.image);
     setImageFile(null);
     setIsModalOpen(true);
+
   };
 
   // Handle image file change
@@ -275,7 +281,9 @@ export default function BookDetails() {
       return url;
     } catch (error) {
       console.error("Error uploading image:", error);
-      alert(translations.failed_image_upload);
+      setAlertMessage(translations.failed_image_upload); // Show custom alert instead of alert()
+      setAlertOpen(true);
+      setAlertType("error")
       return book.image;
     }
   };
@@ -304,11 +312,18 @@ export default function BookDetails() {
       book.salle = salle;
       book.image = imageUrl;
 
-      alert(translations.book_updated);
+      // alert(translations.book_updated);
+      setAlertMessage(translations.book_updated);
+      setAlertOpen(true);
+      setAlertType("success")
+
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error updating book:", error);
-      alert(translations.failed_update);
+      // alert(translations.failed_update);
+      setAlertMessage(translations.failed_update);
+      setAlertOpen(true);
+      setAlertType("error")
     }
   };
 
@@ -317,11 +332,17 @@ export default function BookDetails() {
     if (window.confirm(translations.confirm_delete)) {
       try {
         await firebase.firestore().collection("BiblioInformatique").doc(book.nomBD).delete();
-        alert(translations.book_deleted);
+        // alert(translations.book_deleted);
+        setAlertMessage(translations.book_deleted);
+        setAlertOpen(true);
+        setAlertType("success")
         navigate(-1);
       } catch (error) {
         console.error("Error deleting book:", error);
-        alert(translations.failed_delete);
+        // alert(translations.failed_delete);
+        setAlertMessage(translations.failed_delete);
+        setAlertOpen(true);
+        setAlertType("error")
       }
     }
   };
@@ -346,10 +367,17 @@ export default function BookDetails() {
       });
       setNewComment("");
       setCommentRating(0);
-      alert(translations.comment_added);
+      // alert(translations.comment_added);
+      setAlertMessage(translations.comment_added);
+      setAlertOpen(true);
+      setAlertType("success")
+
     } catch (error) {
       console.error("Error adding comment:", error);
-      alert(translations.failed_comment);
+      // alert(translations.failed_comment);
+      setAlertMessage(translations.failed_comment);
+      setAlertOpen(true);
+      setAlertType("error")
     }
   };
 
@@ -380,6 +408,12 @@ export default function BookDetails() {
       <Navbar />
 
       <MainContent>
+        <CustomAlert
+          open={alertOpen}
+          message={alertMessage}
+          onClose={() => setAlertOpen(false)}
+          type={alertType}
+        />
         <ContentWrapper>
           <BookImage>
             {book.image ? (
@@ -493,6 +527,7 @@ export default function BookDetails() {
             </CommentSection>
           </BookInfo>
         </ContentWrapper>
+
       </MainContent>
 
       {/* Edit Modal */}
@@ -599,6 +634,7 @@ export default function BookDetails() {
           </Box>
         </Box>
       </Modal>
+
     </Container>
   );
 }
