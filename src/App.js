@@ -41,7 +41,6 @@ import ResetPassword from "./Component Improvements/ResetPassword";
 import ProtectedRoute from "./Component Improvements/ProtectedRoute";
 import ProtectReset from "./Component Improvements/ProtectReset";
 import ChangePassword from "./Component Improvements/ChangePassword";
-import ProtectedRoute from "./Component Improvements/ProtectedRoute"; // Import the ProtectedRoute component
 import BookDetails from "./components1/BookDetails";
 import Modal from "react-modal";
 
