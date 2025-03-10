@@ -43,6 +43,7 @@ import ProtectReset from "./Component Improvements/ProtectReset";
 import ChangePassword from "./Component Improvements/ChangePassword";
 import BookDetails from "./components1/BookDetails";
 import Modal from "react-modal";
+import TheseDetails from "./components1/TheseDetails";
 
 export const UserContext = createContext();
 
@@ -143,6 +144,8 @@ export default function App() {
                   <Route path="/catalogueMemoire" element={<CatalogueMemoire />} />
                   <Route path="/departementMemoriesBtn" element={<DepartementMemoriesBtn />} />
                   <Route path="/book-details/:id" element={<BookDetails />} />
+                  <Route path="/these-details/:id" element={<TheseDetails />} />
+                  
                   <Route path="/aboutUs" element={<AboutPage />} />
                 </Route>
                 <Route path="*" element={<NoPage />} />

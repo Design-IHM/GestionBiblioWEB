@@ -31,6 +31,7 @@ export default function AdminMemoriesHome() {
   const [departement, setDepartement] = useState('');
   const [annee, setAnnee] = useState('');
   const [etagere, setEtagere] = useState('');
+  const [superviseur, setSuperviseur] = useState(''); 
 
   // États pour la gestion de l'image
   const [image, setImage] = useState(null);
@@ -65,7 +66,8 @@ export default function AdminMemoriesHome() {
     select_image: language === "FR" ? "Veuillez sélectionner une image" : "Please select an image",
     memory_added: language === "FR" ? "Mémoire ajouté avec succès" : "Memory added successfully",
     error_saving: language === "FR" ? "Erreur lors de l'enregistrement du mémoire" : "Error saving memory",
-    select_year: language === "FR" ? "Sélectionnez une année" : "Select a year"
+    select_year: language === "FR" ? "Sélectionnez une année" : "Select a year",
+    supervisor: language === "FR" ? "Superviseur" : "Supervisor", // Traduction pour le superviseur
   };
   // Récupérer les mémoires depuis Firebase
   const fetchMemories = () => {
@@ -97,6 +99,7 @@ export default function AdminMemoriesHome() {
     setDepartement('');
     setAnnee('');
     setEtagere('');
+    setSuperviseur(''); // Réinitialisation du superviseur
     setImage(null);
     setImagePreview(null);
   };
@@ -145,6 +148,7 @@ export default function AdminMemoriesHome() {
         département: departement,
         annee: parseInt(annee),
         etagere,
+        superviseur, // Ajout du superviseur dans la soumission à Firestore
         image: imageUrl,
         commentaire: [
           {
@@ -271,7 +275,7 @@ export default function AdminMemoriesHome() {
                 required
               />
             </Form.Group>
-
+            
             <Form.Group className='mb-3'>
               <Form.Label className="labelForm">{translations.defense_theme}</Form.Label>
               <Form.Control
@@ -280,6 +284,17 @@ export default function AdminMemoriesHome() {
                 value={theme}
                 onChange={(e) => setTheme(e.target.value)}
                 required
+              />
+            </Form.Group>
+
+            {/* Ajout du champ superviseur */}
+            <Form.Group className='mb-3'>
+              <Form.Label className="labelForm">{translations.supervisor}</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Dr. Nom du superviseur"
+                value={superviseur}
+                onChange={(e) => setSuperviseur(e.target.value)}
               />
             </Form.Group>
 

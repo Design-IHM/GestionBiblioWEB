@@ -1,8 +1,8 @@
-import React, { useState, useContext, useEffect} from "react";
+import React, { useState, useContext, useEffect } from "react";
 import styled from "styled-components";
 import { UserContext } from "../App";
-import { useLocation } from 'react-router-dom';
-import { FiEdit2, FiX, FiBook, FiUser, FiCalendar, FiGrid, FiBookmark, FiHardDrive } from 'react-icons/fi';
+import { useLocation, useNavigate } from 'react-router-dom'; // Ajout de useNavigate pour la redirection
+import { FiBook, FiUser, FiCalendar, FiGrid, FiBookmark, FiHardDrive } from 'react-icons/fi';
 import Sidebar from "../components1/Sidebar";
 import Navbar from "../components1/Navbar";
 import Loading from "./Loading";
@@ -12,10 +12,7 @@ import { useI18n } from "../Context/I18nContext";
 export default function MemoireParDepartement() {
     const { searchWord } = useContext(UserContext);
     const { state } = useLocation();
-    const [popupIsOpen, setPopupIsOpen] = useState(false);
-    const [selectedMemoire, setSelectedMemoire] = useState(null);
-    const [isEditing, setIsEditing] = useState(false);
-    const [editedMemoire, setEditedMemoire] = useState(null);
+    const navigate = useNavigate(); // Pour la navigation vers these_details
     const [loading, setLoading] = useState(true); // Start with loading true
     const [memoires, setMemoires] = useState([]);
     const [departement, setDepartement] = useState("");
@@ -87,87 +84,11 @@ export default function MemoireParDepartement() {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const displayedMemoires = sortedMemoires.slice(startIndex, startIndex + itemsPerPage);
 
-
-
-
-    function openPopup(memoire) {
-        console.log("Opening popup for:", memoire);
-        setSelectedMemoire(memoire);
-        setEditedMemoire({ ...memoire });
-        setIsEditing(false);
-        setPopupIsOpen(true);
-    }
-
-    function closePopup() {
-        console.log("Closing popup");
-        setPopupIsOpen(false);
-        setSelectedMemoire(null);
-        setEditedMemoire(null);
-        setIsEditing(false);
-    }
-
-    function handleEdit() {
-        setIsEditing(!isEditing);
-    }
-
-    function handleInputChange(e, field) {
-        setEditedMemoire({
-            ...editedMemoire,
-            [field]: e.target.value
-        });
-    }
-
-    const renderValue = (value) => {
-        if (value === null || value === undefined) {
-            return '';
-        }
-        if (typeof value === 'object') {
-            // Si la valeur est un objet, on le convertit en chaîne lisible
-            return JSON.stringify(value);
-        }
-        return value;
+    // Fonction pour naviguer vers la page de détails lors du clic sur une carte
+    const handleCardClick = (memoire) => {
+        console.log("Navigating to these details for:", memoire);
+        navigate(`/these-details/${memoire.matricule}`, { state: { memory: memoire } });
     };
-
-    const updateMemoire = async (e) => {
-        e.preventDefault(); // Empêcher le comportement par défaut du formulaire
-        try {
-            // Vérifier que le champ `matricule` a une valeur définie
-            if (!selectedMemoire.matricule) {
-                console.error("Le champ 'matricule' est undefined.");
-                return;
-            }
-
-            // Utiliser le champ `matricule` pour mettre à jour le document
-            setLoading(true); // Afficher l'effet de chargement
-            await firebase.firestore().collection('Memoire').doc(selectedMemoire.matricule).update(editedMemoire);
-            console.log("Mémoire mis à jour avec succès");
-
-            // Récupérer les données mises à jour depuis Firestore
-            const updatedDoc = await firebase.firestore().collection('Memoire').doc(selectedMemoire.matricule).get();
-
-            // Mettre à jour l'état local
-            setSelectedMemoire(updatedDoc.data());
-            setEditedMemoire(updatedDoc.data());
-
-            // Mettre à jour l'affichage avec les nouvelles données
-            const updatedMemoires = memoires.map(memoire =>
-                memoire.matricule === selectedMemoire.matricule ? updatedDoc.data() : memoire
-            );
-            setMemoires(updatedMemoires);
-
-            setLoading(false); // Masquer l'effet de chargement
-            closePopup();
-        } catch (error) {
-            console.error("Erreur lors de la mise à jour du mémoire:", error);
-            setLoading(false); // Masquer l'effet de chargement en cas d'erreur
-        }
-    };
-
-    useEffect(() => {
-        if (selectedMemoire) {
-            console.log("Selected Memoire:", selectedMemoire);
-        }
-    }, [selectedMemoire]);
 
     const { language } = useI18n();
 
@@ -183,13 +104,10 @@ export default function MemoireParDepartement() {
         year: language === "FR" ? "Année" : "Year",
         shelf_number: language === "FR" ? "Étagère" : "Shelf Number",
         image: language === "FR" ? "Image" : "Image",
-        edit: language === "FR" ? "Modifier" : "Edit",
-        save: language === "FR" ? "Enregistrer" : "Save",
-        close: language === "FR" ? "Fermer" : "Close",
         previous: language === "FR" ? "Précédent" : "Previous",
         next: language === "FR" ? "Suivant" : "Next",
         page: language === "FR" ? "Page" : "Page",
-        details: language === "FR" ? "Détails du Mémoire" : "Memory Details",
+        no_memories: language === "FR" ? "Aucun mémoire trouvé pour" : "No memories found for",
     };
 
     return (
@@ -216,7 +134,7 @@ export default function MemoireParDepartement() {
                           <Loading />
                         ) : displayedMemoires.length > 0 ? (
                           displayedMemoires.map((doc, index) => (
-                            <Card key={index} onClick={() => openPopup(doc)}>
+                            <Card key={index} onClick={() => handleCardClick(doc)}>
                                 <CardHeader>
                                     <ThemeTitle>
                                         <FiBookmark className="icon" />
@@ -229,10 +147,7 @@ export default function MemoireParDepartement() {
                                             <FiUser className="icon" />
                                             <span>{doc.name}</span>
                                         </InfoItem>
-                                        <InfoItem>
-                                            <FiGrid className="icon" />
-                                            <span>{doc.département}</span>
-                                        </InfoItem>
+                                     
                                         <InfoItem>
                                             <FiCalendar className="icon" />
                                             <span>{doc.annee}</span>
@@ -250,7 +165,7 @@ export default function MemoireParDepartement() {
                           ))
                         ) : (
                           <NoDataMessage>
-                              Aucun mémoire trouvé pour {departement || "ce département"}
+                              {translations.no_memories} {departement || "ce département"}
                           </NoDataMessage>
                         )}
                     </Section>
@@ -271,58 +186,6 @@ export default function MemoireParDepartement() {
                                 {translations.next}
                             </PaginationButton>
                         </PaginationContainer>
-                    )}
-
-                    {popupIsOpen && selectedMemoire && (
-                        <PopupOverlay onClick={closePopup}>
-                            <PopupContent onClick={e => e.stopPropagation()}>
-                                <CloseButton onClick={closePopup}>
-                                    <FiX />
-                                </CloseButton>
-                                <h2>{translations.details}</h2>
-                                <PopupForm onSubmit={updateMemoire}>
-                                    {Object.entries(selectedMemoire).map(([key, value]) => {
-                                        // Ignorer certaines clés si nécessaire
-                                        if (key === 'image' || key === 'commentaire') return null;
-
-                                        return (
-                                            <FormGroup key={key}>
-                                                <Label htmlFor={key}>{key.charAt(0).toUpperCase() + key.slice(1)}</Label>
-                                                {isEditing ? (
-                                                    typeof value === 'object' ? (
-                                                        <Textarea
-                                                            id={key}
-                                                            value={JSON.stringify(value, null, 2)}
-                                                            onChange={(e) => handleInputChange(e, key)}
-                                                        />
-                                                    ) : (
-                                                        <Input
-                                                            id={key}
-                                                            type="text"
-                                                            value={editedMemoire[key] || ''}
-                                                            onChange={(e) => handleInputChange(e, key)}
-                                                        />
-                                                    )
-                                                ) : (
-                                                    <p>{renderValue(value)}</p>
-                                                )}
-                                                {!isEditing && (
-                                                    <EditIcon onClick={handleEdit}>
-                                                        <FiEdit2 />
-                                                    </EditIcon>
-                                                )}
-                                            </FormGroup>
-                                        );
-                                    })}
-
-                                    <ButtonContainer>
-                                        <EditButton type="submit" disabled={loading}>
-                                            {loading ? "Enregistrement..." : isEditing ? "Enregistrer" : "Modifier"}
-                                        </EditButton>
-                                    </ButtonContainer>
-                                </PopupForm>
-                            </PopupContent>
-                        </PopupOverlay>
                     )}
                 </MainContent>
             </Container>
@@ -510,132 +373,4 @@ const PaginationButton = styled.button`
 const PageIndicator = styled.span`
   color: #4a5568;
   font-weight: 500;
-`;
-
-const PopupOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-`;
-
-const PopupContent = styled.div`
-  background: white;
-  padding: 2rem;
-  border-radius: 15px;
-  width: 90%;
-  max-width: 500px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow-y: auto;
-  max-height: 80vh;
-
-  @media (max-width: 768px) {
-    width: 100%;
-    max-width: 100%;
-    border-radius: 0;
-  }
-`;
-
-const CloseButton = styled.button`
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.5rem;
-  color: #4a5568;
-`;
-
-const PopupForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`;
-
-const FormGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  position: relative;
-`;
-
-const Label = styled.label`
-  font-size: 1rem;
-  color: #4a5568;
-`;
-
-const Input = styled.input`
-  border-radius: 5px;
-  border: 1px solid #e2e8f0;
-  width: 100%;
-  padding: 0.75rem;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-
-  &:focus {
-    outline: none;
-    border-color: chocolate;
-    box-shadow: 0 0 0 3px rgba(210, 105, 30, 0.1);
-  }
-`;
-
-const Textarea = styled.textarea`
-  border-radius: 5px;
-  border: 1px solid #e2e8f0;
-  width: 100%;
-  padding: 0.75rem;
-  font-size: 1rem;
-  min-height: 100px;
-  resize: vertical;
-  transition: all 0.2s ease;
-
-  &:focus {
-    outline: none;
-    border-color: chocolate;
-    box-shadow: 0 0 0 3px rgba(210, 105, 30, 0.1);
-  }
-`;
-
-const ButtonContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 1rem;
-`;
-
-const EditButton = styled.button`
-  background: green;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: darkgreen;
-  }
-`;
-
-const EditIcon = styled.button`
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.2rem;
-  color: #4a5568;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 `;
