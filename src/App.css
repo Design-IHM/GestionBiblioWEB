@@ -132,7 +132,7 @@ input:focus, textarea:focus, select:focus {
   margin-left: 0;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1080px) {
   .content-box {
     margin-left: 18vw;
   }

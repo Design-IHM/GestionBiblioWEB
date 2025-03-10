@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
-import login from "../assets/img/login.jpg"
-import {BookHalf} from "react-bootstrap-icons";
+import login from "../assets/img/login.jpg";
+import { BookHalf } from "react-bootstrap-icons";
+import firebase from '../metro.config';
+import bcrypt from 'bcryptjs';
 
 const validateEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -21,15 +23,30 @@ const Login = () => {
     email: "",
     password: "",
     confirmPassword: "",
+    gender: "",
   });
 
   const navigate = useNavigate();
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     if (email && password && validateEmail(email)) {
       setValidationError("");
-      navigate("/accueil");
+      const adminSnapshot = await firebase.firestore().collection('BiblioAdmin').where('email', '==', email).get();
+      if (!adminSnapshot.empty) {
+        const adminData = adminSnapshot.docs[0].data();
+        const isPasswordValid = await bcrypt.compare(password, adminData.password);
+        if (isPasswordValid) {
+          const token = "fake-jwt-token";
+          localStorage.setItem("token", token);
+          localStorage.setItem("user_id", adminSnapshot.docs[0].id); // Stocker le user_id dans le localStorage
+          navigate("/accueil");
+        } else {
+          setValidationError("Oops! Email and/or password incorrect");
+        }
+      } else {
+        setValidationError("Oops! Email and/or password incorrect");
+      }
     } else if (!validateEmail(email)) {
       setValidationError("Please enter a valid email address");
     } else {
@@ -37,11 +54,11 @@ const Login = () => {
     }
   };
 
-  const handleRegisterSubmit = (e) => {
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
-    const { name, email, password, confirmPassword } = formData;
+    const { name, email, password, confirmPassword, gender } = formData;
 
-    if (!name || !email || !password || !confirmPassword) {
+    if (!name || !email || !password || !confirmPassword || !gender) {
       setValidationError("Please fill in all the fields");
     } else if (!validateEmail(email)) {
       setValidationError("Please enter a valid email address");
@@ -49,6 +66,17 @@ const Login = () => {
       setValidationError("Password does not match");
     } else {
       setValidationError("");
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newAdminRef = await firebase.firestore().collection('BiblioAdmin').add({
+        name,
+        email,
+        password: hashedPassword,
+        gender,
+        image: null,
+        created_at: new Date(),
+        updated_at: null,
+      });
+      localStorage.setItem("user_id", newAdminRef.id); // Stocker le user_id dans le localStorage après l'inscription
       setRegistrationSuccess(true);
     }
   };
@@ -63,9 +91,7 @@ const Login = () => {
         <div className="login-overlay">
           <div className="login-container">
             <h1>
-              <BookHalf
-                className="book-icon"
-              />
+              <BookHalf className="book-icon" />
               <span className="biblio-title">BIBLIO ENSPY</span>
             </h1>
             {validationError && (
@@ -73,7 +99,7 @@ const Login = () => {
             )}
             {registrationSuccess && (
               <p className="success-message">
-              You have been successfully registered! Please log in to access the platform.
+                You have been successfully registered! Please log in to access the platform.
               </p>
             )}
             <div className="content">
@@ -91,7 +117,7 @@ const Login = () => {
                           id="email"
                           name="email"
                           value={email}
-                          style={{width: "300px"}}
+                          style={{ width: "300px" }}
                           onChange={(e) => setEmail(e.target.value)}
                           aria-required="true"
                         />
@@ -107,7 +133,7 @@ const Login = () => {
                           id="password"
                           name="password"
                           value={password}
-                          style={{width: "300px"}}
+                          style={{ width: "300px" }}
                           onChange={(e) => setPassword(e.target.value)}
                           aria-required="true"
                         />
@@ -128,7 +154,7 @@ const Login = () => {
                           id="name"
                           name="name"
                           value={formData.name}
-                          style={{width: "300px"}}
+                          style={{ width: "300px" }}
                           onChange={handleRegisterChange}
                           aria-required="true"
                         />
@@ -143,7 +169,7 @@ const Login = () => {
                           id="email"
                           name="email"
                           value={formData.email}
-                          style={{width: "300px"}}
+                          style={{ width: "300px" }}
                           onChange={handleRegisterChange}
                           aria-required="true"
                         />
@@ -158,7 +184,7 @@ const Login = () => {
                           id="password"
                           name="password"
                           value={formData.password}
-                          style={{width: "300px"}}
+                          style={{ width: "300px" }}
                           onChange={handleRegisterChange}
                           aria-required="true"
                         />
@@ -173,10 +199,27 @@ const Login = () => {
                           id="confirmPassword"
                           name="confirmPassword"
                           value={formData.confirmPassword}
-                          style={{width: "300px"}}
+                          style={{ width: "300px" }}
                           onChange={handleRegisterChange}
                           aria-required="true"
                         />
+                      </div>
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="gender">Gender</label>
+                      <div className="input-wrapper">
+                        <select
+                          id="gender"
+                          name="gender"
+                          value={formData.gender}
+                          style={{ width: "300px" }}
+                          onChange={handleRegisterChange}
+                          aria-required="true"
+                        >
+                          <option value="">Select your gender</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                        </select>
                       </div>
                     </div>
                     <button type="submit" className="login-button">
@@ -196,13 +239,21 @@ const Login = () => {
                     ? "Don't have an account? Register here."
                     : "Already have an account? Login here."}
                 </button>
+
+                {isLogin && (
+                <button
+                  className="link-button"
+                  onClick={() => {
+                    setIsLogin(!isLogin);
+                    setValidationError("");
+                    setRegistrationSuccess(false);
+                  }}
+                > Forget password ?
+                </button>
+                )}
               </div>
 
-              <img
-                src={login}
-                alt="login"
-                className="login-img"
-              />
+              <img src={login} alt="login" className="login-img" />
             </div>
           </div>
         </div>

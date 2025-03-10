@@ -46,32 +46,56 @@ export default function CatalogueMemoire() {
 
   const ref = firebase.firestore().collection("Memoire");
 
+  const navigateToDepartment = (departmentName) => {
+    // Filter the data for just this department
+    const departmentMemories = data.filter(item => item.département === departmentName);
+
+    // Navigate to MemoireParDepartement with the filtered data
+    navigate("/memoireParDepartement", {
+      state: {
+        memories: departmentMemories,
+        departement: departmentName
+      }
+    });
+  };
+
   const getData = useCallback(() => {
-    
+    setLoader(false);
+
     if (departement) {
-      ref.where("département", "==", departement).onSnapshot((querySnapshot) => {
-        const items = [];
-        querySnapshot.forEach((doc) => items.push(doc.data()));
-        setData(items);
-        console.log("Mémoire récupérées :", items);
-        setLoader(true);
-      });
+      ref.where("département", "==", departement)
+        .get()
+        .then((querySnapshot) => {
+          const items = [];
+          querySnapshot.forEach((doc) => items.push(doc.data()));
+          setData(items);
+          console.log("Mémoire récupérées :", items);
+          setLoader(true);
+        })
+        .catch((error) => {
+          console.error("Error getting documents:", error);
+          setLoader(true);
+        });
     } else {
-      ref.onSnapshot((querySnapshot) => {
-        const items = [];
-        querySnapshot.forEach((doc) => items.push(doc.data()));
-        setData(items);
-        console.log("Mémories récupérées :", items);
-        setLoader(true);
-      });
+      ref.get()
+        .then((querySnapshot) => {
+          const items = [];
+          querySnapshot.forEach((doc) => items.push(doc.data()));
+          setData(items);
+          console.log("Mémories récupérées :", items);
+          setLoader(true);
+        })
+        .catch((error) => {
+          console.error("Error getting documents:", error);
+          setLoader(true);
+        });
     }
   }, [ref, departement]);
 
   useEffect(() => {
     console.log("Département reçu :", departement);
-
     getData();
-  }, [getData, departement]);
+  }, [getData]);
 
   function openModal(e) {
     setMatricule(e.matricule);
@@ -104,9 +128,6 @@ export default function CatalogueMemoire() {
     setIsOpen(false);
   };
 
- 
-
-console.log("Département reçu :", departement); // Ajoute ce log pour vérifier
 
   return (
     <div className="content-box">
@@ -137,7 +158,14 @@ console.log("Département reçu :", departement); // Ajoute ce log pour vérifie
                     <CardContent>
                       <ThemeTitle>{doc.theme}</ThemeTitle>
                       <AuthorName>{doc.name}</AuthorName>
-                      <Department>Département : {doc.département}</Department>
+                      <Department
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent the Card's onClick from firing
+                          navigateToDepartment(doc.département);
+                        }}
+                      >
+                        Département : {doc.département}
+                      </Department>
                       <Year>Année : {doc.annee}</Year>
                     </CardContent>
                     <CardImage>
@@ -282,6 +310,11 @@ const Department = styled.h6`
   color: black;
   text-align: center;
   margin-top: 0.5rem;
+  cursor: pointer;
+  text-decoration: underline;
+  &:hover {
+      color: #0056b3;
+  }
 `;
 
 const Year = styled.h6`

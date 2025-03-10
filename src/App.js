@@ -36,6 +36,7 @@ import DepartementsList from "./Component Improvements/AdminBooksHome";
 import MemoireParDepartement from "./components1/MemoireParDepartement";
 import AboutPage from "./components1/AboutPage";
 import Dashboard from "./components1/DashBoard";
+import ProtectedRoute from "./Component Improvements/ProtectedRoute"; // Import the ProtectedRoute component
 import BookDetails from "./components1/BookDetails";
 import Modal from "react-modal";
 
@@ -73,8 +74,6 @@ export default function App() {
     );
   }, []);
 
-  Modal.setAppElement('#root'); // Ensure you set the app element for accessibility
-
   return (
     <>
       <UserContext.Provider
@@ -110,38 +109,34 @@ export default function App() {
                   path="/registrationValidation"
                   element={<RegistrationValidation />}
                 />
-                <Route path="/gestmemoire" element={<AdminMemoriesHome />} />
-                <Route path="/AdminBooks" element={<DepartementsList />} />
-                <Route path="/profil" element={<Profil />} />
-                <Route path="/accueil" element={<Accueil />} />
-                <Route path="/listeEtudiant" element={<ListeEtudiants />} />
-                <Route path="/ajouterDoc" element={<AjoutDoc />} />
-                <Route path="/ajoutermémoire" element={<Ajoutermémoire />} />
-                <Route path="/emprunts" element={<Emprunts />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-
-                <Route
-                  path="/listeReservation"
-                  element={<ListeReservations />}
-                />
-                <Route path="/catalogue" element={<Catalogue />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/sendMessage" element={<SendMess />} />
-                <Route path="/viewMessage" element={<ViewMess />} />
-                <Route path="/archives" element={<Archives />} />
-                <Route path="/discuss" element={<Discussion />} />
-                <Route path="/logoutPage" element={<LogoutPage />} />
-                <Route path="/pagenation" element={<Pagenation />} />
-                <Route path="/book-details/:id" element={<BookDetails />} />
-                <Route
-                  path="/catalogueMemoire"
-                  element={<CatalogueMemoire/>}
-                />
-                <Route
-                  path="/departementMemoriesBtn"
-                  element={<DepartementMemoriesBtn />}
-                />
-
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/gestlivre" element={<Cat />} />
+                  <Route path="/departement" element={<Dept />} />
+                  <Route path="/departementMem" element={<AdminMemoriesHome />} />
+                  <Route path="/memoireParDepartement" element={<MemoireParDepartement />} />
+                  <Route path="/gestmemoire" element={<AdminMemoriesHome />} />
+                  <Route path="/AdminBooks" element={<DepartementsList />} />
+                  <Route path="/profil" element={<Profil />} />
+                  <Route path="/accueil" element={<Accueil />} />
+                  <Route path="/listeEtudiant" element={<ListeEtudiants />} />
+                  <Route path="/ajouterDoc" element={<AjoutDoc />} />
+                  <Route path="/ajoutermémoire" element={<Ajoutermémoire />} />
+                  <Route path="/emprunts" element={<Emprunts />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/listeReservation" element={<ListeReservations />} />
+                  <Route path="/catalogue" element={<Catalogue />} />
+                  <Route path="/messages" element={<Messages />} />
+                  <Route path="/sendMessage" element={<SendMess />} />
+                  <Route path="/viewMessage" element={<ViewMess />} />
+                  <Route path="/archives" element={<Archives />} />
+                  <Route path="/discuss" element={<Discussion />} />
+                  <Route path="/logoutPage" element={<LogoutPage />} />
+                  <Route path="/pagenation" element={<Pagenation />} />
+                  <Route path="/catalogueMemoire" element={<CatalogueMemoire />} />
+                  <Route path="/departementMemoriesBtn" element={<DepartementMemoriesBtn />} />
+                  <Route path="/book-details/:id" element={<BookDetails />} />
+                  <Route path="/aboutUs" element={<AboutPage />} />
+                </Route>
                 <Route path="*" element={<NoPage />} />
                 <Route path="/aboutUs" element={<AboutPage />} />
               </Routes>

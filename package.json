@@ -12,6 +12,8 @@
     "@testing-library/user-event": "^13.5.0",
     "animate.css": "^4.1.1",
     "axios": "^1.3.4",
+    "bcryptjs": "^3.0.2",
+    "bibliotheque": "file:",
     "bootstrap": "^5.2.2",
     "firebase": "^9.15.0",
     "framer-motion": "^12.0.5",

@@ -13,7 +13,11 @@ const Container = styled.div`
   flex-direction: column;
   min-height: 100vh;
   background-color: #f9f9f9;
-  margin-left: 18vw;
+  margin-left: 0;
+
+  @media (min-width: 1081px) {
+    margin-left: 18vw;
+  }
 `;
 
 const ContentWrapper = styled.div`
