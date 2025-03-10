@@ -316,94 +316,42 @@ const Section = styled.section`
     }
   }
 
-  @media screen and (min-width: 100px) and (max-width: 1080px) {
-    position: initial;
-    width: 100%;
-    height: max-content;
-    padding: 1rem;
-    .top {
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 1rem;
-
-      .toggle {
-        display: flex;
-        flex-direction: row;
-        gap: 0.5rem;
-        color: #121212;
-        align-items: center;
-        z-index: 99;
-
-        .menu {
-          color: chocolate;
-          font-size: 1.2rem;
-        }
-      }
-
-      .brandSide a {
-        gap: 1rem;
-
-        svg {
-          font-size: 2rem;
-        }
-
-        span {
-          font-size: 1rem;
-        }
-      }
-    }
-
-    .top > .links,
-    .logout {
-      display: none;
-    }
+  @media screen and (min-width: 100px) and (max-width: 900px) {
+    display: none;
   }
 `;
 
 const ResponsiveNav = styled.div`
-  position: fixed;
-  right: -10vw;
-  top: 0;
-  z-index: 10000;
-  background-color: ${props => props.darkMode ? "#111827" : "rgb(231, 218, 193)"};
-  height: 100vh;
-  width: ${({ state }) => (state ? "60vh" : "0%")};
-  transition: 0.4s ease-in-out;
-  display: flex;
-  opacity: 1;
-  padding: 1rem;
   .responsive__links {
-    ul {
-      list-style-type: none;
+    display: none;
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff;
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding-top: 1rem;
+    padding-left: 2rem;
+
+    .links {
       display: flex;
-      flex-direction: column;
       gap: 1rem;
-      margin-top: 3rem;
-      li {
-        border-radius: 0.6rem;
-        &:hover {
-          background-color: ${props => props.darkMode ? "#4b5563" : "#fe7a3f"};
-          .linkin {
-            color: ${props => props.darkMode ? "chocolate" : "white"};
-            font-weight: bold;
-          }
-        }
-        .linkin {
-          padding: 0.6rem 1rem;
-          text-decoration: none;
-          display: flex;
-          gap: 1rem;
-          color: ${props => props.darkMode ? "white" : "black"};
-        }
-      }
-      .active {
-        background-color: ${props => props.darkMode ? "#4b5563" : "#ececec"};
-        .linkin {
-          color: chocolate;
-          border-radius: 0.6rem;
-        }
+      flex-direction: column;
+
+      ul {
+        list-style-type: none;
       }
     }
+  }
+
+  .show {
+    display: block;
+  }
+
+  @media screen and (min-width: 100px) and (max-width: 900px) {
+    position: absolute;
+    z-index: 1000;
+    width: 100%;
+    display: none;
   }
 `;

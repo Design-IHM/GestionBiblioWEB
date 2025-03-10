@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Form } from "react-bootstrap";
+import { Form, OverlayTrigger, Tooltip } from "react-bootstrap";
 import ReactJsAlert from "reactjs-alert";
 import firebase from '../metro.config';
 import { storage } from "../firebase-config";
@@ -52,8 +52,8 @@ export default function Profil() {
         if (e.target.files[0]) {
             const selectedImage = e.target.files[0];
             setImage(selectedImage);
-            
-            // Créer une URL locale pour l'aperçu de l'image
+
+            // Create a local URL for the image preview
             const localImageUrl = URL.createObjectURL(selectedImage);
             setUrl(localImageUrl);
         }
@@ -61,33 +61,33 @@ export default function Profil() {
 
     const uploadImageToFirebase = async () => {
         if (!image) return null;
-        
+
         setIsImageUploading(true);
         try {
-            // Générer un nom unique pour l'image
+            // Generate a unique name for the image
             const imageName = image.name + v4();
             const imageRef = ref(storage, `images/${imageName}`);
-            
-            // Télécharger l'image vers Firebase Storage
+
+            // Upload the image to Firebase Storage
             await uploadBytes(imageRef, image);
-            
-            // Obtenir l'URL de téléchargement
+
+            // Get the download URL
             const downloadUrl = await getDownloadURL(imageRef);
-            
-            // Mettre à jour l'URL d'image dans l'état
+
+            // Update the image URL in the state
             setUrl(downloadUrl);
             setIsImageUploading(false);
-            
+
             return downloadUrl;
         } catch (error) {
-            console.error("Erreur lors du téléchargement de l'image:", error);
+            console.error("Error uploading image:", error);
             setIsImageUploading(false);
-            
-            // Afficher une notification d'erreur
+
+            // Display an error notification
             setStatus(true);
             setType("error");
             setTitle(language === "FR" ? "Erreur lors du téléchargement de l'image" : "Error uploading image");
-            
+
             return null;
         }
     };
@@ -98,20 +98,20 @@ export default function Profil() {
 
     const updateAdmin = async (e) => {
         e.preventDefault();
-        
+
         try {
             let imageUrl = url;
-            
-            // Si une nouvelle image a été sélectionnée, la télécharger d'abord
+
+            // If a new image has been selected, upload it first
             if (image) {
                 setIsImageUploading(true);
                 imageUrl = await uploadImageToFirebase();
                 if (!imageUrl) {
-                    return; // Arrêter la mise à jour si l'upload a échoué
+                    return; // Stop the update if the upload failed
                 }
             }
-            
-            // Mettre à jour le document dans Firestore
+
+            // Update the document in Firestore
             if (user_id) {
                 await firebase.firestore().collection('BiblioAdmin').doc(user_id).update({
                     name,
@@ -120,18 +120,18 @@ export default function Profil() {
                     image: imageUrl,
                     updated_at: new Date()
                 });
-                
-                // Notification de succès
+
+                // Success notification
                 setStatus(true);
                 setType("success");
                 setTitle(language === "FR" ? "Informations mises à jour avec succès" : "Information updated successfully");
                 setIsEditing(false);
-                setImage(null); // Réinitialiser l'état de l'image après la mise à jour
+                setImage(null); // Reset the image state after the update
             }
         } catch (error) {
-            console.error("Erreur lors de la mise à jour du profil:", error);
-            
-            // Notification d'erreur
+            console.error("Error updating profile:", error);
+
+            // Error notification
             setStatus(true);
             setType("error");
             setTitle(language === "FR" ? "Erreur lors de la mise à jour" : "Error updating profile");
@@ -147,12 +147,21 @@ export default function Profil() {
         save: language === "FR" ? "Enregistrer" : "Save",
         ann: language === "FR" ? "Annuler" : "Close",
         select: language === "FR" ? "Selectionner votre genre" : "Select your gender",
-        male: language === "FR" ? "Homme" : "male",
+        male: language === "FR" ? "Homme" : "Male",
         femelle: language === "FR" ? "Femme" : "Female",
         modify: language === "FR" ? "modifier" : "modify",
         uploading: language === "FR" ? "Téléchargement..." : "Uploading...",
-        imageSelected: language === "FR" ? "Image sélectionnée" : "Image selected"
+        imageSelected: language === "FR" ? "Image sélectionnée" : "Image selected",
+        changePassword: language === "FR" ? "Changer le mot de passe" : "Change Password"
     };
+
+    const passwordTooltip = (
+        <Tooltip id="password-tooltip">
+            {language === "FR"
+                ? "Le mot de passe doit contenir au moins 8 caractères, dont des majuscules, des minuscules, des chiffres et des caractères spéciaux."
+                : "Password must contain at least 8 characters, including uppercase, lowercase, numbers, and special characters."}
+        </Tooltip>
+    );
 
     return (
         <div className="content-box">
@@ -168,9 +177,9 @@ export default function Profil() {
                                     <UploadOverlay onClick={triggerFileInput}>
                                         <FaCamera size={24} />
                                         <span>
-                                            {isImageUploading 
-                                                ? translations.uploading 
-                                                : image 
+                                            {isImageUploading
+                                                ? translations.uploading
+                                                : image
                                                     ? translations.imageSelected
                                                     : translations.modify}
                                         </span>
@@ -241,9 +250,9 @@ export default function Profil() {
                             </FormGrid>
 
                             <ButtonGroup>
-                                <Button 
-                                    type="submit" 
-                                    $primary 
+                                <Button
+                                    type="submit"
+                                    $primary
                                     style={{ backgroundColor: "chocolate" }}
                                     disabled={isImageUploading}
                                 >
@@ -252,6 +261,11 @@ export default function Profil() {
                                 <Button type="button" onClick={() => navigate("/")}>
                                     {translations.ann}
                                 </Button>
+                                <OverlayTrigger placement="top" overlay={passwordTooltip}>
+                                    <Button type="button" onClick={() => navigate("/change-password")}>
+                                        {translations.changePassword}
+                                    </Button>
+                                </OverlayTrigger>
                             </ButtonGroup>
                         </Form>
                     </FormContainer>
@@ -381,7 +395,7 @@ const EditIcon = styled.div`
     cursor: pointer;
     margin-left: 10px;
     color: chocolate;
-    
+
     &:hover {
         color: #a0522d;
     }

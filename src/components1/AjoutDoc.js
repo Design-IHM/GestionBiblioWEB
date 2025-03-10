@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Button as BootstrapButton, Form, Row, Col, Container, Card } from "react-bootstrap";
 import ReactJsAlert from "reactjs-alert";
 import "./AjoutDoc.css";
@@ -24,8 +24,24 @@ export default function AjoutDoc(props) {
     const formRef = useRef();
     const navigate = useNavigate();
     const { language } = useI18n();
+    const [formError, setFormError] = useState(false);
+    
+    // Valider le formulaire avant de soumettre
+    const validateForm = () => {
+        if (!name || !cathegorie || !etagere || !salle || !image) {
+            setFormError(true);
+            return false;
+        }
+        setFormError(false);
+        return true;
+    };
 
     const res = async function () {
+        if (!validateForm()) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+        
         await firebase.firestore().collection('BiblioInformatique').doc(name).set({
             name: name,
             exemplaire: parseInt(exemplaire),
@@ -59,6 +75,7 @@ export default function AjoutDoc(props) {
         setExemplaire(1);
         setImage(null);
         setSalle('');
+        setFormError(false);
     };
 
     const handleFileChange = (e) => {
@@ -85,7 +102,13 @@ export default function AjoutDoc(props) {
         cancel: language === "FR" ? "Annuler" : "Cancel",
         document_added: language === "FR" ? "Document ajouté avec succès" : "Document added successfully",
         imgBook: language === "FR" ? "LIVRE": "BOOK",
-        imgTheses: language === "FR"? "MEMOIRE": "THESES"
+        imgTheses: language === "FR"? "MEMOIRE": "THESES",
+        choose_file: language === "FR" ? "Choisir un fichier" : "Choose a file",
+        required_field: language === "FR" ? "Champ obligatoire" : "Required field",
+        fill_all_fields: language === "FR" ? "Veuillez remplir tous les champs obligatoires" : "Please fill in all required fields",
+        description_notice: language === "FR" 
+            ? "Merci de remplir soigneusement la description. Elle est utilisée pour faire des recommandations pertinentes aux utilisateurs."
+            : "Please fill in the description carefully. It is used to make relevant recommendations to users."
     };
 
     return (
@@ -96,6 +119,9 @@ export default function AjoutDoc(props) {
                 </Col>
                 <Col md={10} className="bg-white">
                     <Navbar />
+                    {formError && (
+                        <ErrorMessage>{translations.fill_all_fields}</ErrorMessage>
+                    )}
                     <Row className="justify-content-center mt-4">
                         <Col md={3} className="mb-3">
                             <Card
@@ -124,10 +150,12 @@ export default function AjoutDoc(props) {
                         </Col>
                     </Row>
                     <FormContainer>
-                        <Form ref={formRef} onSubmit={res}>
+                        <Form ref={formRef} onSubmit={(e) => { e.preventDefault(); res(); }}>
                             <FormGrid>
                                 <FormGroup>
-                                    <Label>{translations.book_name}</Label>
+                                    <Label>
+                                        <RequiredAsterisk>*</RequiredAsterisk> {translations.book_name}
+                                    </Label>
                                     <StyledInput
                                         type="text"
                                         placeholder={translations.book_name}
@@ -138,7 +166,9 @@ export default function AjoutDoc(props) {
                                 </FormGroup>
 
                                 <FormGroup>
-                                    <Label>{translations.number_of_copies}</Label>
+                                    <Label>
+                                        <RequiredAsterisk>*</RequiredAsterisk> {translations.number_of_copies}
+                                    </Label>
                                     <StyledInput
                                         type="number"
                                         placeholder={translations.number_of_copies}
@@ -149,31 +179,35 @@ export default function AjoutDoc(props) {
                                 </FormGroup>
 
                                 <FormGroup>
-                                    <Label>{translations.department}</Label>
+                                    <Label>
+                                        <RequiredAsterisk>*</RequiredAsterisk> {translations.department}
+                                    </Label>
                                     <StyledSelect
                                         value={cathegorie}
                                         onChange={(e) => setCathegorie(e.target.value)}
                                         required
                                     >
-
+                                        <option value=''></option>
                                         <option value='Mathematique'>MSP</option>
                                         <option value='Genie Informatique'>Génie informatique</option>
                                         <option value="Genie Civil">Génie Civil</option>
                                         <option value='Genie Electrique'>Génie Électrique</option>
                                         <option value='Genie Mecanique'>Génie Mécanique/Industriel</option>
                                         <option value='Genie Telecom'>Génie Télécom</option>
-
                                     </StyledSelect>
                                 </FormGroup>
 
                                 <FormGroup>
-                                    <Label>{translations.room_number}</Label>
+                                    <Label>
+                                        <RequiredAsterisk>*</RequiredAsterisk> {translations.room_number}
+                                    </Label>
                                     <StyledSelect
                                         value={salle}
                                         onChange={(e) => setSalle(e.target.value)}
                                         required
                                     >
-                                        <option value='1' selected>1</option>
+                                        <option value=''></option>
+                                        <option value='1'>1</option>
                                         <option value='2'>2</option>
                                         <option value='3'>3</option>
                                         <option value='4'>4</option>
@@ -181,7 +215,9 @@ export default function AjoutDoc(props) {
                                 </FormGroup>
 
                                 <FormGroup>
-                                    <Label>{translations.shelf_number}</Label>
+                                    <Label>
+                                        <RequiredAsterisk>*</RequiredAsterisk> {translations.shelf_number}
+                                    </Label>
                                     <StyledInput
                                         type="text"
                                         placeholder={translations.shelf_number}
@@ -192,7 +228,9 @@ export default function AjoutDoc(props) {
                                 </FormGroup>
 
                                 <FileInputContainer>
-                                    <Label className="text-left">{translations.image_link}</Label>
+                                    <Label className="text-left">
+                                        <RequiredAsterisk>*</RequiredAsterisk> {translations.image_link}
+                                    </Label>
                                     {/* Hidden file input */}
                                     <HiddenFileInput
                                         type="file"
@@ -208,6 +246,7 @@ export default function AjoutDoc(props) {
 
                                 <FormGroup>
                                     <Label>{translations.document_description}</Label>
+                                    <DescriptionNotice>{translations.description_notice}</DescriptionNotice>
                                     <StyledTextarea
                                         rows={3}
                                         placeholder={translations.document_description}
@@ -217,7 +256,7 @@ export default function AjoutDoc(props) {
                                 </FormGroup>
                             </FormGrid>
                             <ButtonGroup>
-                                <StyledButton type="button" onClick={res} $primary>
+                                <StyledButton type="submit" $primary>
                                     {translations.add}
                                 </StyledButton>
                                 <StyledButton type="button" onClick={resetForm}>
@@ -241,6 +280,30 @@ export default function AjoutDoc(props) {
 }
 
 // Styled components
+const RequiredAsterisk = styled.span`
+  color: red;
+  margin-right: 4px;
+  font-size: 1.2em;
+`;
+
+const ErrorMessage = styled.div`
+  background-color: rgba(255, 0, 0, 0.1);
+  color: red;
+  text-align: center;
+  padding: 10px;
+  margin: 15px auto;
+  border-radius: 5px;
+  max-width: 800px;
+  font-weight: bold;
+`;
+
+const DescriptionNotice = styled.p`
+  color: red;
+  font-size: 0.85em;
+  margin-bottom: 8px;
+  font-style: italic;
+`;
+
 const FileInputContainer = styled.div`
   display: flex;
   flex-direction: column;
