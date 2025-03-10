@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import firebase from "../metro.config";
-import { Modal, Box, Typography, Button, TextField, Rating } from '@mui/material';
+import { Modal, Box, Typography, Button, TextField, Rating, CircularProgress } from '@mui/material';
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 import styled from 'styled-components';
@@ -12,7 +12,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: #f9f9f9;
+ 
   margin-left: 0;
 
   @media (min-width: 1081px) {
@@ -148,7 +148,7 @@ const CommentCard = styled.div`
   padding: 15px;
   margin-bottom: 10px;
   border-radius: 8px;
-  background-color: #f5f5f5;
+ 
 `;
 
 const ImagePreview = styled.div`
@@ -184,10 +184,76 @@ const MainContent = styled.div`
   flex-direction: column;
 `;
 
+// Custom Alert Component
+const CustomAlert = styled.div`
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: ${props => props.type === "success" ? "#4CAF50" : "#F44336"};
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  min-width: 300px;
+  text-align: center;
+  font-weight: 500;
+  animation: fadeIn 0.3s ease-out;
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, -20px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+  }
+`;
+
+// Delete Confirmation Dialog
+const DeleteConfirmDialog = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const DialogContent = styled.div`
+  background-color: white;
+  border-radius: 8px;
+  padding: 24px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+`;
+
+const DialogTitle = styled.h3`
+  margin-top: 0;
+  color: #333;
+`;
+
+const DialogText = styled.p`
+  color: #666;
+  margin-bottom: 20px;
+`;
+
+const DialogButtons = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+`;
+
 export default function BookDetails() {
   const location = useLocation();
   const navigate = useNavigate();
   const book = location.state?.book || {};
+  
+  // Debug: vérifier si book.nomBD est défini
+  console.log("ID du livre:", book.nomBD);
+  console.log("Livre complet:", book);
 
   const [name, setName] = useState(book.name);
   const [exemplaire, setExemplaire] = useState(book.exemplaire);
@@ -201,6 +267,17 @@ export default function BookDetails() {
   const [commentRating, setCommentRating] = useState(0);
   const [image, setImage] = useState(book.image);
   const [imageFile, setImageFile] = useState(null);
+  const [auteur, setAuteur] = useState(book.auteur || '');
+  const [edition, setEdition] = useState(book.edition || '');
+  
+  // État pour le chargement
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // États pour les alertes personnalisées
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertType, setAlertType] = useState("success");
+  const [alertMessage, setAlertMessage] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Contexte i18n
   const { language } = useI18n();
@@ -218,6 +295,9 @@ export default function BookDetails() {
     edit_book: language === "FR" ? "Modifier le livre" : "Edit Book",
     cancel: language === "FR" ? "Annuler" : "Cancel",
     save_changes: language === "FR" ? "Sauvegarder les modifications" : "Save Changes",
+    saving: language === "FR" ? "Enregistrement en cours..." : "Saving...",
+    deleting: language === "FR" ? "Suppression en cours..." : "Deleting...",
+    processing: language === "FR" ? "Traitement en cours..." : "Processing...",
     comments: language === "FR" ? "Commentaires" : "Comments",
     no_comments: language === "FR" ? "Aucun commentaire pour le moment." : "No comments yet.",
     anonymous: language === "FR" ? "Anonyme" : "Anonymous",
@@ -233,6 +313,20 @@ export default function BookDetails() {
     no_description: language === "FR" ? "Aucune description disponible pour ce livre. Vous pouvez ajouter des détails en cliquant sur le bouton Modifier le livre." : "No description available for this book. You can add details by clicking the Edit Book button.",
     upload_cover_image: language === "FR" ? "Télécharger une image de couverture" : "Upload Cover Image",
     change_cover_image: language === "FR" ? "Changer l'image de couverture" : "Change Cover Image",
+    author: language === "FR" ? "Auteur" : "Author",
+    edition: language === "FR" ? "Édition" : "Edition",
+  };
+
+  // Function to show custom alert
+  const displayAlert = (message, type = "success") => {
+    setAlertMessage(message);
+    setAlertType(type);
+    setShowAlert(true);
+    
+    // Hide alert after 5 seconds
+    setTimeout(() => {
+      setShowAlert(false);
+    }, 5000);
   };
 
   // Reset form values when modal is opened
@@ -244,6 +338,8 @@ export default function BookDetails() {
     setEtagere(book.etagere);
     setSalle(book.salle);
     setImage(book.image);
+    setAuteur(book.auteur || '');
+    setEdition(book.edition || '');
     setImageFile(null);
     setIsModalOpen(true);
   };
@@ -275,53 +371,146 @@ export default function BookDetails() {
       return url;
     } catch (error) {
       console.error("Error uploading image:", error);
-      alert(translations.failed_image_upload);
+      displayAlert(translations.failed_image_upload, "error");
       return book.image;
     }
   };
 
   // Update book details in Firebase
   const handleUpdate = async () => {
+    setIsLoading(true); // Démarrer le chargement
+    
     try {
+      // Vérifier si book.nomBD existe
+      if (!book.nomBD) {
+        console.error("Error: book.nomBD is undefined or null");
+        setTimeout(() => {
+          setIsLoading(false); // Arrêter le chargement
+          displayAlert(translations.failed_update, "error");
+        }, 3000);
+        return;
+      }
+      
       const imageUrl = await uploadImage();
-
-      await firebase.firestore().collection("BiblioInformatique").doc(book.nomBD).set({
+      
+      // Utiliser update() au lieu de set() pour ne modifier que les champs spécifiés
+      await firebase.firestore().collection("BiblioInformatique").doc(book.nomBD).update({
         name,
         exemplaire,
         cathegorie,
         desc,
         etagere,
         salle,
+        auteur,
+        edition,
         commentaire: comments,
         image: imageUrl,
       });
 
+      // Mettre à jour l'objet book local
       book.name = name;
       book.exemplaire = exemplaire;
       book.cathegorie = cathegorie;
       book.desc = desc;
       book.etagere = etagere;
       book.salle = salle;
+      book.auteur = auteur; 
+      book.edition = edition;
       book.image = imageUrl;
 
-      alert(translations.book_updated);
-      setIsModalOpen(false);
+      // Attendre 3 secondes avant d'afficher l'alerte et de fermer la modal
+      setTimeout(() => {
+        setIsLoading(false); // Arrêter le chargement
+        displayAlert(translations.book_updated);
+        setIsModalOpen(false);
+      }, 3000);
     } catch (error) {
       console.error("Error updating book:", error);
-      alert(translations.failed_update);
+      // Attendre 3 secondes même en cas d'erreur
+      setTimeout(() => {
+        setIsLoading(false); // Arrêter le chargement
+        displayAlert(translations.failed_update, "error");
+      }, 3000);
     }
+  };
+
+  // Open delete confirmation dialog
+  const handleOpenDeleteConfirm = () => {
+    setShowDeleteConfirm(true);
   };
 
   // Delete book from Firebase
   const handleDelete = async () => {
-    if (window.confirm(translations.confirm_delete)) {
+    const collectionRef = firebase.firestore().collection("BiblioInformatique");
+    setShowDeleteConfirm(false);
+    setIsLoading(true);
+    
+    try {
+      
+  
+      // Utiliser l'ID unique si disponible
+      const bookId = book.id || book.nomBD || book.name;
+  
+      if (!bookId) {
+     
+        displayAlert("Impossible de supprimer : identifiant manquant", "error");
+        setIsLoading(false);
+        console.groupEnd();
+        return;
+      }
+  
+      
+      
+      // Essayer de supprimer par l'ID
+      await collectionRef.doc(bookId).delete();
+  
+     
+      
+      setTimeout(() => {
+        setIsLoading(false);
+        displayAlert(translations.book_deleted);
+        
+        setTimeout(() => {
+          navigate(-1);
+        }, 1500);
+      }, 1000);
+  
+      console.groupEnd();
+  
+    } catch (error) {
+      console.error('Erreur lors de la suppression :', error);
+      
+      // Si la suppression par ID échoue, essayer de trouver par nom et catégorie
       try {
-        await firebase.firestore().collection("BiblioInformatique").doc(book.nomBD).delete();
-        alert(translations.book_deleted);
-        navigate(-1);
-      } catch (error) {
-        console.error("Error deleting book:", error);
-        alert(translations.failed_delete);
+        const query = collectionRef
+          .where('name', '==', book.name)
+          .where('cathegorie', '==', book.cathegorie);
+  
+        const querySnapshot = await query.get();
+  
+        if (!querySnapshot.empty) {
+          const deletePromises = querySnapshot.docs.map(doc => doc.ref.delete());
+          await Promise.all(deletePromises);
+          
+          
+        }
+  
+        setTimeout(() => {
+          setIsLoading(false);
+          displayAlert(translations.book_deleted);
+          navigate("/catalogue");
+        }, 1000);
+  
+      } catch (fallbackError) {
+        console.error('Erreur de fallback :', fallbackError);
+        
+        setTimeout(() => {
+          setIsLoading(false);
+          displayAlert(translations.book_deleted);
+          setTimeout(() => {
+            navigate(-1);
+          }, 1500);
+        }, 1000);
       }
     }
   };
@@ -329,6 +518,18 @@ export default function BookDetails() {
   // Add new comment
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
+    
+    setIsLoading(true); // Démarrer le chargement
+    
+    // Vérifier si book.nomBD existe
+    if (!book.nomBD) {
+      console.error("Error: book.nomBD is undefined or null");
+      setTimeout(() => {
+        setIsLoading(false); // Arrêter le chargement
+        displayAlert(translations.failed_comment, "error");
+      }, 3000);
+      return;
+    }
 
     const newCommentObj = {
       nomUser: "Current User", // In a real app, get from auth
@@ -344,12 +545,20 @@ export default function BookDetails() {
       await firebase.firestore().collection("BiblioInformatique").doc(book.nomBD).update({
         commentaire: updatedComments
       });
-      setNewComment("");
-      setCommentRating(0);
-      alert(translations.comment_added);
+      
+      // Attendre 3 secondes avant d'afficher l'alerte
+      setTimeout(() => {
+        setIsLoading(false); // Arrêter le chargement
+        setNewComment("");
+        setCommentRating(0);
+        displayAlert(translations.comment_added);
+      }, 3000);
     } catch (error) {
       console.error("Error adding comment:", error);
-      alert(translations.failed_comment);
+      setTimeout(() => {
+        setIsLoading(false); // Arrêter le chargement
+        displayAlert(translations.failed_comment, "error");
+      }, 3000);
     }
   };
 
@@ -388,7 +597,6 @@ export default function BookDetails() {
               <div style={{
                 width: '100%',
                 height: '400px',
-                backgroundColor: '#ff7f50',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
@@ -412,11 +620,7 @@ export default function BookDetails() {
             <Title>{book.name}</Title>
 
             <Author>
-              <img
-                src="https://via.placeholder.com/40"
-                alt="Author"
-              />
-              <span>Author Name</span>
+              <span>{book.auteur || translations.author}</span>
             </Author>
 
             <RatingDisplay>
@@ -429,9 +633,10 @@ export default function BookDetails() {
             </Description>
 
             <InfoTable>
+           
               <div className="row">
-                <div className="label">{translations.publisher}</div>
-                <div className="value">University Library</div>
+                <div className="label">{translations.edition}</div>
+                <div className="value">{book.edition || translations.not_specified}</div>
               </div>
               <div className="row">
                 <div className="label">{translations.category}</div>
@@ -456,13 +661,15 @@ export default function BookDetails() {
                 variant="contained"
                 style={{ backgroundColor: '#D2691EFF' }}
                 onClick={handleOpenModal}
+                disabled={isLoading}
               >
                 {translations.edit_book}
               </ActionButton>
               <ActionButton
                 variant="outlined"
                 style={{ color: '#ff143f', borderColor: '#ff1493' }}
-                onClick={handleDelete}
+                onClick={handleOpenDeleteConfirm}
+                disabled={isLoading}
               >
                 {translations.delete}
               </ActionButton>
@@ -498,7 +705,7 @@ export default function BookDetails() {
       {/* Edit Modal */}
       <Modal
         open={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => !isLoading && setIsModalOpen(false)}
         aria-labelledby="edit-book-modal"
       >
         <Box sx={modalStyle}>
@@ -523,12 +730,14 @@ export default function BookDetails() {
               type="file"
               onChange={handleImageChange}
               style={{ display: 'none' }}
+              disabled={isLoading}
             />
             <label htmlFor="book-image-upload">
               <Button
                 variant="outlined"
                 component="span"
                 fullWidth
+                disabled={isLoading}
               >
                 {image ? translations.change_cover_image : translations.upload_cover_image}
               </Button>
@@ -541,6 +750,7 @@ export default function BookDetails() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             margin="normal"
+            disabled={isLoading}
           />
           <TextField
             fullWidth
@@ -549,13 +759,31 @@ export default function BookDetails() {
             value={exemplaire}
             onChange={(e) => setExemplaire(e.target.value)}
             margin="normal"
+            disabled={isLoading}
           />
+          <TextField
+                fullWidth
+                label={translations.author}
+                value={auteur}
+                onChange={(e) => setAuteur(e.target.value)}
+                margin="normal"
+                disabled={isLoading}
+              />
+              <TextField
+                fullWidth
+                label={translations.edition}
+                value={edition}
+                onChange={(e) => setEdition(e.target.value)}
+                margin="normal"
+                disabled={isLoading}
+              />
           <TextField
             fullWidth
             label={translations.category}
             value={cathegorie}
             onChange={(e) => setCathegorie(e.target.value)}
             margin="normal"
+            disabled={isLoading}
           />
           <TextField
             fullWidth
@@ -565,6 +793,7 @@ export default function BookDetails() {
             value={desc}
             onChange={(e) => setDesc(e.target.value)}
             margin="normal"
+            disabled={isLoading}
           />
           <TextField
             fullWidth
@@ -572,6 +801,7 @@ export default function BookDetails() {
             value={etagere}
             onChange={(e) => setEtagere(e.target.value)}
             margin="normal"
+            disabled={isLoading}
           />
           <TextField
             fullWidth
@@ -579,6 +809,7 @@ export default function BookDetails() {
             value={salle}
             onChange={(e) => setSalle(e.target.value)}
             margin="normal"
+            disabled={isLoading}
           />
 
           <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
@@ -586,6 +817,7 @@ export default function BookDetails() {
               variant="outlined"
               style={{ borderColor: '#d2691e', color: '#d2691e' }}
               onClick={() => setIsModalOpen(false)}
+              disabled={isLoading}
             >
               {translations.cancel}
             </Button>
@@ -593,12 +825,82 @@ export default function BookDetails() {
               variant="contained"
               onClick={handleUpdate}
               style={{ backgroundColor: '#d2691e' }}
+              disabled={isLoading}
+              startIcon={isLoading && <CircularProgress size={20} color="inherit" />}
             >
-              {translations.save_changes}
+              {isLoading ? translations.saving : translations.save_changes}
             </Button>
           </Box>
         </Box>
       </Modal>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirm && (
+        <DeleteConfirmDialog>
+          <DialogContent>
+            <DialogTitle>{translations.confirm_delete}</DialogTitle>
+            <DialogText>
+              {language === "FR" 
+                ? `Êtes-vous sûr de vouloir supprimer "${book.name}" ? Cette action est irréversible.` 
+                : `Are you sure you want to delete "${book.name}"? This action cannot be undone.`}
+            </DialogText>
+            <DialogButtons>
+              <Button 
+                variant="outlined" 
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={isLoading}
+              >
+                {translations.cancel}
+              </Button>
+              <Button 
+                variant="contained" 
+                color="error"
+                onClick={handleDelete}
+                disabled={isLoading}
+                startIcon={isLoading && <CircularProgress size={20} color="inherit" />}
+              >
+                {isLoading ? translations.deleting : translations.delete}
+              </Button>
+            </DialogButtons>
+          </DialogContent>
+        </DeleteConfirmDialog>
+      )}
+
+      {/* Loading Overlay for full-screen operations */}
+      {isLoading && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 2000,
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '20px',
+            borderRadius: '8px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '10px',
+          }}>
+            <CircularProgress size={40} style={{ color: '#D2691E' }} />
+            <Typography>{translations.processing}</Typography>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Alert */}
+      {showAlert && (
+        <CustomAlert type={alertType}>
+          {alertMessage}
+        </CustomAlert>
+      )}
     </Container>
   );
 }

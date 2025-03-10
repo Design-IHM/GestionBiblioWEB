@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
-import { BiSearch, BiUserCircle, BiLogOut, BiGlobe, BiMessageDetail, BiDotsVerticalRounded } from "react-icons/bi";
+import { BiSearch, BiUserCircle, BiLogOut, BiGlobe, BiMessageDetail } from "react-icons/bi";
 import { IoIosArrowBack } from "react-icons/io";
 import { RiSunFill, RiMoonFill } from "react-icons/ri";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -104,6 +104,14 @@ export default function Navbar() {
                     </BackButton>
                 )}
                 <Logo darkMode={isDarkMode}></Logo>
+                <MobileMenuToggle
+                    darkMode={isDarkMode}
+                    onClick={() => setShowMobileMenu(!showMobileMenu)}
+                >
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </MobileMenuToggle>
             </LogoSection>
 
             {searchConfig.show && (
@@ -121,16 +129,8 @@ export default function Navbar() {
                 </SearchSection>
             )}
 
-            <MenuSection>
-                <MobileMenuToggle
-                    darkMode={isDarkMode}
-                    onClick={() => setShowMobileMenu(!showMobileMenu)}
-                >
-                    <BiDotsVerticalRounded />
-                </MobileMenuToggle>
-            </MenuSection>
-
             <NavActions showMobile={showMobileMenu} darkMode={isDarkMode}>
+                {/* Bouton pour les messages */}
                 <NavButton onClick={() => navigate("/messages")} darkMode={isDarkMode} title="Messages">
                     <BiMessageDetail />
                     {unreadMessagesCount > 0 && (
@@ -143,20 +143,22 @@ export default function Navbar() {
                     <ButtonLabel>{language}</ButtonLabel>
                 </NavButton>
 
-                <NavButton onClick={toggleTheme} darkMode={isDarkMode} title={isDarkMode ? translations.light_mode : translations.dark_mode}>
-                    {isDarkMode ? <RiSunFill /> : <RiMoonFill />}
-                    <ButtonLabel>{isDarkMode ? translations.light_mode : translations.dark_mode}</ButtonLabel>
-                </NavButton>
-
                 <NavButton onClick={() => navigate("/profil")} darkMode={isDarkMode} title={translations.profile}>
                     <BiUserCircle />
                     <ButtonLabel>{translations.profile}</ButtonLabel>
                 </NavButton>
 
-                <NavButton onClick={handleLogout} darkMode={isDarkMode} title={translations.logout}>
+                <LogoutButton 
+                    onClick={handleLogout} 
+                    darkMode={isDarkMode} 
+                    title={translations.logout} 
+                    disabled={isLoggingOut}
+                    isLoggingOut={isLoggingOut}
+                >
                     <BiLogOut />
-                    <ButtonLabel>{translations.logout}</ButtonLabel>
-                </NavButton>
+                    <ButtonLabel>{isLoggingOut ? translations.logging_out : translations.logout}</ButtonLabel>
+                    {isLoggingOut && <LoadingDots />}
+                </LogoutButton>
             </NavActions>
         </NavbarContainer>
     );
@@ -213,26 +215,22 @@ const NavbarContainer = styled.nav`
   background-color: ${props => props.darkMode ? "#1f2937" : "#ffffff"};
   color: ${props => props.darkMode ? "#f3f4f6" : "#1f2937"};
   padding: 0.75rem 1.5rem;
+
   transition: all 0.3s ease;
   flex-wrap: wrap;
   position: sticky;
   top: 0;
-  z-index: 100;
-`;
+  z-index: 1000;
 
+  @media (max-width: 768px) {
+    padding: 0.75rem 1rem;
+  }
+`;
 
 const LogoSection = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
-`;
-
-const MenuSection = styled.div`
-  margin-left: auto;
-  
-  @media (min-width: 769px) {
-    display: none;
-  }
 `;
 
 const Logo = styled.div`
@@ -389,16 +387,27 @@ const ButtonLabel = styled.span`
 `;
 
 const MobileMenuToggle = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 24px;
+  height: 20px;
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 0.5rem;
-  color: ${props => props.darkMode ? "#f3f4f6" : "#1f2937"};
-  
-  svg {
-    font-size: 1.5rem;
+  padding: 0;
+
+  span {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background-color: ${props => props.darkMode ? "#f3f4f6" : "#1f2937"};
+    border-radius: 2px;
+    transition: all 0.3s ease;
+  }
+
+  @media (max-width: 768px) {
+    display: flex;
+    margin-left: auto;
   }
 `;

@@ -4,7 +4,7 @@ import { Button, Modal, Form } from 'react-bootstrap';
 import { FaBook, FaPlus } from 'react-icons/fa';
 import firebase from '../metro.config';
 import ReactJsAlert from "reactjs-alert";
-import { useI18n } from "../Context/I18nContext"; // Importez le contexte i18n
+import { useI18n } from "../Context/I18nContext";
 
 export default function DepartementMemoriesBtn(props) {
   const navigate = useNavigate();
@@ -22,6 +22,9 @@ export default function DepartementMemoriesBtn(props) {
     department: language === "FR" ? "Département" : "Department",
     number_of_copies: language === "FR" ? "Nombre d'exemplaires" : "Number of Copies",
     shelf: language === "FR" ? "Etagère" : "Shelf",
+    room: language === "FR" ? "Salle" : "Room",
+    author: language === "FR" ? "Auteur" : "Author",
+    edition: language === "FR" ? "Édition" : "Edition",
     description: language === "FR" ? "Description du document" : "Document Description",
     book_image: language === "FR" ? "Image du livre" : "Book Image",
     save: language === "FR" ? "Enregistrement en cours..." : "Saving...",
@@ -40,7 +43,10 @@ export default function DepartementMemoriesBtn(props) {
   const [exemplaire, setExemplaire] = useState(0);
   const [etagere, setEtagere] = useState('');
   const [desc, setDesc] = useState('');
-  const [salle] = useState('');
+  // Nouveaux champs
+  const [salle, setSalle] = useState('');
+  const [auteur, setAuteur] = useState('');
+  const [edition, setEdition] = useState('');
   const [typ] = useState('');
   
   // États pour l'image et le chargement
@@ -73,6 +79,10 @@ export default function DepartementMemoriesBtn(props) {
     setDesc('');
     setImage(null);
     setImagePreview(null);
+    // Réinitialiser les nouveaux champs
+    setSalle('');
+    setAuteur('');
+    setEdition('');
   };
 
   const handleImageChange = (e) => {
@@ -106,22 +116,30 @@ export default function DepartementMemoriesBtn(props) {
       setTitle(translations.error_upload_image);
       return;
     }
-
+  
     setLoading(true);
-
+  
     try {
+      // Générer un identifiant unique
+      const docRef = firebase.firestore().collection('BiblioInformatique').doc();
+      const documentId = docRef.id;
+  
       const imageUrl = await uploadImage(image);
       
-      await firebase.firestore().collection('BiblioInformatique').doc(name).set({
+      await docRef.set({
+        id: documentId, // Stocker l'ID généré comme champ
         name: name,
         exemplaire: parseInt(exemplaire),
         etagere: etagere,
         salle: salle,
         image: imageUrl,
         type: typ,
-        nomBD: name,
+        nomBD: documentId, // Utiliser l'ID unique comme nomBD
         cathegorie: nom_du_departement,
         desc: desc,
+        // Nouveaux champs
+        auteur: auteur,
+        edition: edition,
         commentaire: [
           {
             heure: new Date(),
@@ -131,7 +149,7 @@ export default function DepartementMemoriesBtn(props) {
           }
         ]
       });
-
+  
       setStatus(true);
       setType("success");
       setTitle(translations.document_added);
@@ -146,6 +164,7 @@ export default function DepartementMemoriesBtn(props) {
     }
   };
 
+  // Styles (restent identiques)
   const cardStyle = {
     backgroundImage: `url(${myimage})`,
     backgroundSize: 'cover',
@@ -280,6 +299,43 @@ export default function DepartementMemoriesBtn(props) {
                 placeholder={translations.shelf}
                 value={etagere}
                 onChange={(e) => setEtagere(e.target.value)}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className='mb-3'>
+              <Form.Label className="labelForm">{translations.room}</Form.Label>
+              <Form.Select 
+                value={salle}
+                onChange={(e) => setSalle(e.target.value)}
+                required
+              >
+                <option value="">Sélectionnez une salle</option>
+                <option value="1">Salle 1</option>
+                <option value="2">Salle 2</option>
+                <option value="3">Salle 3</option>
+                <option value="4">Salle 4</option>
+              </Form.Select>
+            </Form.Group>
+
+            <Form.Group className='mb-3'>
+              <Form.Label className="labelForm">{translations.author}</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder={translations.author}
+                value={auteur}
+                onChange={(e) => setAuteur(e.target.value)}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className='mb-3'>
+              <Form.Label className="labelForm">{translations.edition}</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder={translations.edition}
+                value={edition}
+                onChange={(e) => setEdition(e.target.value)}
                 required
               />
             </Form.Group>

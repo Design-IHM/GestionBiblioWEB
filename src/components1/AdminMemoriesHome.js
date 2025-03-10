@@ -173,6 +173,7 @@ export default function AdminMemoriesHome() {
   // Gestion des actions par département
   const handleVisualiser = (departement) => {
     const filteredMemories = memories.filter((memoire) => memoire.département === departement);
+    console.log(filteredMemories)
     navigate('/memoireParDepartement', {
       state: {
         memories: filteredMemories,

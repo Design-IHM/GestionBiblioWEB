@@ -244,7 +244,7 @@ export default function Catalogue() {
                     <Section>
                         {loader ? (
                             displayedData.map((doc, index) => (
-                                <Card key={index} onClick={() => navigate(`/book-details/${doc.nomBD}`, { state: { book: doc } })}>
+                                <Card key={index} onClick={() => navigate(`/book-details/${doc.id}`, { state: { book: doc } })}>
                                 {/*<Card key={index} onClick={() => openModal(doc)}>                               */}
                                     <CardHeader>
                                         <ThemeTitle>

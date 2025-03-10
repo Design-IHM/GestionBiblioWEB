@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Button as BootstrapButton, Form, Row, Col, Container, Card } from "react-bootstrap";
-import ReactJsAlert from "reactjs-alert";
 import "./AjoutDoc.css";
 import firebase from '../metro.config';
 import { useNavigate } from "react-router-dom";
@@ -9,296 +8,489 @@ import Navbar from '../components1/Navbar';
 import styled from 'styled-components';
 import memoire from "../../src/assets/mémoirecard.jpeg";
 import livre from "../../src/assets/livrecard.jpg";
-import { FaUpload } from "react-icons/fa";
+import { FaUpload, FaTimes, FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
 import { useI18n } from "../Context/I18nContext";
 
+// Composant personnalisé pour les notifications/alertes
+const Notification = ({ isVisible, type, message, onClose }) => {
+  if (!isVisible) return null;
+
+  return (
+    <NotificationWrapper type={type}>
+      <NotificationContent>
+        <NotificationIcon type={type}>
+          {type === "success" ? <FaCheckCircle size={24} /> : <FaExclamationTriangle size={24} />}
+        </NotificationIcon>
+        <NotificationMessage>{message}</NotificationMessage>
+        <NotificationClose onClick={onClose}>
+          <FaTimes />
+        </NotificationClose>
+      </NotificationContent>
+    </NotificationWrapper>
+  );
+};
+
 export default function AjoutDoc(props) {
-    const [name, setName] = useState('');
-    const [cathegorie, setCathegorie] = useState('');
-    const [desc, setDesc] = useState('');
-    const [etagere, setEtagere] = useState('');
-    const [exemplaire, setExemplaire] = useState(1);
-    const [image, setImage] = useState("");
-    const [salle, setSalle] = useState('');
-    const [typ] = useState('');
-    const formRef = useRef();
-    const navigate = useNavigate();
-    const { language } = useI18n();
-    const [formError, setFormError] = useState(false);
-    
-    // Valider le formulaire avant de soumettre
-    const validateForm = () => {
-        if (!name || !cathegorie || !etagere || !salle || !image) {
-            setFormError(true);
-            return false;
-        }
-        setFormError(false);
-        return true;
-    };
+  const [name, setName] = useState('');
+  const [cathegorie, setCathegorie] = useState('');
+  const [desc, setDesc] = useState('');
+  const [etagere, setEtagere] = useState('');
+  const [exemplaire, setExemplaire] = useState(1);
+  const [image, setImage] = useState("");
+  const [imagePreview, setImagePreview] = useState(null);
+  const [salle, setSalle] = useState('');
+  const [typ] = useState('');
+  const formRef = useRef();
+  const navigate = useNavigate();
+  const { language } = useI18n();
+  const [formErrors, setFormErrors] = useState({});
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [auteur, setAuteur] = useState('');
+  const [edition, setEdition] = useState('');
 
-    const res = async function () {
-        if (!validateForm()) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            return;
-        }
-        
-        await firebase.firestore().collection('BiblioInformatique').doc(name).set({
-            name: name,
-            exemplaire: parseInt(exemplaire),
-            etagere: etagere,
-            salle: salle,
-            image: image,
-            type: typ,
-            nomBD: name,
-            cathegorie: cathegorie,
-            desc: desc,
-            commentaire: [
-                {
-                    heure: new Date(),
-                    nomUser: '',
-                    texte: '',
-                    note: 0
-                }
-            ]
-        });
-        setStatus(true);
-        setType("success");
-        setTitle(translations.document_added);
+  // État pour la notification personnalisée
+  const [notification, setNotification] = useState({
+    isVisible: false,
+    type: "success",
+    message: ""
+  });
+
+  // Afficher une notification
+  const showNotification = (type, message) => {
+    setNotification({
+      isVisible: true,
+      type,
+      message
+    });
+
+    // Fermer automatiquement après 5 secondes
+    setTimeout(() => {
+      closeNotification();
+    }, 5000);
+  };
+
+  // Fermer la notification
+  const closeNotification = () => {
+    setNotification(prev => ({
+      ...prev,
+      isVisible: false
+    }));
+  };
+
+  // Valider le formulaire avant de soumettre
+  const validateForm = () => {
+    const errors = {};
+    if (!name.trim()) errors.name = true;
+    if (!cathegorie) errors.cathegorie = true;
+    if (!etagere.trim()) errors.etagere = true;
+    if (!salle) errors.salle = true;
+    if (!image) errors.image = true;
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const res = async function () {
+    if (!validateForm()) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+  
+    if (!image) {
+      showNotification("error", translations.error_upload_image);
+      return;
+    }
+  
+    try {
+      // Générer un identifiant unique
+      const docRef = firebase.firestore().collection('BiblioInformatique').doc();
+      const documentId = docRef.id;
+  
+      const imageUrl = await uploadImage(image);
+      
+      await docRef.set({
+        id: documentId, // Stocker l'ID généré comme champ
+        name: name,
+        exemplaire: parseInt(exemplaire),
+        etagere: etagere,
+        salle: salle,
+        image: imageUrl,
+        type: typ,
+        nomBD: documentId, // Utiliser l'ID unique comme nomBD
+        cathegorie: cathegorie,
+        desc: desc,
+        // Nouveaux champs non obligatoires
+        auteur: auteur || null,
+        edition: edition || null,
+        commentaire: [
+          {
+            heure: new Date(),
+            nomUser: '',
+            texte: '',
+            note: 0
+          }
+        ]
+      });
+  
+      showNotification("success", translations.document_added);
+  
+      // Rediriger après un court délai pour permettre à l'utilisateur de voir le message de succès
+      setTimeout(() => {
         navigate("/catalogue", { state: { departement: cathegorie } });
-    };
+      }, 1500);
+    } catch (error) {
+      console.error("Erreur lors de l'ajout du document:", error);
+      showNotification("error", translations.error_saving);
+    }
+  };
 
-    const resetForm = () => {
-        setName('');
-        setCathegorie('');
-        setDesc('');
-        setEtagere('');
-        setExemplaire(1);
-        setImage(null);
-        setSalle('');
-        setFormError(false);
-    };
+  const resetForm = () => {
+    setName('');
+    setCathegorie('');
+    setDesc('');
+    setEtagere('');
+    setExemplaire(1);
+    setImage(null);
+    setSalle('');
+    setFormErrors({});
+    setFormSubmitted(false);
+    setAuteur('');
+    setEdition('');
+  };
 
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setImage(file.name); // Store the file name or handle the file as needed
-        }
-    };
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+  
+  const uploadImage = async (file) => {
+    if (!file) return null;
+    
+    try {
+      const storageRef = firebase.storage().ref();
+      const fileRef = storageRef.child(`livres/${Date.now()}-${file.name}`);
+      await fileRef.put(file);
+      return await fileRef.getDownloadURL();
+    } catch (error) {
+      console.error("Erreur lors de l'upload de l'image:", error);
+      throw error;
+    }
+  };
 
-    const [status, setStatus] = useState(false);
-    const [type, setType] = useState("");
-    const [title, setTitle] = useState("");
+  // Traductions directes pour le formulaire d'ajout de document
+  const translations = {
+    book_name: language === "FR" ? "Nom du livre" : "Book Name",
+    number_of_copies: language === "FR" ? "Nombre d'exemplaires" : "Number of Copies",
+    department: language === "FR" ? "Département" : "Department",
+    room_number: language === "FR" ? "Numéro de salle" : "Room Number",
+    shelf_number: language === "FR" ? "Numéro de l'étagère" : "Shelf Number",
+    image_link: language === "FR" ? "Lien de l'image" : "Image Link",
+    document_description: language === "FR" ? "Description du document" : "Document Description",
+    add: language === "FR" ? "Ajouter" : "Add",
+    cancel: language === "FR" ? "Annuler" : "Cancel",
+    document_added: language === "FR" ? "Document ajouté avec succès" : "Document added successfully",
+    imgBook: language === "FR" ? "LIVRE" : "BOOK",
+    imgTheses: language === "FR" ? "MEMOIRE" : "THESES",
+    choose_file: language === "FR" ? "Choisir un fichier" : "Choose a file",
+    required_field: language === "FR" ? "Champ obligatoire" : "Required field",
+    fill_all_fields: language === "FR" ? "Veuillez remplir tous les champs obligatoires" : "Please fill in all required fields",
+    description_notice: language === "FR"
+      ? "Merci de remplir soigneusement la description. Elle est utilisée pour faire des recommandations pertinentes aux utilisateurs."
+      : "Please fill in the description carefully. It is used to make relevant recommendations to users.",
+    error_name: language === "FR" ? "Veuillez indiquer le nom du livre" : "Please provide the book name",
+    error_cathegorie: language === "FR" ? "Veuillez sélectionner un département" : "Please select a department",
+    error_etagere: language === "FR" ? "Veuillez indiquer le numéro d'étagère" : "Please provide the shelf number",
+    error_salle: language === "FR" ? "Veuillez sélectionner un numéro de salle" : "Please select a room number",
+    error_image: language === "FR" ? "Une image du document est requise" : "Document image is required",
+    author: language === "FR" ? "Auteur" : "Author",
+    edition: language === "FR" ? "Édition" : "Edition",
+    error_upload_image: language === "FR" ? "Veuillez sélectionner une image" : "Please select an image",
+  };
 
-    // Traductions directes pour le formulaire d'ajout de document
-    const translations = {
-        book_name: language === "FR" ? "Nom du livre" : "Book Name",
-        number_of_copies: language === "FR" ? "Nombre d'exemplaires" : "Number of Copies",
-        department: language === "FR" ? "Département" : "Department",
-        room_number: language === "FR" ? "Numéro de salle" : "Room Number",
-        shelf_number: language === "FR" ? "Numéro de l'étagère" : "Shelf Number",
-        image_link: language === "FR" ? "Lien de l'image" : "Image Link",
-        document_description: language === "FR" ? "Description du document" : "Document Description",
-        add: language === "FR" ? "Ajouter" : "Add",
-        cancel: language === "FR" ? "Annuler" : "Cancel",
-        document_added: language === "FR" ? "Document ajouté avec succès" : "Document added successfully",
-        imgBook: language === "FR" ? "LIVRE": "BOOK",
-        imgTheses: language === "FR"? "MEMOIRE": "THESES",
-        choose_file: language === "FR" ? "Choisir un fichier" : "Choose a file",
-        required_field: language === "FR" ? "Champ obligatoire" : "Required field",
-        fill_all_fields: language === "FR" ? "Veuillez remplir tous les champs obligatoires" : "Please fill in all required fields",
-        description_notice: language === "FR" 
-            ? "Merci de remplir soigneusement la description. Elle est utilisée pour faire des recommandations pertinentes aux utilisateurs."
-            : "Please fill in the description carefully. It is used to make relevant recommendations to users."
-    };
+  return (
+    <LivreContainer fluid>
+      <Row>
+        <Col md={2}>
+          <Sidebar />
+        </Col>
+        <Col md={10} className="bg-white">
+          <Navbar />
 
-    return (
-        <LivreContainer fluid>
-            <Row>
-                <Col md={2}>
-                    <Sidebar />
-                </Col>
-                <Col md={10} className="bg-white">
-                    <Navbar />
-                    {formError && (
-                        <ErrorMessage>{translations.fill_all_fields}</ErrorMessage>
-                    )}
-                    <Row className="justify-content-center mt-4">
-                        <Col md={3} className="mb-3">
-                            <Card
-                                className="text-center p-3 border"
-                                onClick={() => navigate('/ajouterDoc')}
-                                style={{
-                                    cursor: 'pointer',
-                                    borderColor: 'green',
-                                    borderWidth: '2px',
-                                    boxShadow: '0 4px 8px rgba(210, 105, 30, 1)', // Green drop shadow
-                                }}
-                            >
-                                <Card.Img variant="top" src={livre} />
-                                <Card.Body>
-                                    <Card.Text style={{ color: 'chocolate', fontWeight: 'bold' }}>{translations.imgBook}</Card.Text>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                        <Col md={3} className="mb-3">
-                            <Card className="text-center p-3" onClick={() => navigate('/ajoutermémoire')} style={{ cursor: 'pointer' }}>
-                                <Card.Img variant="top" src={memoire} />
-                                <Card.Body>
-                                    <Card.Text style={{ color: 'chocolate', fontWeight: 'bold' }}>{translations.imgTheses}</Card.Text>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    </Row>
-                    <FormContainer>
-                        <Form ref={formRef} onSubmit={(e) => { e.preventDefault(); res(); }}>
-                            <FormGrid>
-                                <FormGroup>
-                                    <Label>
-                                        <RequiredAsterisk>*</RequiredAsterisk> {translations.book_name}
-                                    </Label>
-                                    <StyledInput
-                                        type="text"
-                                        placeholder={translations.book_name}
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                        required
-                                    />
-                                </FormGroup>
+          {/* Notification personnalisée */}
+          <Notification
+            isVisible={notification.isVisible}
+            type={notification.type}
+            message={notification.message}
+            onClose={closeNotification}
+          />
 
-                                <FormGroup>
-                                    <Label>
-                                        <RequiredAsterisk>*</RequiredAsterisk> {translations.number_of_copies}
-                                    </Label>
-                                    <StyledInput
-                                        type="number"
-                                        placeholder={translations.number_of_copies}
-                                        value={exemplaire}
-                                        onChange={(e) => setExemplaire(e.target.value)}
-                                        required
-                                    />
-                                </FormGroup>
+          <Row className="justify-content-center mt-4">
+            <Col md={3} className="mb-3">
+              <Card
+                className="text-center p-3 border"
+                onClick={() => navigate('/ajouterDoc')}
+                style={{
+                  cursor: 'pointer',
+                  borderColor: 'green',
+                  borderWidth: '2px',
+                  boxShadow: '0 4px 8px rgba(210, 105, 30, 1)', // Green drop shadow
+                }}
+              >
+                <Card.Img variant="top" src={livre} />
+                <Card.Body>
+                  <Card.Text style={{ color: 'chocolate', fontWeight: 'bold' }}>{translations.imgBook}</Card.Text>
+                </Card.Body>
+              </Card>
+            </Col>
+            <Col md={3} className="mb-3">
+              <Card className="text-center p-3" onClick={() => navigate('/ajoutermémoire')} style={{ cursor: 'pointer' }}>
+                <Card.Img variant="top" src={memoire} />
+                <Card.Body>
+                  <Card.Text style={{ color: 'chocolate', fontWeight: 'bold' }}>{translations.imgTheses}</Card.Text>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+          <FormContainer>
+            <Form ref={formRef} onSubmit={(e) => { e.preventDefault(); res(); }}>
+              <FormGrid>
+                <FormGroup>
+                  <Label>
+                    <RequiredAsterisk>*</RequiredAsterisk> {translations.book_name}
+                  </Label>
+                  <StyledInput
+                    type="text"
+                    placeholder={translations.book_name}
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    className={formErrors.name ? "error" : ""}
+                  />
+                  {formErrors.name && <ErrorText>{translations.error_name}</ErrorText>}
+                </FormGroup>
 
-                                <FormGroup>
-                                    <Label>
-                                        <RequiredAsterisk>*</RequiredAsterisk> {translations.department}
-                                    </Label>
-                                    <StyledSelect
-                                        value={cathegorie}
-                                        onChange={(e) => setCathegorie(e.target.value)}
-                                        required
-                                    >
-                                        <option value=''></option>
-                                        <option value='Mathematique'>MSP</option>
-                                        <option value='Genie Informatique'>Génie informatique</option>
-                                        <option value="Genie Civil">Génie Civil</option>
-                                        <option value='Genie Electrique'>Génie Électrique</option>
-                                        <option value='Genie Mecanique'>Génie Mécanique/Industriel</option>
-                                        <option value='Genie Telecom'>Génie Télécom</option>
-                                    </StyledSelect>
-                                </FormGroup>
+                <FormGroup>
+                  <Label>
+                    <RequiredAsterisk>*</RequiredAsterisk> {translations.number_of_copies}
+                  </Label>
+                  <StyledInput
+                    type="number"
+                    placeholder={translations.number_of_copies}
+                    value={exemplaire}
+                    onChange={(e) => setExemplaire(e.target.value)}
+                    required
+                  />
+                </FormGroup>
 
-                                <FormGroup>
-                                    <Label>
-                                        <RequiredAsterisk>*</RequiredAsterisk> {translations.room_number}
-                                    </Label>
-                                    <StyledSelect
-                                        value={salle}
-                                        onChange={(e) => setSalle(e.target.value)}
-                                        required
-                                    >
-                                        <option value=''></option>
-                                        <option value='1'>1</option>
-                                        <option value='2'>2</option>
-                                        <option value='3'>3</option>
-                                        <option value='4'>4</option>
-                                    </StyledSelect>
-                                </FormGroup>
+                <FormGroup>
+                  <Label>
+                    <RequiredAsterisk>*</RequiredAsterisk> {translations.department}
+                  </Label>
+                  <StyledSelect
+                    value={cathegorie}
+                    onChange={(e) => setCathegorie(e.target.value)}
+                    required
+                    className={formErrors.cathegorie ? "error" : ""}
+                  >
+                    <option value=''></option>
+                    <option value='Mathematique'>MSP</option>
+                    <option value='Genie Informatique'>Génie informatique</option>
+                    <option value="Genie Civil">Génie Civil</option>
+                    <option value='Genie Electrique'>Génie Électrique</option>
+                    <option value='Genie Mecanique'>Génie Mécanique/Industriel</option>
+                    <option value='Genie Telecom'>Génie Télécom</option>
+                  </StyledSelect>
+                  {formErrors.cathegorie && <ErrorText>{translations.error_cathegorie}</ErrorText>}
+                </FormGroup>
 
-                                <FormGroup>
-                                    <Label>
-                                        <RequiredAsterisk>*</RequiredAsterisk> {translations.shelf_number}
-                                    </Label>
-                                    <StyledInput
-                                        type="text"
-                                        placeholder={translations.shelf_number}
-                                        value={etagere}
-                                        onChange={(e) => setEtagere(e.target.value)}
-                                        required
-                                    />
-                                </FormGroup>
+                <FormGroup>
+                  <Label>
+                    <RequiredAsterisk>*</RequiredAsterisk> {translations.room_number}
+                  </Label>
+                  <StyledSelect
+                    value={salle}
+                    onChange={(e) => setSalle(e.target.value)}
+                    required
+                    className={formErrors.salle ? "error" : ""}
+                  >
+                    <option value=''></option>
+                    <option value='1'>1</option>
+                    <option value='2'>2</option>
+                    <option value='3'>3</option>
+                    <option value='4'>4</option>
+                  </StyledSelect>
+                  {formErrors.salle && <ErrorText>{translations.error_salle}</ErrorText>}
+                </FormGroup>
 
-                                <FileInputContainer>
-                                    <Label className="text-left">
-                                        <RequiredAsterisk>*</RequiredAsterisk> {translations.image_link}
-                                    </Label>
-                                    {/* Hidden file input */}
-                                    <HiddenFileInput
-                                        type="file"
-                                        id="file-input"
-                                        onChange={handleFileChange}
-                                    />
-                                    {/* Custom file input button */}
-                                    <CustomFileInput htmlFor="file-input">
-                                        <FaUpload />
-                                        {image ? `Selected: ${image}` : translations.choose_file}
-                                    </CustomFileInput>
-                                </FileInputContainer>
+                <FormGroup>
+                  <Label>
+                    <RequiredAsterisk>*</RequiredAsterisk> {translations.shelf_number}
+                  </Label>
+                  <StyledInput
+                    type="text"
+                    placeholder={translations.shelf_number}
+                    value={etagere}
+                    onChange={(e) => setEtagere(e.target.value)}
+                    required
+                    className={formErrors.etagere ? "error" : ""}
+                  />
+                  {formErrors.etagere && <ErrorText>{translations.error_etagere}</ErrorText>}
+                </FormGroup>
 
-                                <FormGroup>
-                                    <Label>{translations.document_description}</Label>
-                                    <DescriptionNotice>{translations.description_notice}</DescriptionNotice>
-                                    <StyledTextarea
-                                        rows={3}
-                                        placeholder={translations.document_description}
-                                        value={desc}
-                                        onChange={(e) => setDesc(e.target.value)}
-                                    />
-                                </FormGroup>
-                            </FormGrid>
-                            <ButtonGroup>
-                                <StyledButton type="submit" $primary>
-                                    {translations.add}
-                                </StyledButton>
-                                <StyledButton type="button" onClick={resetForm}>
-                                    {translations.cancel}
-                                </StyledButton>
-                            </ButtonGroup>
-                        </Form>
-                    </FormContainer>
-                    <ReactJsAlert
-                        status={status}
-                        type={type}
-                        title={title}
-                        quotes={true}
-                        quote=""
-                        Close={() => setStatus(false)}
+                
+
+                <FormGroup>
+                    <Label>{translations.author}</Label>
+                    <StyledInput
+                      type="text"
+                      placeholder={translations.author}
+                      value={auteur}
+                      onChange={(e) => setAuteur(e.target.value)}
                     />
-                </Col>
-            </Row>
-        </LivreContainer>
-    );
+                  </FormGroup>
+
+                  <FormGroup>
+                    <Label>{translations.edition}</Label>
+                    <StyledInput
+                      type="text"
+                      placeholder={translations.edition}
+                      value={edition}
+                      onChange={(e) => setEdition(e.target.value)}
+                    />
+                  </FormGroup>
+                  <FileInputContainer>
+                      <Label className="text-left">
+                        <RequiredAsterisk>*</RequiredAsterisk> {translations.image_link}
+                      </Label>
+                      <HiddenFileInput
+                        type="file"
+                        id="file-input"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                      />
+                      <CustomFileInput htmlFor="file-input" className={formErrors.image ? "error" : ""}>
+                        <FaUpload />
+                        {imagePreview ? "Image sélectionnée" : translations.choose_file}
+                      </CustomFileInput>
+                      {imagePreview && (
+                        <div className="mt-2 text-center">
+                          <img
+                            src={imagePreview}
+                            alt="Aperçu"
+                            style={{ maxWidth: '200px', maxHeight: '200px' }}
+                          />
+                        </div>
+                      )}
+                      {formErrors.image && <ErrorText>{translations.error_image}</ErrorText>}
+                    </FileInputContainer>
+                  <FormGroup>
+                  <Label>{translations.document_description}</Label>
+                  <DescriptionNotice>{translations.description_notice}</DescriptionNotice>
+                  <StyledTextarea
+                    rows={3}
+                    placeholder={translations.document_description}
+                    value={desc}
+                    onChange={(e) => setDesc(e.target.value)}
+                  />
+                </FormGroup>
+              </FormGrid>
+              <ButtonGroup>
+                <StyledButton type="submit" $primary>
+                  {translations.add}
+                </StyledButton>
+                <StyledButton type="button" onClick={resetForm}>
+                  {translations.cancel}
+                </StyledButton>
+              </ButtonGroup>
+            </Form>
+          </FormContainer>
+        </Col>
+      </Row>
+    </LivreContainer>
+  );
 }
 
-// Styled components
+// Styled components pour la notification personnalisée
+const NotificationWrapper = styled.div`
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  min-width: 300px;
+  max-width: 450px;
+  background: ${props => props.type === "success" ? "#d4edda" : "#f8d7da"};
+  color: ${props => props.type === "success" ? "#155724" : "#721c24"};
+  border: 1px solid ${props => props.type === "success" ? "#c3e6cb" : "#f5c6cb"};
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.4s ease-out forwards;
+
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+`;
+
+const NotificationContent = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 16px;
+`;
+
+const NotificationIcon = styled.div`
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  color: ${props => props.type === "success" ? "#155724" : "#721c24"};
+`;
+
+const NotificationMessage = styled.div`
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+`;
+
+const NotificationClose = styled.button`
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  border-radius: 50%;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+`;
+
+// Styled components existants
 const RequiredAsterisk = styled.span`
   color: red;
   margin-right: 4px;
   font-size: 1.2em;
 `;
 
-const ErrorMessage = styled.div`
-  background-color: rgba(255, 0, 0, 0.1);
-  color: red;
-  text-align: center;
-  padding: 10px;
-  margin: 15px auto;
-  border-radius: 5px;
-  max-width: 800px;
-  font-weight: bold;
+const ErrorText = styled.div`
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 5px;
+  animation: fadeIn 0.3s ease-in;
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 `;
 
 const DescriptionNotice = styled.p`
-  color: red;
+  color: #dc3545;
   font-size: 0.85em;
   margin-bottom: 8px;
   font-style: italic;
@@ -329,6 +521,19 @@ const CustomFileInput = styled.label`
 
   &:hover {
     background-color: #0056b3;
+  }
+
+  &.error {
+    border: 2px solid #dc3545;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  }
+
+  @keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+    40%, 60% { transform: translate3d(3px, 0, 0); }
   }
 `;
 
@@ -387,6 +592,19 @@ const inputStyles = `
 
   &::placeholder {
     color: #9ca3af;
+  }
+
+  &.error {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  }
+
+  @keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+    40%, 60% { transform: translate3d(3px, 0, 0); }
   }
 `;
 
