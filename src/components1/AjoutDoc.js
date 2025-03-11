@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Button as BootstrapButton, Form, Row, Col, Container, Card } from "react-bootstrap";
-import "./AjoutDoc.css";
+import { Form } from "react-bootstrap";
 import firebase from '../metro.config';
 import { useNavigate } from "react-router-dom";
 import Sidebar from '../components1/Sidebar';
@@ -8,10 +7,10 @@ import Navbar from '../components1/Navbar';
 import styled from 'styled-components';
 import memoire from "../../src/assets/mémoirecard.jpeg";
 import livre from "../../src/assets/livrecard.jpg";
-import { FaUpload, FaTimes, FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
+import { FaUpload, FaTimes, FaCheckCircle, FaExclamationTriangle, FaBook, FaFileAlt } from "react-icons/fa";
 import { useI18n } from "../Context/I18nContext";
 
-// Composant personnalisé pour les notifications/alertes
+// Composant de notification
 const Notification = ({ isVisible, type, message, onClose }) => {
   if (!isVisible) return null;
 
@@ -19,7 +18,7 @@ const Notification = ({ isVisible, type, message, onClose }) => {
     <NotificationWrapper type={type}>
       <NotificationContent>
         <NotificationIcon type={type}>
-          {type === "success" ? <FaCheckCircle size={24} /> : <FaExclamationTriangle size={24} />}
+          {type === "success" ? <FaCheckCircle size={20} /> : <FaExclamationTriangle size={20} />}
         </NotificationIcon>
         <NotificationMessage>{message}</NotificationMessage>
         <NotificationClose onClick={onClose}>
@@ -31,6 +30,7 @@ const Notification = ({ isVisible, type, message, onClose }) => {
 };
 
 export default function AjoutDoc(props) {
+  // États du formulaire
   const [name, setName] = useState('');
   const [cathegorie, setCathegorie] = useState('');
   const [desc, setDesc] = useState('');
@@ -40,22 +40,47 @@ export default function AjoutDoc(props) {
   const [imagePreview, setImagePreview] = useState(null);
   const [salle, setSalle] = useState('');
   const [typ] = useState('');
+  const [departements, setDepartements] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // Références et navigation
   const formRef = useRef();
   const navigate = useNavigate();
   const { language } = useI18n();
+
+  // Validation du formulaire
   const [formErrors, setFormErrors] = useState({});
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [auteur, setAuteur] = useState('');
   const [edition, setEdition] = useState('');
 
-  // État pour la notification personnalisée
+  // Notification
   const [notification, setNotification] = useState({
     isVisible: false,
     type: "success",
     message: ""
   });
 
-  // Afficher une notification
+  // Récupérer les départements depuis Firestore
+  useEffect(() => {
+    const fetchDepartements = () => {
+      const ref = firebase.firestore().collection("departements");
+      ref.onSnapshot((querySnapshot) => {
+        const items = [];
+        querySnapshot.forEach((doc) => {
+          items.push({
+            id: doc.id,
+            ...doc.data()
+          });
+        });
+        setDepartements(items);
+      });
+    };
+
+    fetchDepartements();
+  }, []);
+
+  // Gestion des notifications
   const showNotification = (type, message) => {
     setNotification({
       isVisible: true,
@@ -63,13 +88,11 @@ export default function AjoutDoc(props) {
       message
     });
 
-    // Fermer automatiquement après 5 secondes
     setTimeout(() => {
       closeNotification();
-    }, 5000);
+    }, 4000);
   };
 
-  // Fermer la notification
   const closeNotification = () => {
     setNotification(prev => ({
       ...prev,
@@ -77,7 +100,7 @@ export default function AjoutDoc(props) {
     }));
   };
 
-  // Valider le formulaire avant de soumettre
+  // Validation du formulaire
   const validateForm = () => {
     const errors = {};
     if (!name.trim()) errors.name = true;
@@ -90,36 +113,37 @@ export default function AjoutDoc(props) {
     return Object.keys(errors).length === 0;
   };
 
+  // Soumission du formulaire
   const res = async function () {
     if (!validateForm()) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
-  
+
     if (!image) {
       showNotification("error", translations.error_upload_image);
       return;
     }
-  
+
+    setLoading(true);
+
     try {
       // Générer un identifiant unique
       const docRef = firebase.firestore().collection('BiblioInformatique').doc();
       const documentId = docRef.id;
-  
+
       const imageUrl = await uploadImage(image);
-      
+
       await docRef.set({
-        id: documentId, // Stocker l'ID généré comme champ
+        id: documentId,
         name: name,
         exemplaire: parseInt(exemplaire),
         etagere: etagere,
         salle: salle,
         image: imageUrl,
         type: typ,
-        nomBD: documentId, // Utiliser l'ID unique comme nomBD
+        nomBD: documentId,
         cathegorie: cathegorie,
         desc: desc,
-        // Nouveaux champs non obligatoires
         auteur: auteur || null,
         edition: edition || null,
         commentaire: [
@@ -131,19 +155,17 @@ export default function AjoutDoc(props) {
           }
         ]
       });
-  
+
       showNotification("success", translations.document_added);
-  
-      // Rediriger après un court délai pour permettre à l'utilisateur de voir le message de succès
-      setTimeout(() => {
-        navigate("/catalogue", { state: { departement: cathegorie } });
-      }, 1500);
     } catch (error) {
       console.error("Erreur lors de l'ajout du document:", error);
       showNotification("error", translations.error_saving);
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Réinitialisation du formulaire
   const resetForm = () => {
     setName('');
     setCathegorie('');
@@ -151,6 +173,7 @@ export default function AjoutDoc(props) {
     setEtagere('');
     setExemplaire(1);
     setImage(null);
+    setImagePreview(null);
     setSalle('');
     setFormErrors({});
     setFormSubmitted(false);
@@ -158,6 +181,7 @@ export default function AjoutDoc(props) {
     setEdition('');
   };
 
+  // Gestion de l'image
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -165,10 +189,10 @@ export default function AjoutDoc(props) {
       setImagePreview(URL.createObjectURL(file));
     }
   };
-  
+
   const uploadImage = async (file) => {
     if (!file) return null;
-    
+
     try {
       const storageRef = firebase.storage().ref();
       const fileRef = storageRef.child(`livres/${Date.now()}-${file.name}`);
@@ -180,46 +204,55 @@ export default function AjoutDoc(props) {
     }
   };
 
-  // Traductions directes pour le formulaire d'ajout de document
+  // Traductions
   const translations = {
     book_name: language === "FR" ? "Nom du livre" : "Book Name",
     number_of_copies: language === "FR" ? "Nombre d'exemplaires" : "Number of Copies",
     department: language === "FR" ? "Département" : "Department",
     room_number: language === "FR" ? "Numéro de salle" : "Room Number",
     shelf_number: language === "FR" ? "Numéro de l'étagère" : "Shelf Number",
-    image_link: language === "FR" ? "Lien de l'image" : "Image Link",
+    image_link: language === "FR" ? "Image du livre" : "Book Image",
     document_description: language === "FR" ? "Description du document" : "Document Description",
-    add: language === "FR" ? "Ajouter" : "Add",
+    add: language === "FR" ? "Enregister" : "register",
+    adding: language === "FR" ? "Ajout en cours..." : "Adding...",
     cancel: language === "FR" ? "Annuler" : "Cancel",
     document_added: language === "FR" ? "Document ajouté avec succès" : "Document added successfully",
     imgBook: language === "FR" ? "LIVRE" : "BOOK",
-    imgTheses: language === "FR" ? "MEMOIRE" : "THESES",
-    choose_file: language === "FR" ? "Choisir un fichier" : "Choose a file",
-    required_field: language === "FR" ? "Champ obligatoire" : "Required field",
-    fill_all_fields: language === "FR" ? "Veuillez remplir tous les champs obligatoires" : "Please fill in all required fields",
-    description_notice: language === "FR"
-      ? "Merci de remplir soigneusement la description. Elle est utilisée pour faire des recommandations pertinentes aux utilisateurs."
-      : "Please fill in the description carefully. It is used to make relevant recommendations to users.",
-    error_name: language === "FR" ? "Veuillez indiquer le nom du livre" : "Please provide the book name",
-    error_cathegorie: language === "FR" ? "Veuillez sélectionner un département" : "Please select a department",
-    error_etagere: language === "FR" ? "Veuillez indiquer le numéro d'étagère" : "Please provide the shelf number",
-    error_salle: language === "FR" ? "Veuillez sélectionner un numéro de salle" : "Please select a room number",
-    error_image: language === "FR" ? "Une image du document est requise" : "Document image is required",
+    imgTheses: language === "FR" ? "MÉMOIRE" : "THESIS",
+    choose_file: language === "FR" ? "Choisir une image" : "Choose an image",
+    image_selected: language === "FR" ? "Image sélectionnée" : "Image selected",
+    error_upload_image: language === "FR" ? "Veuillez sélectionner une image" : "Please select an image",
+    error_saving: language === "FR" ? "Erreur lors de l'enregistrement" : "Error saving document",
+    select_department: language === "FR" ? "Sélectionner un département" : "Select a department",
+    select_room: language === "FR" ? "Sélectionner une salle" : "Select a room",
     author: language === "FR" ? "Auteur" : "Author",
     edition: language === "FR" ? "Édition" : "Edition",
-    error_upload_image: language === "FR" ? "Veuillez sélectionner une image" : "Please select an image",
+    error_name: language === "FR" ? "Nom requis" : "Name required",
+    error_cathegorie: language === "FR" ? "Département requis" : "Department required",
+    error_etagere: language === "FR" ? "Étagère requise" : "Shelf required",
+    error_salle: language === "FR" ? "Salle requise" : "Room required",
+    error_image: language === "FR" ? "Image requise" : "Image required",
+    add_document: language === "FR" ? "Ajouter un document" : "Add a document",
+    document_type: language === "FR" ? "Type de document" : "Document type",
+    required_fields: language === "FR" ? "Champs obligatoires" : "Required fields",
+    document_info: language === "FR" ? "Informations du document" : "Document information",
+    document_location: language === "FR" ? "Emplacement du document" : "Document location",
+    document_image: language === "FR" ? "Image du document" : "Document image",
   };
 
   return (
-    <LivreContainer fluid>
-      <Row>
-        <Col md={2}>
-          <Sidebar />
-        </Col>
-        <Col md={10} className="bg-white">
-          <Navbar />
+    <AppLayout>
+      <SidebarWrapper>
+        <Sidebar />
+      </SidebarWrapper>
 
-          {/* Notification personnalisée */}
+      <MainContainer>
+        <NavbarWrapper>
+          <Navbar />
+        </NavbarWrapper>
+
+        <PageContent>
+          {/* Notification */}
           <Notification
             isVisible={notification.isVisible}
             type={notification.type}
@@ -227,124 +260,101 @@ export default function AjoutDoc(props) {
             onClose={closeNotification}
           />
 
-          <Row className="justify-content-center mt-4">
-            <Col md={3} className="mb-3">
-              <Card
-                className="text-center p-3 border"
-                onClick={() => navigate('/ajouterDoc')}
-                style={{
-                  cursor: 'pointer',
-                  borderColor: 'green',
-                  borderWidth: '2px',
-                  boxShadow: '0 4px 8px rgba(210, 105, 30, 1)', // Green drop shadow
-                }}
-              >
-                <Card.Img variant="top" src={livre} />
-                <Card.Body>
-                  <Card.Text style={{ color: 'chocolate', fontWeight: 'bold' }}>{translations.imgBook}</Card.Text>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md={3} className="mb-3">
-              <Card className="text-center p-3" onClick={() => navigate('/ajoutermémoire')} style={{ cursor: 'pointer' }}>
-                <Card.Img variant="top" src={memoire} />
-                <Card.Body>
-                  <Card.Text style={{ color: 'chocolate', fontWeight: 'bold' }}>{translations.imgTheses}</Card.Text>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
+          <PageHeader>
+            <HeaderTitle>{translations.add_document}</HeaderTitle>
+            <RequiredNote>
+              <RequiredDot />
+              <span>{translations.required_fields}</span>
+            </RequiredNote>
+          </PageHeader>
+
+          {/* Formulaire complet */}
           <FormContainer>
+            {/* Sélection du type de document */}
+            <SectionCard>
+              <SectionTitle>
+                <SectionIcon><FaBook /></SectionIcon>
+                {translations.document_type}
+              </SectionTitle>
+
+              <DocumentTypeContainer>
+                <DocumentTypeOption
+                  active={true}
+                  onClick={() => navigate('/ajouterDoc')}
+                >
+                  <TypeIconContainer active={true}>
+                    <FaBook size={24} />
+                  </TypeIconContainer>
+                  <TypeDetails>
+                    <TypePreview src={livre} alt={translations.imgBook} />
+                    <TypeLabel active={true}>{translations.imgBook}</TypeLabel>
+                  </TypeDetails>
+                </DocumentTypeOption>
+
+                <DocumentTypeOption
+                  active={false}
+                  onClick={() => navigate('/ajoutermémoire')}
+                >
+                  <TypeIconContainer active={false}>
+                    <FaFileAlt size={24} />
+                  </TypeIconContainer>
+                  <TypeDetails>
+                    <TypePreview src={memoire} alt={translations.imgTheses} />
+                    <TypeLabel>{translations.imgTheses}</TypeLabel>
+                  </TypeDetails>
+                </DocumentTypeOption>
+              </DocumentTypeContainer>
+            </SectionCard>
+
             <Form ref={formRef} onSubmit={(e) => { e.preventDefault(); res(); }}>
-              <FormGrid>
-                <FormGroup>
-                  <Label>
-                    <RequiredAsterisk>*</RequiredAsterisk> {translations.book_name}
-                  </Label>
-                  <StyledInput
-                    type="text"
-                    placeholder={translations.book_name}
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    className={formErrors.name ? "error" : ""}
-                  />
-                  {formErrors.name && <ErrorText>{translations.error_name}</ErrorText>}
-                </FormGroup>
+              <FormLayout>
+                {/* Informations du document */}
+                <FormSection>
+                  <SectionTitle>
+                    <SectionIcon><FaBook /></SectionIcon>
+                    {translations.document_info}
+                  </SectionTitle>
 
-                <FormGroup>
-                  <Label>
-                    <RequiredAsterisk>*</RequiredAsterisk> {translations.number_of_copies}
-                  </Label>
-                  <StyledInput
-                    type="number"
-                    placeholder={translations.number_of_copies}
-                    value={exemplaire}
-                    onChange={(e) => setExemplaire(e.target.value)}
-                    required
-                  />
-                </FormGroup>
+                  <FormGroup>
+                    <FormLabel>
+                      {translations.book_name}
+                      <RequiredDot />
+                    </FormLabel>
+                    <FormControl
+                      type="text"
+                      placeholder={translations.book_name}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      hasError={formErrors.name}
+                    />
+                    {formErrors.name && <ErrorMessage>{translations.error_name}</ErrorMessage>}
+                  </FormGroup>
 
-                <FormGroup>
-                  <Label>
-                    <RequiredAsterisk>*</RequiredAsterisk> {translations.department}
-                  </Label>
-                  <StyledSelect
-                    value={cathegorie}
-                    onChange={(e) => setCathegorie(e.target.value)}
-                    required
-                    className={formErrors.cathegorie ? "error" : ""}
-                  >
-                    <option value=''></option>
-                    <option value='Mathematique'>MSP</option>
-                    <option value='Genie Informatique'>Génie informatique</option>
-                    <option value="Genie Civil">Génie Civil</option>
-                    <option value='Genie Electrique'>Génie Électrique</option>
-                    <option value='Genie Mecanique'>Génie Mécanique/Industriel</option>
-                    <option value='Genie Telecom'>Génie Télécom</option>
-                  </StyledSelect>
-                  {formErrors.cathegorie && <ErrorText>{translations.error_cathegorie}</ErrorText>}
-                </FormGroup>
+                  <FormGroup>
+                    <FormLabel>
+                      {translations.department}
+                      <RequiredDot />
+                    </FormLabel>
+                    <FormSelect
+                      value={cathegorie}
+                      onChange={(e) => setCathegorie(e.target.value)}
+                      hasError={formErrors.cathegorie}
+                    >
+                      <option value="">{translations.select_department}</option>
+                      {departements.map((dept) => (
+                        <option key={dept.id} value={dept.nom}>
+                          {dept.nom}
+                        </option>
+                      ))}
+                    </FormSelect>
+                    {formErrors.cathegorie && <ErrorMessage>{translations.error_cathegorie}</ErrorMessage>}
+                  </FormGroup>
 
-                <FormGroup>
-                  <Label>
-                    <RequiredAsterisk>*</RequiredAsterisk> {translations.room_number}
-                  </Label>
-                  <StyledSelect
-                    value={salle}
-                    onChange={(e) => setSalle(e.target.value)}
-                    required
-                    className={formErrors.salle ? "error" : ""}
-                  >
-                    <option value=''></option>
-                    <option value='1'>1</option>
-                    <option value='2'>2</option>
-                    <option value='3'>3</option>
-                    <option value='4'>4</option>
-                  </StyledSelect>
-                  {formErrors.salle && <ErrorText>{translations.error_salle}</ErrorText>}
-                </FormGroup>
-
-                <FormGroup>
-                  <Label>
-                    <RequiredAsterisk>*</RequiredAsterisk> {translations.shelf_number}
-                  </Label>
-                  <StyledInput
-                    type="text"
-                    placeholder={translations.shelf_number}
-                    value={etagere}
-                    onChange={(e) => setEtagere(e.target.value)}
-                    required
-                    className={formErrors.etagere ? "error" : ""}
-                  />
-                  {formErrors.etagere && <ErrorText>{translations.error_etagere}</ErrorText>}
-                </FormGroup>
-
-                
-
-                <FormGroup>
-                    <Label>{translations.author}</Label>
-                    <StyledInput
+                  <FormGroup>
+                    <FormLabel>
+                      {translations.author}
+                    </FormLabel>
+                    <FormControl
                       type="text"
                       placeholder={translations.author}
                       value={auteur}
@@ -353,80 +363,294 @@ export default function AjoutDoc(props) {
                   </FormGroup>
 
                   <FormGroup>
-                    <Label>{translations.edition}</Label>
-                    <StyledInput
+                    <FormLabel>
+                      {translations.edition}
+                    </FormLabel>
+                    <FormControl
                       type="text"
                       placeholder={translations.edition}
                       value={edition}
                       onChange={(e) => setEdition(e.target.value)}
                     />
                   </FormGroup>
-                  <FileInputContainer>
-                      <Label className="text-left">
-                        <RequiredAsterisk>*</RequiredAsterisk> {translations.image_link}
-                      </Label>
-                      <HiddenFileInput
-                        type="file"
-                        id="file-input"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                      />
-                      <CustomFileInput htmlFor="file-input" className={formErrors.image ? "error" : ""}>
-                        <FaUpload />
-                        {imagePreview ? "Image sélectionnée" : translations.choose_file}
-                      </CustomFileInput>
-                      {imagePreview && (
-                        <div className="mt-2 text-center">
-                          <img
-                            src={imagePreview}
-                            alt="Aperçu"
-                            style={{ maxWidth: '200px', maxHeight: '200px' }}
-                          />
-                        </div>
-                      )}
-                      {formErrors.image && <ErrorText>{translations.error_image}</ErrorText>}
-                    </FileInputContainer>
+                </FormSection>
+
+                {/* Emplacement du document */}
+                <FormSection>
+                  <SectionTitle>
+                    <SectionIcon><FaBook /></SectionIcon>
+                    {translations.document_location}
+                  </SectionTitle>
+
                   <FormGroup>
-                  <Label>{translations.document_description}</Label>
-                  <DescriptionNotice>{translations.description_notice}</DescriptionNotice>
-                  <StyledTextarea
-                    rows={3}
-                    placeholder={translations.document_description}
-                    value={desc}
-                    onChange={(e) => setDesc(e.target.value)}
-                  />
-                </FormGroup>
-              </FormGrid>
-              <ButtonGroup>
-                <StyledButton type="submit" $primary>
-                  {translations.add}
-                </StyledButton>
-                <StyledButton type="button" onClick={resetForm}>
+                    <FormLabel>
+                      {translations.shelf_number}
+                      <RequiredDot />
+                    </FormLabel>
+                    <FormControl
+                      type="text"
+                      placeholder={translations.shelf_number}
+                      value={etagere}
+                      onChange={(e) => setEtagere(e.target.value)}
+                      hasError={formErrors.etagere}
+                    />
+                    {formErrors.etagere && <ErrorMessage>{translations.error_etagere}</ErrorMessage>}
+                  </FormGroup>
+
+                  <FormGroup>
+                    <FormLabel>
+                      {translations.room_number}
+                      <RequiredDot />
+                    </FormLabel>
+                    <FormSelect
+                      value={salle}
+                      onChange={(e) => setSalle(e.target.value)}
+                      hasError={formErrors.salle}
+                    >
+                      <option value="">{translations.select_room}</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                    </FormSelect>
+                    {formErrors.salle && <ErrorMessage>{translations.error_salle}</ErrorMessage>}
+                  </FormGroup>
+
+                  <FormGroup>
+                    <FormLabel>
+                      {translations.number_of_copies}
+                      <RequiredDot />
+                    </FormLabel>
+                    <FormControl
+                      type="number"
+                      min="1"
+                      value={exemplaire}
+                      onChange={(e) => setExemplaire(e.target.value)}
+                    />
+                  </FormGroup>
+                </FormSection>
+
+                {/* Image du document */}
+                <FormSection>
+                  <SectionTitle>
+                    <SectionIcon><FaBook /></SectionIcon>
+                    {translations.document_image}
+                  </SectionTitle>
+
+                  <ImageUploadContainer>
+                    <FormGroup>
+                      <FormLabel>
+                        {translations.image_link}
+                        <RequiredDot />
+                      </FormLabel>
+                      <FileUploadWrap hasError={formErrors.image}>
+                        <HiddenInput
+                          type="file"
+                          id="image-upload"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                        />
+                        <UploadButton htmlFor="image-upload">
+                          <FaUpload />
+                          <span>{imagePreview ? translations.image_selected : translations.choose_file}</span>
+                        </UploadButton>
+                        {formErrors.image && <ErrorMessage>{translations.error_image}</ErrorMessage>}
+                      </FileUploadWrap>
+                    </FormGroup>
+
+                    {imagePreview ? (
+                      <ImagePreviewWrap>
+                        <ImagePreview src={imagePreview} alt="Aperçu" />
+                      </ImagePreviewWrap>
+                    ) : (
+                      <ImagePlaceholder>
+                        <FaBook size={48} />
+                        <PlaceholderText>{translations.image_link}</PlaceholderText>
+                      </ImagePlaceholder>
+                    )}
+                  </ImageUploadContainer>
+                </FormSection>
+              </FormLayout>
+
+              {/* Description du document */}
+              <DescriptionSection>
+                <SectionTitle>
+                  <SectionIcon><FaBook /></SectionIcon>
+                  {translations.document_description}
+                </SectionTitle>
+                <TextArea
+                  rows="3"
+                  placeholder={translations.document_description}
+                  value={desc}
+                  onChange={(e) => setDesc(e.target.value)}
+                />
+              </DescriptionSection>
+
+              {/* Boutons d'action */}
+              <ActionButtons>
+                <SubmitButton
+                  type="submit"
+                  disabled={loading}
+                >
+                  {loading ? translations.adding : translations.add}
+                </SubmitButton>
+                <CancelButton type="button" onClick={resetForm}>
                   {translations.cancel}
-                </StyledButton>
-              </ButtonGroup>
+                </CancelButton>
+              </ActionButtons>
             </Form>
           </FormContainer>
-        </Col>
-      </Row>
-    </LivreContainer>
+        </PageContent>
+      </MainContainer>
+    </AppLayout>
   );
 }
 
-// Styled components pour la notification personnalisée
+// Structure de base de l'application
+const AppLayout = styled.div`
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+`;
+
+const SidebarWrapper = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 100;
+  width: 200px;
+
+  @media (max-width: 992px) {
+    width: 10px;
+  }
+`;
+
+const MainContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-left: 320px;
+  width: calc(100% - 250px);
+  height: 100vh;
+
+  @media (max-width: 992px) {
+    margin-left: 10px;
+    width: calc(100% - 10px);
+  }
+`;
+
+const NavbarWrapper = styled.div`
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  width: 100%;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+`;
+
+const PageContent = styled.div`
+  flex: 1;
+  padding: 20px;
+  background-color: #f5f7fa;
+  overflow-y: auto;
+  height: calc(100vh - 60px); /* Ajustez cette valeur selon la hauteur de votre navbar */
+`;
+
+// En-tête de la page
+const PageHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e9ecef;
+
+  @media (max-width: 576px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+`;
+
+const HeaderTitle = styled.h1`
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 140px;
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 576px) {
+    width: 100%;
+  }
+`;
+
+const BaseButton = styled.button`
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+`;
+
+const SubmitButton = styled(BaseButton)`
+  background-color: #fe7a3f;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: #e66a2f;
+    transform: translateY(-2px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+`;
+
+const CancelButton = styled(BaseButton)`
+  background-color: #e9ecef;
+  color: #495057;
+
+  &:hover {
+    background-color: #dee2e6;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
+// Styles pour les notifications
 const NotificationWrapper = styled.div`
   position: fixed;
   top: 20px;
   right: 20px;
   z-index: 1000;
-  min-width: 300px;
-  max-width: 450px;
+  min-width: 280px;
+  max-width: 350px;
   background: ${props => props.type === "success" ? "#d4edda" : "#f8d7da"};
   color: ${props => props.type === "success" ? "#155724" : "#721c24"};
-  border: 1px solid ${props => props.type === "success" ? "#c3e6cb" : "#f5c6cb"};
-  border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  animation: slideIn 0.4s ease-out forwards;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid ${props => props.type === "success" ? "#155724" : "#721c24"};
+  overflow: hidden;
+  animation: slideIn 0.3s ease;
 
   @keyframes slideIn {
     from { transform: translateX(100%); opacity: 0; }
@@ -437,19 +661,18 @@ const NotificationWrapper = styled.div`
 const NotificationContent = styled.div`
   display: flex;
   align-items: center;
-  padding: 16px;
+  padding: 15px;
 `;
 
 const NotificationIcon = styled.div`
   margin-right: 12px;
   display: flex;
   align-items: center;
-  color: ${props => props.type === "success" ? "#155724" : "#721c24"};
 `;
 
 const NotificationMessage = styled.div`
   flex: 1;
-  font-size: 14px;
+  font-size: 0.9rem;
   font-weight: 500;
 `;
 
@@ -458,203 +681,308 @@ const NotificationClose = styled.button`
   border: none;
   color: inherit;
   cursor: pointer;
-  padding: 4px;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 8px;
-  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  opacity: 0.7;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.05);
+    opacity: 1;
   }
 `;
 
-// Styled components existants
-const RequiredAsterisk = styled.span`
-  color: red;
-  margin-right: 4px;
-  font-size: 1.2em;
-`;
-
-const ErrorText = styled.div`
-  color: #dc3545;
-  font-size: 12px;
-  margin-top: 5px;
-  animation: fadeIn 0.3s ease-in;
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-`;
-
-const DescriptionNotice = styled.p`
-  color: #dc3545;
-  font-size: 0.85em;
-  margin-bottom: 8px;
-  font-style: italic;
-`;
-
-const FileInputContainer = styled.div`
+const RequiredNote = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-`;
-
-const HiddenFileInput = styled.input`
-  display: none; // Hide the default file input
-`;
-
-const CustomFileInput = styled.label`
-  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  text-align: center;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #0056b3;
-  }
-
-  &.error {
-    border: 2px solid #dc3545;
-    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
-    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-  }
-
-  @keyframes shake {
-    10%, 90% { transform: translate3d(-1px, 0, 0); }
-    20%, 80% { transform: translate3d(2px, 0, 0); }
-    30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
-    40%, 60% { transform: translate3d(3px, 0, 0); }
-  }
+  font-size: 0.8rem;
+  color: #666;
 `;
 
-const LivreContainer = styled(Container)`
-  min-height: 100vh;
-  background-color: #f5f5f5;
+const RequiredDot = styled.span`
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #fe7a3f;
+  border-radius: 50%;
+  margin-right: 5px;
 `;
 
+// Conteneur du formulaire
 const FormContainer = styled.div`
-  background: white;
-  padding: 2.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 800px;
+  max-width: 1400px;
   margin: 0 auto;
+  width: 100%;
 `;
 
-const FormGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
+// Styles pour les sections et cartes
+const SectionCard = styled.div`
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+  margin-bottom: 20px;
+  width: 100%;
+`;
+
+const SectionTitle = styled.h2`
+  display: flex;
+  align-items: center;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e9ecef;
+`;
+
+const SectionIcon = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  color: #fe7a3f;
+`;
+
+// Styles pour les types de documents
+const DocumentTypeContainer = styled.div`
+  display: flex;
+  gap: 20px;
 
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-`;
-
-const FormGroup = styled.div`
-  &:nth-last-child(1) {
-    grid-column: 1 / -1;
-  }
-`;
-
-const Label = styled.label`
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #374151;
-`;
-
-const inputStyles = `
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  background-color: #fff;
-  transition: border-color 0.2s, box-shadow 0.2s;
-
-  &:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-
-  &::placeholder {
-    color: #9ca3af;
-  }
-
-  &.error {
-    border-color: #dc3545;
-    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
-    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-  }
-
-  @keyframes shake {
-    10%, 90% { transform: translate3d(-1px, 0, 0); }
-    20%, 80% { transform: translate3d(2px, 0, 0); }
-    30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
-    40%, 60% { transform: translate3d(3px, 0, 0); }
-  }
-`;
-
-const StyledInput = styled.input`
-  ${inputStyles}
-`;
-
-const StyledSelect = styled.select`
-  ${inputStyles}
-`;
-
-const StyledTextarea = styled.textarea`
-  ${inputStyles};
-  resize: vertical;
-  min-height: 100px;
-`;
-
-const ButtonGroup = styled.div`
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 3rem;
-
-  @media (max-width: 480px) {
     flex-direction: column;
   }
 `;
 
-const StyledButton = styled(BootstrapButton)`
-  padding: 0.75rem 2rem;
-  border: none;
-  border-radius: 6px;
-  font-weight: 500;
+const DocumentTypeOption = styled.div`
+  display: flex;
+  align-items: center;
+  background: ${props => props.active ? '#fff8f3' : 'white'};
+  border: 2px solid ${props => props.active ? '#fe7a3f' : '#e9ecef'};
+  border-radius: 10px;
+  padding: 15px;
   cursor: pointer;
-  transition: all 0.2s;
-  background-color: ${props => props.$primary ? '#3b82f6' : '#9ca3af'};
-  color: white;
-  min-width: 150px;
+  transition: all 0.2s ease;
+  flex: 1;
 
   &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    background-color: ${props => props.$primary ? '#2563eb' : '#6b7280'};
+    border-color: ${props => props.active ? '#fe7a3f' : '#ccc'};
+    background: ${props => props.active ? '#fff8f3' : '#f8f9fa'};
+    transform: translateY(-2px);
   }
+`;
 
-  &:active {
-    transform: translateY(0);
+const TypeIconContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${props => props.active ? '#fe7a3f' : '#e9ecef'};
+  color: ${props => props.active ? 'white' : '#555'};
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  margin-right: 15px;
+  transition: all 0.2s ease;
+`;
+
+const TypeDetails = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+`;
+
+const TypePreview = styled.img`
+  width: 80px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 8px;
+`;
+
+const TypeLabel = styled.span`
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: ${props => props.active ? '#fe7a3f' : '#555'};
+  text-transform: uppercase;
+`;
+
+// Styles pour le formulaire
+const FormLayout = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+`;
+
+const FormSection = styled(SectionCard)`
+  margin-bottom: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+`;
+
+const FormGroup = styled.div`
+  margin-bottom: 15px;
+`;
+
+const FormLabel = styled.label`
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 6px;
+`;
+
+const FormControl = styled.input`
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid ${props => props.hasError ? '#dc3545' : '#dce1e8'};
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  background-color: #f8f9fa;
+
+  &:focus {
+    outline: none;
+    border-color: ${props => props.hasError ? '#dc3545' : '#fe7a3f'};
+    box-shadow: 0 0 0 3px ${props => props.hasError ? 'rgba(220, 53, 69, 0.1)' : 'rgba(254, 122, 63, 0.1)'};
+    background-color: white;
   }
+`;
 
-  @media (max-width: 480px) {
-    width: 100%;
+const FormSelect = styled.select`
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid ${props => props.hasError ? '#dc3545' : '#dce1e8'};
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  background-color: #f8f9fa;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23555' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+
+  &:focus {
+    outline: none;
+    border-color: ${props => props.hasError ? '#dc3545' : '#fe7a3f'};
+    box-shadow: 0 0 0 3px ${props => props.hasError ? 'rgba(220, 53, 69, 0.1)' : 'rgba(254, 122, 63, 0.1)'};
+    background-color: white;
+  }
+`;
+
+const ErrorMessage = styled.div`
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-top: 4px;
+`;
+
+const ImageUploadContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+`;
+
+const FileUploadWrap = styled.div`
+  margin-bottom: 15px;
+  border: ${props => props.hasError ? '1px dashed #dc3545' : '1px dashed #dce1e8'};
+  border-radius: 6px;
+  overflow: hidden;
+`;
+
+const HiddenInput = styled.input`
+  display: none;
+`;
+
+const UploadButton = styled.label`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background: #f8f9fa;
+  color: #495057;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #e9ecef;
+  }
+`;
+
+const ImagePreviewWrap = styled.div`
+  flex: 1;
+  min-height: 150px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #dce1e8;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ImagePreview = styled.img`
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+`;
+
+const ImagePlaceholder = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border: 1px dashed #dce1e8;
+  border-radius: 6px;
+  padding: 20px;
+  color: #adb5bd;
+  min-height: 150px;
+`;
+
+const PlaceholderText = styled.p`
+  margin-top: 10px;
+  font-size: 0.9rem;
+`;
+
+// Styles pour la description
+const DescriptionSection = styled(SectionCard)``;
+
+const TextArea = styled.textarea`
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #dce1e8;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  resize: none;
+  background-color: #f8f9fa;
+  min-height: 100px;
+
+  &:focus {
+    outline: none;
+    border-color: #fe7a3f;
+    box-shadow: 0 0 0 3px rgba(254, 122, 63, 0.1);
+    background-color: white;
+  }
+`;
+
+// Styles pour les boutons d'action
+const ActionButtons = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+  margin-bottom: 30px;
+
+  @media (max-width: 576px) {
+    flex-direction: column;
   }
 `;

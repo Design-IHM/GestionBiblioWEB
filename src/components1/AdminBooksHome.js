@@ -11,7 +11,7 @@ export default function DepartementsList() {
     "Département 4",
     "Département 5",
     "Département 6",
-    
+
   ];
 
   const departementRows = [];
@@ -44,6 +44,6 @@ export default function DepartementsList() {
         <FaBook style={{ fontSize: '2rem' }} />
       </div>
       {departementRows}
-    </div>  
+    </div>
   );
 }
