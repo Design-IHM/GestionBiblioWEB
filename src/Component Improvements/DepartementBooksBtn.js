@@ -271,12 +271,15 @@ export default function DepartementMemoriesBtn(props) {
 
   const buttonAjouterStyle = {
     width: '100px',
-    backgroundColor: isHovered ? '#28a745' : 'success',
+    backgroundColor: '#28a745',
     borderColor: 'transparent',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-around',
     padding: '5px',
+    ':hover':{
+      backgroundColor: '#218838',
+    }
   };
 
   const buttonVisualiserStyle = {

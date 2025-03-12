@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import firebase from "../metro.config";
 import { Modal, Box, Typography, Button, TextField, Rating, CircularProgress } from '@mui/material';
@@ -252,8 +252,7 @@ export default function BookDetails() {
   const book = location.state?.book || {};
   
   // Debug: vérifier si book.nomBD est défini
-  console.log("ID du livre:", book.nomBD);
-  console.log("Livre complet:", book);
+  
 
   const [name, setName] = useState(book.name);
   const [exemplaire, setExemplaire] = useState(book.exemplaire);
@@ -269,6 +268,8 @@ export default function BookDetails() {
   const [imageFile, setImageFile] = useState(null);
   const [auteur, setAuteur] = useState(book.auteur || '');
   const [edition, setEdition] = useState(book.edition || '');
+  const [canBeDeleted, setCanBeDeleted] = useState(true);
+  const [deleteBlockReason, setDeleteBlockReason] = useState("");
   
   // État pour le chargement
   const [isLoading, setIsLoading] = useState(false);
@@ -582,6 +583,61 @@ export default function BookDetails() {
     boxShadow: 24,
     p: 4,
   };
+  // Modifiez la fonction checkBookDeletability
+const checkBookDeletability = async () => {
+  try {
+    // Récupérer tous les utilisateurs
+    const usersSnapshot = await firebase.firestore().collection("BiblioUser").get();
+    
+    let isBookReservedOrBorrowed = false;
+    
+    usersSnapshot.docs.forEach((userDoc) => {
+      const userData = userDoc.data();
+      
+      // Vérifier chaque état et tableau d'état
+      const checkStates = [
+        { state: userData.etat1, tab: userData.tabEtat1 },
+        { state: userData.etat2, tab: userData.tabEtat2 },
+        { state: userData.etat3, tab: userData.tabEtat3 }
+      ];
+      
+      checkStates.forEach((stateCheck) => {
+        // Vérifier si le livre est dans le tableau d'état ET que l'état est 'reserv' ou 'emprunt'
+        if (
+          (stateCheck.state === 'reserv' || stateCheck.state === 'emprunt') &&
+          stateCheck.tab && 
+          stateCheck.tab[0] === book.name
+        ) {
+          isBookReservedOrBorrowed = true;
+        }
+      });
+    });
+
+    // Mise à jour des états de suppression de manière synchrone
+    setCanBeDeleted(!isBookReservedOrBorrowed);
+    
+    // Définir le message selon la langue
+    if (isBookReservedOrBorrowed) {
+      setDeleteBlockReason(
+        language === "FR" 
+          ? "Ce livre ne peut pas être supprimé car il fait l'objet d'un emprunt ou d'une réservation." 
+          : "This book cannot be deleted as it is currently borrowed or reserved."
+      );
+    } else {
+      setDeleteBlockReason('');
+    }
+  } catch (error) {
+    console.error("Erreur lors de la vérification de la suppression :", error);
+    // En cas d'erreur, autoriser la suppression par défaut
+    setCanBeDeleted(true);
+    setDeleteBlockReason('');
+  }
+};
+
+// Modifier le useEffect pour forcer un rechargement si le livre change
+useEffect(() => {
+  checkBookDeletability();
+}, [book, language]); // Ajoutez language pour forcer un rechargement si la langue change
 
   return (
     <Container>
@@ -666,38 +722,46 @@ export default function BookDetails() {
                 {translations.edit_book}
               </ActionButton>
               <ActionButton
-                variant="outlined"
-                style={{ color: '#ff143f', borderColor: '#ff1493' }}
-                onClick={handleOpenDeleteConfirm}
-                disabled={isLoading}
-              >
-                {translations.delete}
+                  variant="outlined"
+                  style={{ 
+                    color: canBeDeleted ? '#ff143f' : 'grey', 
+                    borderColor: canBeDeleted ? '#ff1493' : 'grey' 
+                  }}
+                  onClick={handleOpenDeleteConfirm}
+                  disabled={!canBeDeleted}
+                  title={!canBeDeleted ? deleteBlockReason : ''}
+                >
+                  {translations.delete}
               </ActionButton>
             </ButtonRow>
 
             <CommentSection>
-              <Typography variant="h6" style={{ marginBottom: '15px', width: '100%' }}>{translations.comments}</Typography>
+                <Typography variant="h6" style={{ marginBottom: '15px', width: '100%' }}>{translations.comments}</Typography>
 
-              {comments.length > 0 && comments[0].nomUser ? (
-                comments.map((comment, index) => (
-                  <CommentCard key={index}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                      <Typography variant="subtitle2">{comment.nomUser || translations.anonymous}</Typography>
-                      <Typography variant="caption">
-                        {comment.heure ? new Date(comment.heure.seconds * 1000).toLocaleString() : ""}
-                      </Typography>
-                    </div>
-                    <Rating value={comment.note || 0} readOnly size="small" />
-                    <Typography variant="body2" style={{ marginTop: '5px' }}>
-                      {comment.texte || translations.no_comments}
-                    </Typography>
-                  </CommentCard>
-                ))
-              ) : (
-                <Typography variant="body2" style={{ width: '100%' }}>{translations.no_comments}</Typography>
-              )}
-
-            </CommentSection>
+                {comments.length > 0 ? (
+                  comments
+                    .sort((a, b) => (b.heure?.seconds || 0) - (a.heure?.seconds || 0))
+                    .slice(0, 2)
+                    .map((comment, index) => (
+                      <CommentCard key={index}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                          <Typography variant="subtitle2">{comment.nomUser || translations.anonymous}</Typography>
+                          <Typography variant="caption">
+                            {comment.heure ? new Date(comment.heure.seconds * 1000).toLocaleString() : ""}
+                          </Typography>
+                        </div>
+                        <Rating value={comment.note || 0} readOnly size="small" />
+                        <Typography variant="body2" style={{ marginTop: '5px' }}>
+                          {comment.texte}
+                        </Typography>
+                      </CommentCard>
+                    ))
+                ) : (
+                  comments.length === 0 && (
+                    <Typography variant="body2" style={{ width: '100%' }}>{translations.no_comments}</Typography>
+                  )
+                )}
+</CommentSection>
           </BookInfo>
         </ContentWrapper>
       </MainContent>

@@ -553,7 +553,7 @@ const NavbarWrapper = styled.div`
 const PageContent = styled.div`
   flex: 1;
   padding: 20px;
-  background-color: #f5f7fa;
+
   overflow-y: auto;
   height: calc(100vh - 60px); /* Ajustez cette valeur selon la hauteur de votre navbar */
 `;

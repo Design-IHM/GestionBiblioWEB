@@ -12,6 +12,9 @@ import styled from 'styled-components';
 import { storage } from "../firebase-config";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { v4 } from "uuid";
+import Loading from '../components1/Loading';
+import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { FaSync, FaWifi } from 'react-icons/fa';
 
 // Composant de notification stylisé
 const Notification = ({ isVisible, type, message, onClose }) => {
@@ -38,11 +41,14 @@ export default function AdminMemoriesHome() {
     const [departements, setDepartements] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [showDepartementModal, setShowDepartementModal] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [connectionError, setConnectionError] = useState(false);
 
     // États pour les alertes
     const [status, setStatus] = useState(false);
     const [type, setType] = useState("");
     const [title, setTitle] = useState("");
+    const db = getFirestore();
 
     // États du formulaire mémoire
     const [name, setName] = useState('');
@@ -124,6 +130,7 @@ export default function AdminMemoriesHome() {
         noDepartments: language === "FR" ? "Aucun département n'a été créé" : "No department has been created",
         createFirstDepartment: language === "FR" ? "Créer votre premier département" : "Create your first department",
         department_added: language === "FR" ? "Département ajouté avec succès dans les livres et memoires" : "Department successfully added to books and memoirs",
+        createDepartementTest:language=== "FR"?"Ce département sera crée pour la gestion des livres et des mémoires":"This department will be create for book and theses administration"
     };
 
     // Récupérer les mémoires depuis Firebase
@@ -139,24 +146,40 @@ export default function AdminMemoriesHome() {
     };
 
     // Récupérer les départements depuis Firebase
-    const fetchDepartements = () => {
-        const ref = firebase.firestore().collection("departements");
-        ref.onSnapshot((querySnapshot) => {
-            const items = [];
-            querySnapshot.forEach((doc) => {
-                items.push({
-                    id: doc.id,
-                    ...doc.data()
-                });
-            });
-            setDepartements(items);
-        });
-    };
+    const fetchDepartements = async () => {
+           try {
+               setIsLoading(true);
+               const departementsCollection = await getDocs(collection(db, "departements"));
+               const departementsData = departementsCollection.docs.map(doc => ({
+                   id: doc.id,
+                   ...doc.data()
+               }));
+               setDepartements(departementsData);
+           } catch (error) {
+               console.error("Erreur lors de la récupération des départements:", error);
+                // Détecter les erreurs de connexion
+                if (error.code === 'failed-precondition' || 
+                  error.code === 'unavailable' || 
+                  error.code === 'network-request-failed' ||
+                  !navigator.onLine) {
+                  setConnectionError(true);
+              }
+           }finally{
+               setIsLoading(false);
+           }
+       };
 
     useEffect(() => {
         fetchMemories();
         fetchDepartements();
     }, []);
+
+    // Ajoute une fonction pour réessayer la connexion
+    const handleRetryConnection = () => {
+      setIsLoading(true);
+      setConnectionError(false);
+      fetchDepartements();
+    };
 
     // Gestion des notifications
     const showNotification = (type, message) => {
@@ -447,21 +470,37 @@ export default function AdminMemoriesHome() {
                 </Button>
             </div>
 
-            <div className="px-2 px-md-4 mt-2">
-                {departements.length === 0 ? (
-                    <div className="text-center py-5 my-4 bg-light rounded">
-                        <p className="text-muted mb-3">{translations.noDepartments}</p>
-                        <Button
-                            className="custom-primary-btn"
-                            style={{ backgroundColor: "#fe7a3f", borderColor: "#fe7a3f", color: "white" }}
-                            onClick={() => setShowDepartementModal(true)}>
-                            <FaPlus className="me-2" /> {translations.createFirstDepartment}
-                        </Button>
-                    </div>
-                ) : (
-                    departementRows
-                )}
-            </div>
+           
+            {isLoading ? (
+                  <Loading />
+              ) : connectionError ? (
+                  <div className="text-center py-5 my-4 bg-light rounded">
+                      <div className="text-danger mb-3">
+                          <i className="fas fa-wifi-slash fa-3x mb-3"></i> {/* Ou utilise l'icône FaWifiSlash de react-icons/fa */}
+                          <p className="fs-5">Problème de connexion Internet</p>
+                          <p className="text-muted">Vérifiez votre connexion Internet et réessayez</p>
+                      </div>
+                      <Button
+                          className="custom-primary-btn mt-3"
+                          style={{ backgroundColor: "#fe7a3f", borderColor: "#fe7a3f", color: "white" }}
+                          onClick={handleRetryConnection}>
+                          <FaSync className="me-2" /> Réessayer
+                      </Button>
+                  </div>
+              ) : departements.length === 0 ? (
+                  <div className="text-center py-5 my-4 bg-light rounded">
+                      <p className="text-muted mb-3">{translations.noDepartments}</p>
+                      <Button
+                          className="custom-primary-btn"
+                          style={{ backgroundColor: "#fe7a3f", borderColor: "#fe7a3f", color: "white" }}
+                          onClick={() => setShowDepartementModal(true)}>
+                          <FaPlus className="me-2" /> {translations.createFirstDepartment}
+                      </Button>
+                  </div>
+              ) : (
+                  departementRows
+              )}
+            
 
             {/* Notification */}
             <Notification
@@ -665,6 +704,13 @@ export default function AdminMemoriesHome() {
                     <Modal.Title className="fs-4">
                         <FaPlus className="me-2" style={{ color: "#fe7a3f" }} />
                         {translations.createDepartment}
+                        <p 
+                        style={{ 
+                        fontSize: '0.8rem', 
+                        color: 'red', 
+                        marginTop: '0.25rem',
+                        lineHeight: 1
+                    }} > * {translations.createDepartementTest}</p>
                     </Modal.Title>
                     <Button
                         variant="light"

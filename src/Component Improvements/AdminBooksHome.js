@@ -8,6 +8,8 @@ import Navbar from '../components1/Navbar';
 import DepartementBooksBtn from './DepartementBooksBtn';
 import { useI18n } from '../Context/I18nContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Loading from '../components1/Loading';
+
 
 export default function DepartementsList() {
     // États pour gérer les départements et le modal
@@ -16,8 +18,8 @@ export default function DepartementsList() {
     const [nomDepartement, setNomDepartement] = useState('');
     const [imageDepartement, setImageDepartement] = useState(null);
     const [previewImage, setPreviewImage] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-
+    const [isLoading, setIsLoading] = useState(true);
+    
     // Référence à Firestore et Storage
     const db = getFirestore();
     const storage = getStorage();
@@ -44,7 +46,8 @@ export default function DepartementsList() {
         createFirstDepartment: language === "FR" ? "Créer votre premier département" : "Create your first department",
         success: language === "FR" ? "Département ajouté avec succès!" : "Department successfully added!",
         error: language === "FR" ? "Erreur:" : "Error:",
-        fillAllFields: language === "FR" ? "Veuillez remplir tous les champs" : "Please fill in all fields"
+        fillAllFields: language === "FR" ? "Veuillez remplir tous les champs" : "Please fill in all fields",
+        createDepartementTest:language=== "FR"?"Ce département sera crée pour la gestion des livres et des mémoires":"This department will be create for book and theses administration"
     };
 
     // Charger les départements depuis Firestore au chargement du composant
@@ -55,6 +58,7 @@ export default function DepartementsList() {
     // Fonction pour récupérer les départements depuis Firestore
     const fetchDepartements = async () => {
         try {
+            setIsLoading(true);
             const departementsCollection = await getDocs(collection(db, "departements"));
             const departementsData = departementsCollection.docs.map(doc => ({
                 id: doc.id,
@@ -63,6 +67,8 @@ export default function DepartementsList() {
             setDepartements(departementsData);
         } catch (error) {
             console.error("Erreur lors de la récupération des départements:", error);
+        }finally{
+            setIsLoading(false);
         }
     };
 
@@ -171,21 +177,22 @@ export default function DepartementsList() {
             </div>
 
             {/* Conteneur principal avec padding adaptatif */}
-            <div className="px-2 px-md-4 mt-2">
-                {departements.length === 0 ? (
-                    <div className="text-center py-5 my-4 bg-light rounded">
-                        <p className="text-muted mb-3">{translations.noDepartments}</p>
-                        <Button
-                            className="custom-primary-btn"
-                            style={{ backgroundColor: "#fe7a3f", borderColor: "#fe7a3f", color: "white" }}
-                            onClick={handleShow}>
-                            <FaPlus className="me-2" /> {translations.createFirstDepartment}
-                        </Button>
-                    </div>
-                ) : (
-                    departementRows
-                )}
-            </div>
+            {isLoading ? (
+                <Loading />  // Composant de chargement optionnel
+            ) : departements.length === 0 ? (
+                <div className="text-center py-5 my-4 bg-light rounded">
+                    <p className="text-muted mb-3">{translations.noDepartments}</p>
+                    <Button
+                        className="custom-primary-btn"
+                        style={{ backgroundColor: "#fe7a3f", borderColor: "#fe7a3f", color: "white" }}
+                        onClick={handleShow}>
+                        <FaPlus className="me-2" /> {translations.createFirstDepartment}
+                    </Button>
+                </div>
+            ) : (
+                departementRows
+            )}
+            
 
             {/* Modal pour créer un nouveau département - optimisé pour mobile */}
             <Modal
@@ -200,6 +207,13 @@ export default function DepartementsList() {
                     <Modal.Title className="fs-4">
                         <FaPlus className="me-2" style={{ color: "#fe7a3f" }} />
                         {translations.createDepartment}
+                        <p 
+                        style={{ 
+                        fontSize: '0.8rem', 
+                        color: 'red', 
+                        marginTop: '0.25rem',
+                        lineHeight: 1
+                    }} > * {translations.createDepartementTest}</p>
                     </Modal.Title>
                     <Button
                         variant="light"
