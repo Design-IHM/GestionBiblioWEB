@@ -133,11 +133,7 @@ const ButtonRow = styled.div`
   }
 `;
 
-const ActionButton = styled(Button)`
-  text-transform: none !important;
-  border-radius: 20px !important;
-  padding: 8px 20px !important;
-`;
+
 
 const CommentSection = styled.div`
   margin-top: 20px;
@@ -244,6 +240,73 @@ const DialogButtons = styled.div`
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+`;
+
+// Ajoutez ce composant styled après vos autres styled components
+const DeleteButtonWrapper = styled.div`
+  position: relative;
+  display: inline-block;
+  
+  &[data-disabled="true"]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 110%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    white-space: normal;
+    width: max-content;
+    max-width: 200px;
+    text-align: center;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  &[data-disabled="true"]:hover::before {
+    content: "";
+    position: absolute;
+    bottom: 108%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
+    z-index: 1000;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, 10px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+  }
+`;
+
+// Modifiez le style du ActionButton pour ajouter le curseur not-allowed
+const ActionButton = styled(Button)`
+  text-transform: none !important;
+  border-radius: 20px !important;
+  padding: 8px 20px !important;
+  
+  &:disabled {
+    cursor: not-allowed !important;
+    position: relative;
+  }
+  
+  &:disabled::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom right, transparent calc(50% - 1px), red, transparent calc(50% + 1px));
+    border-radius: 20px;
+    pointer-events: none;
+  }
 `;
 
 export default function BookDetails() {
@@ -713,27 +776,32 @@ useEffect(() => {
             </InfoTable>
 
             <ButtonRow>
-              <ActionButton
-                variant="contained"
-                style={{ backgroundColor: '#D2691EFF' }}
-                onClick={handleOpenModal}
-                disabled={isLoading}
-              >
-                {translations.edit_book}
-              </ActionButton>
-              <ActionButton
-                  variant="outlined"
-                  style={{ 
-                    color: canBeDeleted ? '#ff143f' : 'grey', 
-                    borderColor: canBeDeleted ? '#ff1493' : 'grey' 
-                  }}
-                  onClick={handleOpenDeleteConfirm}
-                  disabled={!canBeDeleted}
-                  title={!canBeDeleted ? deleteBlockReason : ''}
-                >
-                  {translations.delete}
-              </ActionButton>
-            </ButtonRow>
+            <ActionButton
+              variant="contained"
+              style={{ backgroundColor: '#D2691EFF' }}
+              onClick={handleOpenModal}
+              disabled={isLoading}
+            >
+              {translations.edit_book}
+            </ActionButton>
+  
+          <DeleteButtonWrapper 
+            data-disabled={!canBeDeleted} 
+            data-tooltip={deleteBlockReason}
+          >
+            <ActionButton
+              variant="outlined"
+              style={{ 
+                color: canBeDeleted ? '#ff143f' : 'grey', 
+                borderColor: canBeDeleted ? '#ff1493' : 'grey'
+              }}
+              onClick={handleOpenDeleteConfirm}
+              disabled={!canBeDeleted}
+            >
+              {translations.delete}
+            </ActionButton>
+          </DeleteButtonWrapper>
+          </ButtonRow>
 
             <CommentSection>
                 <Typography variant="h6" style={{ marginBottom: '15px', width: '100%' }}>{translations.comments}</Typography>
