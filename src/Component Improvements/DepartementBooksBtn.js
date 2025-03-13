@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Modal, Form } from 'react-bootstrap';
 import { FaBook, FaPlus, FaUpload, FaTimes, FaCheckCircle, FaExclamationTriangle } from 'react-icons/fa';
 import firebase from '../metro.config';
-import ReactJsAlert from "reactjs-alert";
 import { useI18n } from "../Context/I18nContext";
 import styled from 'styled-components';
 
@@ -62,11 +61,6 @@ export default function DepartementMemoriesBtn(props) {
     type: "success",
     message: ""
   });
-
-  // États pour l'alerte
-  const [status, setStatus] = useState(false);
-  const [type, setType] = useState("");
-  const [title, setTitle] = useState("");
 
   // Traductions
   const translations = {
@@ -541,13 +535,6 @@ export default function DepartementMemoriesBtn(props) {
           </FormContainer>
         </ModalBody>
       </ModalStyled>
-
-      <ReactJsAlert
-        status={status}
-        type={type}
-        title={title}
-        Close={() => setStatus(false)}
-      />
     </div>
   );
 }
