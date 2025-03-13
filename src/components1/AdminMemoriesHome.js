@@ -94,7 +94,7 @@ export default function AdminMemoriesHome() {
         shelf_number: language === "FR" ? "Numéro de l'étagère" : "Shelf Number",
         supervisor: language === "FR" ? "Superviseur" : "Supervisor",
         thesis_image: language === "FR" ? "Image du mémoire" : "Thesis Image",
-        add: language === "FR" ? "Enregistrer" : "Register",
+        add: language === "FR" ? "Ajouter" : "Add",
         adding: language === "FR" ? "Ajout en cours..." : "Adding...",
         cancel: language === "FR" ? "Annuler" : "Cancel",
         document_added: language === "FR" ? "Mémoire ajouté avec succès" : "Thesis added successfully",
@@ -130,7 +130,8 @@ export default function AdminMemoriesHome() {
         noDepartments: language === "FR" ? "Aucun département n'a été créé" : "No department has been created",
         createFirstDepartment: language === "FR" ? "Créer votre premier département" : "Create your first department",
         department_added: language === "FR" ? "Département ajouté avec succès dans les livres et memoires" : "Department successfully added to books and memoirs",
-        createDepartementTest:language=== "FR"?"Ce département sera crée pour la gestion des livres et des mémoires":"This department will be create for book and theses administration"
+        createDepartementTest:language=== "FR"?"Ce département sera crée pour la gestion des livres et des mémoires":"This department will be create for book and theses administration",
+        matriculeIndication:language==="FR"?"Attention : Vérifiez attentivement ce matricule. Une fois enregistré, il ne pourra plus être modifié.": "Caution: Carefully verify this matricule. Once registered, it cannot be modified."
     };
 
     // Récupérer les mémoires depuis Firebase
@@ -523,6 +524,11 @@ export default function AdminMemoriesHome() {
                         {translations.add_document} - {departement}
                     </ModalTitle>
                 </ModalHeader>
+                
+                <RequiredNote>
+              <RequiredDot />
+              <span>{translations.required_fields}</span>
+            </RequiredNote>
                 <ModalBody>
                     <FormContainer>
                       <Form onSubmit={handleSubmit}>
@@ -550,10 +556,23 @@ export default function AdminMemoriesHome() {
                             </FormGroup>
 
                             <FormGroup>
-                              <FormLabel>
-                                {translations.student_id}
-                                <RequiredDot />
-                              </FormLabel>
+                            <FormLabel>
+                               <div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    {translations.student_id}
+                                    <RequiredDot />
+                                </div>
+                                <div style={{ 
+                                    fontSize: '0.8rem', 
+                                    color: 'red', 
+                                    marginTop: '0.25rem',
+                                    lineHeight: 1,
+                                    width: '100%' 
+                                }}>
+                                    {translations.matriculeIndication}
+                                </div>
+                            </div>
+                        </FormLabel>
                               <FormControl
                                 type="text"
                                 placeholder="20P123"
@@ -1168,3 +1187,11 @@ const CancelButton = styled(BaseButton)`
     transform: translateY(0);
   }
 `;
+const RequiredNote = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  color: #666;
+`;
+
+

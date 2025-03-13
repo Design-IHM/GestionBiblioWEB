@@ -36,6 +36,7 @@ export default function AjoutDoc(props) {
   const [desc, setDesc] = useState('');
   const [etagere, setEtagere] = useState('');
   const [exemplaire, setExemplaire] = useState(1);
+  const [initialExemplaire, setInitialExemplaire] = useState(1);
   const [image, setImage] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const [salle, setSalle] = useState('');
@@ -108,6 +109,7 @@ export default function AjoutDoc(props) {
     if (!etagere.trim()) errors.etagere = true;
     if (!salle) errors.salle = true;
     if (!image) errors.image = true;
+    if (!desc.trim()) errors.desc = true;
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -132,11 +134,12 @@ export default function AjoutDoc(props) {
       const documentId = docRef.id;
 
       const imageUrl = await uploadImage(image);
-
+      
       await docRef.set({
         id: documentId,
         name: name,
-        exemplaire: parseInt(exemplaire),
+        initialExemplaire:initialExemplaire,
+        exemplaire:exemplaire,
         etagere: etagere,
         salle: salle,
         image: imageUrl,
@@ -157,6 +160,7 @@ export default function AjoutDoc(props) {
       });
 
       showNotification("success", translations.document_added);
+      resetForm();
     } catch (error) {
       console.error("Erreur lors de l'ajout du document:", error);
       showNotification("error", translations.error_saving);
@@ -172,6 +176,7 @@ export default function AjoutDoc(props) {
     setDesc('');
     setEtagere('');
     setExemplaire(1);
+    setInitialExemplaire(1);
     setImage(null);
     setImagePreview(null);
     setSalle('');
@@ -238,6 +243,11 @@ export default function AjoutDoc(props) {
     document_info: language === "FR" ? "Informations du document" : "Document information",
     document_location: language === "FR" ? "Emplacement du document" : "Document location",
     document_image: language === "FR" ? "Image du document" : "Document image",
+    descriptionIndication: language === "FR" 
+    ? "Veuillez rédiger une description détaillée du livre, car elle sera utilisée pour générer des recommandations personnalisées aux utilisateurs."
+    : "Please write a detailed book description, as it will be used to generate personalized recommendations for users.",
+    error_desc: language === "FR" ? "Description requise" : "Description required",
+
   };
 
   return (
@@ -261,7 +271,7 @@ export default function AjoutDoc(props) {
           />
 
           <PageHeader>
-            <HeaderTitle>{translations.add_document}</HeaderTitle>
+           
             <RequiredNote>
               <RequiredDot />
               <span>{translations.required_fields}</span>
@@ -425,7 +435,11 @@ export default function AjoutDoc(props) {
                       type="number"
                       min="1"
                       value={exemplaire}
-                      onChange={(e) => setExemplaire(e.target.value)}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value);
+                        setExemplaire(value);
+                        setInitialExemplaire(value);
+                      }}
                     />
                   </FormGroup>
                 </FormSection>
@@ -477,13 +491,23 @@ export default function AjoutDoc(props) {
                 <SectionTitle>
                   <SectionIcon><FaBook /></SectionIcon>
                   {translations.document_description}
-                </SectionTitle>
+                  <RequiredDot />
+                  </SectionTitle>
+                  <p  style={{ 
+                        fontSize: '0.8rem', 
+                        color: 'red', 
+                        marginTop: '0.25rem',
+                        lineHeight: 1
+                    }}>{translations.descriptionIndication}</p>
+               
                 <TextArea
                   rows="3"
                   placeholder={translations.document_description}
                   value={desc}
                   onChange={(e) => setDesc(e.target.value)}
+                  hasError={formErrors.desc} 
                 />
+                {formErrors.desc && <ErrorMessage>{translations.error_desc}</ErrorMessage>}
               </DescriptionSection>
 
               {/* Boutons d'action */}

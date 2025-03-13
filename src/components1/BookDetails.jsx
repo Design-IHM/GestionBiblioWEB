@@ -368,7 +368,8 @@ export default function BookDetails() {
     ratings: language === "FR" ? "évaluations" : "ratings",
     publisher: language === "FR" ? "Éditeur" : "Publisher",
     category: language === "FR" ? "Catégorie" : "Category",
-    quantity: language === "FR" ? "Quantité" : "Quantity",
+    quantity: language === "FR" ? "Stock courant" : "Current stock",
+    initial_stock: language === "FR" ? "Stock initial" : "Initial Stock",
     delete: language === "FR" ? "Supprimer le livre" : "Delete",
     bookshelf: language === "FR" ? "Étagère" : "Bookshelf",
     room: language === "FR" ? "Salle" : "Room",
@@ -647,61 +648,79 @@ export default function BookDetails() {
     p: 4,
   };
   // Modifiez la fonction checkBookDeletability
-const checkBookDeletability = async () => {
-  try {
-    // Récupérer tous les utilisateurs
-    const usersSnapshot = await firebase.firestore().collection("BiblioUser").get();
-    
-    let isBookReservedOrBorrowed = false;
-    
-    usersSnapshot.docs.forEach((userDoc) => {
-      const userData = userDoc.data();
+  const checkBookDeletability = async () => {
+    try {
+      // Si aucun livre n'est chargé, ne pas procéder
+      if (!book || !book.name) {
+        setCanBeDeleted(true);
+        setDeleteBlockReason('');
+        return;
+      }
+  
+      // Récupérer tous les utilisateurs
+      const usersSnapshot = await firebase.firestore().collection("BiblioUser").get();
       
-      // Vérifier chaque état et tableau d'état
-      const checkStates = [
-        { state: userData.etat1, tab: userData.tabEtat1 },
-        { state: userData.etat2, tab: userData.tabEtat2 },
-        { state: userData.etat3, tab: userData.tabEtat3 }
-      ];
+      let isBookReservedOrBorrowed = false;
       
-      checkStates.forEach((stateCheck) => {
-        // Vérifier si le livre est dans le tableau d'état ET que l'état est 'reserv' ou 'emprunt'
-        if (
-          (stateCheck.state === 'reserv' || stateCheck.state === 'emprunt') &&
-          stateCheck.tab && 
-          stateCheck.tab[0] === book.name
-        ) {
-          isBookReservedOrBorrowed = true;
+      // Boucle synchrone pour vérifier chaque utilisateur
+      for (const userDoc of usersSnapshot.docs) {
+        const userData = userDoc.data();
+        
+        // Vérifier chaque état et tableau d'état
+        const checkStates = [
+          { state: userData.etat1, tab: userData.tabEtat1 },
+          { state: userData.etat2, tab: userData.tabEtat2 },
+          { state: userData.etat3, tab: userData.tabEtat3 }
+        ];
+        
+        // Vérification rapide pour chaque état
+        for (const stateCheck of checkStates) {
+          if (
+            (stateCheck.state === 'reserv' || stateCheck.state === 'emprunt') &&
+            stateCheck.tab && 
+            stateCheck.tab[0] === book.name
+          ) {
+            isBookReservedOrBorrowed = true;
+            break; // Sortir immédiatement si réservé ou emprunté
+          }
         }
-      });
-    });
-
-    // Mise à jour des états de suppression de manière synchrone
-    setCanBeDeleted(!isBookReservedOrBorrowed);
-    
-    // Définir le message selon la langue
-    if (isBookReservedOrBorrowed) {
-      setDeleteBlockReason(
-        language === "FR" 
-          ? "Ce livre ne peut pas être supprimé car il fait l'objet d'un emprunt ou d'une réservation." 
-          : "This book cannot be deleted as it is currently borrowed or reserved."
-      );
-    } else {
+  
+        // Sortir si le livre est déjà réservé/emprunté
+        if (isBookReservedOrBorrowed) break;
+      }
+  
+      // Mise à jour finale des états
+      setCanBeDeleted(!isBookReservedOrBorrowed);
+      
+      // Définir le message selon la langue
+      if (isBookReservedOrBorrowed) {
+        setDeleteBlockReason(
+          language === "FR" 
+            ? "Ce livre ne peut pas être supprimé car il fait l'objet d'un emprunt ou d'une réservation." 
+            : "This book cannot be deleted as it is currently borrowed or reserved."
+        );
+      } else {
+        setDeleteBlockReason('');
+      }
+    } catch (error) {
+      console.error("Erreur lors de la vérification de la suppression :", error);
+      // En cas d'erreur, autoriser la suppression
+      setCanBeDeleted(true);
       setDeleteBlockReason('');
     }
-  } catch (error) {
-    console.error("Erreur lors de la vérification de la suppression :", error);
-    // En cas d'erreur, autoriser la suppression par défaut
-    setCanBeDeleted(true);
-    setDeleteBlockReason('');
-  }
-};
-
-// Modifier le useEffect pour forcer un rechargement si le livre change
-useEffect(() => {
-  checkBookDeletability();
-}, [book, language]); // Ajoutez language pour forcer un rechargement si la langue change
-
+  };
+  
+  // Modification du useEffect pour s'assurer de la vérification immédiate
+  useEffect(() => {
+    // Vérifier immédiatement si un livre est chargé
+    if (book && book.name) {
+      checkBookDeletability();
+    } else {
+      // Si pas de livre, activer la suppression
+      setCanBeDeleted(true);
+      setDeleteBlockReason('');
+    }
+  }, [book, language]);
   return (
     <Container>
       <Sidebar />
@@ -741,6 +760,7 @@ useEffect(() => {
             <Author>
               <span>{book.auteur || translations.author}</span>
             </Author>
+            
 
             <RatingDisplay>
               <Rating value={averageRating} readOnly precision={0.5} />
@@ -762,8 +782,17 @@ useEffect(() => {
                 <div className="value">{book.cathegorie}</div>
               </div>
               <div className="row">
+              <div className="label">{translations.initial_stock}</div>
+              <div className="value" style={{ fontWeight: 'bold' }}>
+                {book.initialExemplaire}
+              </div>
+            </div>
+              <div className="row">
                 <div className="label">{translations.quantity}</div>
-                <div className="value">{book.exemplaire}</div>
+                <div className="value" style={{
+                    color: book.exemplaire > 0 ? 'green' : 'red',
+                    fontWeight: book.exemplaire > 0 ? 'normal' : 'bold',
+                  }}>{book.exemplaire}</div>
               </div>
               <div className="row">
                 <div className="label">{translations.bookshelf}</div>

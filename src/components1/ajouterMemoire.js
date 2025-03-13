@@ -255,6 +255,7 @@ export default function Ajoutermemoire() {
     student_info: language === "FR" ? "Informations de l'étudiant" : "Student information",
     document_location: language === "FR" ? "Emplacement du document" : "Document location",
     document_image: language === "FR" ? "Image du document" : "Document image",
+    matriculeIndication:language === "FR"?"Attention : Vérifiez attentivement ce matricule. Une fois enregistré, il ne pourra plus être modifié.":"Caution: Carefully verify this matricule. Once registered, it cannot be modified."
   };
 
   return (
@@ -348,10 +349,23 @@ export default function Ajoutermemoire() {
                   </FormGroup>
 
                   <FormGroup>
-                    <FormLabel>
-                      {translations.student_id}
-                      <RequiredDot />
-                    </FormLabel>
+                  <FormLabel>
+                    <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            {translations.student_id}
+                            <RequiredDot />
+                        </div>
+                        <div style={{ 
+                            fontSize: '0.8rem', 
+                            color: 'red', 
+                            marginTop: '0.25rem',
+                            lineHeight: 1,
+                            width: '100%' 
+                        }}>
+                            {translations.matriculeIndication}
+                        </div>
+                    </div>
+                  </FormLabel>
                     <FormControl
                       type="text"
                       placeholder="20P123"

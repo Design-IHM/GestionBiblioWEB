@@ -15,6 +15,7 @@ function ListeReservations() {
   const { darkMode } = useContext(UserContext);
   const { language } = useI18n();
   const [currentPage, setCurrentPage] = useState(1);
+  const [reservations, setReservations] = useState([]);
   const itemsPerPage = 7;
 
   const getData = useCallback(() => {
@@ -28,45 +29,154 @@ function ListeReservations() {
     });
   }, [ref]);
 
-  useEffect(() => {
-    getData();
-  }, [getData]);
+ 
 
   const d = new Date();
 
+  useEffect(() => {
+    const unsubscribe = ref.onSnapshot((querySnapshot) => {
+      const items = [];
+      querySnapshot.forEach((doc) => {
+        items.push(doc.data());
+      });
+      setReservations(items); // Mettre à jour l'état des réservations
+      setLoader(true);
+    });
+
+    return () => unsubscribe(); // Nettoyer l'abonnement
+  }, [ref]);
+
+
+
   function reserv1(dos) {
-    const ref = firebase.firestore().collection("BiblioUser");
+    const userRef = firebase.firestore().collection("BiblioUser");
+    const bookRef = firebase.firestore().collection("BiblioInformatique");
+
     if (dos.etat1 === 'reserv') {
-      ref.doc(dos.email).update({
+      // Mettre à jour l'état de l'utilisateur dans Firestore
+      userRef.doc(dos.email).update({
         etat1: 'emprunt',
         tabEtat1: [dos.tabEtat1[0], dos.tabEtat1[1], dos.tabEtat1[2], dos.tabEtat1[3], dos.tabEtat1[4], d.toISOString()]
+      }).then(() => {
+        // Mettre à jour l'état local des réservations
+        setReservations((prevReservations) =>
+          prevReservations.map((reservation) =>
+            reservation.email === dos.email
+              ? {
+                  ...reservation,
+                  etat1: 'emprunt',
+                  tabEtat1: [dos.tabEtat1[0], dos.tabEtat1[1], dos.tabEtat1[2], dos.tabEtat1[3], dos.tabEtat1[4], d.toISOString()],
+                }
+              : reservation
+          )
+        );
       }).catch((err) => {
         console.log(err);
       });
+
+      // Incrémenter l'attribut exemplaire du livre
+      bookRef
+        .where("name", "==", dos.tabEtat1[0]) // Rechercher le livre par son nom
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            const currentExemplaire = doc.data().exemplaire || 0;
+            doc.ref.update({
+              exemplaire: currentExemplaire + 1, // Incrémenter exemplaire
+            });
+          });
+        })
+        .catch((err) => {
+          console.log("Erreur lors de la mise à jour du livre :", err);
+        });
     }
   }
-
+  
   function reserv2(dos) {
-    const ref = firebase.firestore().collection("BiblioUser");
+    const userRef = firebase.firestore().collection("BiblioUser");
+    const bookRef = firebase.firestore().collection("BiblioInformatique");
+  
     if (dos.etat2 === 'reserv') {
-      ref.doc(dos.email).update({
+      // Mettre à jour l'état de l'utilisateur dans Firestore
+      userRef.doc(dos.email).update({
         etat2: 'emprunt',
         tabEtat2: [dos.tabEtat2[0], dos.tabEtat2[1], dos.tabEtat2[2], dos.tabEtat2[3], dos.tabEtat2[4], d.toISOString()]
+      }).then(() => {
+        // Mettre à jour l'état local des réservations
+        setReservations((prevReservations) =>
+          prevReservations.map((reservation) =>
+            reservation.email === dos.email
+              ? {
+                  ...reservation,
+                  etat2: 'emprunt',
+                  tabEtat2: [dos.tabEtat2[0], dos.tabEtat2[1], dos.tabEtat2[2], dos.tabEtat2[3], dos.tabEtat2[4], d.toISOString()],
+                }
+              : reservation
+          )
+        );
       }).catch((err) => {
         console.log(err);
       });
+  
+      // Incrémenter l'attribut exemplaire du livre
+      bookRef
+        .where("name", "==", dos.tabEtat2[0]) // Rechercher le livre par son nom
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            const currentExemplaire = doc.data().exemplaire || 0;
+            doc.ref.update({
+              exemplaire: currentExemplaire + 1, // Incrémenter exemplaire
+            });
+          });
+        })
+        .catch((err) => {
+          console.log("Erreur lors de la mise à jour du livre :", err);
+        });
     }
   }
-
+  
   function reserv3(dos) {
-    const ref = firebase.firestore().collection("BiblioUser");
+    const userRef = firebase.firestore().collection("BiblioUser");
+    const bookRef = firebase.firestore().collection("BiblioInformatique");
+  
     if (dos.etat3 === 'reserv') {
-      ref.doc(dos.email).update({
+      // Mettre à jour l'état de l'utilisateur dans Firestore
+      userRef.doc(dos.email).update({
         etat3: 'emprunt',
         tabEtat3: [dos.tabEtat3[0], dos.tabEtat3[1], dos.tabEtat3[2], dos.tabEtat3[3], dos.tabEtat3[4], d.toISOString()]
+      }).then(() => {
+        // Mettre à jour l'état local des réservations
+        setReservations((prevReservations) =>
+          prevReservations.map((reservation) =>
+            reservation.email === dos.email
+              ? {
+                  ...reservation,
+                  etat3: 'emprunt',
+                  tabEtat3: [dos.tabEtat3[0], dos.tabEtat3[1], dos.tabEtat3[2], dos.tabEtat3[3], dos.tabEtat3[4], d.toISOString()],
+                }
+              : reservation
+          )
+        );
       }).catch((err) => {
         console.log(err);
       });
+  
+      // Incrémenter l'attribut exemplaire du livre
+      bookRef
+        .where("name", "==", dos.tabEtat3[0]) // Rechercher le livre par son nom
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            const currentExemplaire = doc.data().exemplaire || 0;
+            doc.ref.update({
+              exemplaire: currentExemplaire + 1, // Incrémenter exemplaire
+            });
+          });
+        })
+        .catch((err) => {
+          console.log("Erreur lors de la mise à jour du livre :", err);
+        });
     }
   }
 
@@ -139,7 +249,7 @@ function ListeReservations() {
                           {doc.name}
                         </h5>
                         <div className="mx-3 mt-4 justify-content-between d-flex flex-row ">
-                          <span style={{ fontSize: "12px" }}>id: <p style={{ fontSize: "12px", color: "grey" }}>{indexOfFirstItem + index + 1}</p></span>
+                          <span style={{ fontSize: "12px" }}>matricule: <p style={{ fontSize: "12px", color: "grey" }}>{doc.matricule}</p></span>
                           <span style={{ fontSize: "12px" }}>class: <p style={{ fontSize: "12px", color: "grey" }}>{doc.niveau}</p></span>
                         </div>
                       </div>

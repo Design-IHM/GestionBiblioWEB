@@ -47,6 +47,7 @@ export default function DepartementMemoriesBtn(props) {
   const [auteur, setAuteur] = useState('');
   const [edition, setEdition] = useState('');
   const [typ] = useState('');
+  const [initialExemplaire, setInitialExemplaire] = useState(1);
 
   // États pour l'image et le chargement
   const [image, setImage] = useState(null);
@@ -99,6 +100,10 @@ export default function DepartementMemoriesBtn(props) {
     required_fields: language === "FR" ? "Champs obligatoires" : "Required fields",
     choose_file: language === "FR" ? "Choisir une image" : "Choose an image",
     image_selected: language === "FR" ? "Image sélectionnée" : "Image selected",
+    descriptionIndication: language === "FR" 
+  ? "Veuillez rédiger une description détaillée du livre, car elle sera utilisée pour générer des recommandations personnalisées aux utilisateurs."
+  : "Please write a detailed book description, as it will be used to generate personalized recommendations for users.",
+  error_desc: language === "FR" ? "Description requise" : "Description required",
   };
 
   const handleVisualiser = () => {
@@ -141,6 +146,7 @@ export default function DepartementMemoriesBtn(props) {
     if (!etagere.trim()) errors.etagere = true;
     if (!salle) errors.salle = true;
     if (!image) errors.image = true;
+    if (!desc.trim()) errors.desc = true;
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -149,6 +155,7 @@ export default function DepartementMemoriesBtn(props) {
   const resetForm = () => {
     setName('');
     setExemplaire(1);
+    setInitialExemplaire(1);
     setEtagere('');
     setDesc('');
     setImage(null);
@@ -206,7 +213,8 @@ export default function DepartementMemoriesBtn(props) {
       await docRef.set({
         id: documentId, // Stocker l'ID généré comme champ
         name: name,
-        exemplaire: parseInt(exemplaire),
+        initialExemplaire:initialExemplaire,
+        exemplaire:exemplaire,
         etagere: etagere,
         salle: salle,
         image: imageUrl,
@@ -268,7 +276,21 @@ export default function DepartementMemoriesBtn(props) {
     right: '0',
     padding: '10px',
   };
+  const RequiredNote = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  color: #666;
+`;
 
+const RequiredDot = styled.span`
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #fe7a3f;
+  border-radius: 50%;
+  margin-right: 5px;
+`;
   const buttonAjouterStyle = {
     width: '100px',
     backgroundColor: '#28a745',
@@ -353,7 +375,12 @@ export default function DepartementMemoriesBtn(props) {
           <ModalTitle>
             {translations.add_book}
           </ModalTitle>
+          
         </ModalHeader>
+        <RequiredNote>
+              <RequiredDot />
+              <span>{translations.required_fields}</span>
+        </RequiredNote>
         <ModalBody>
           <FormContainer>
             <Form ref={formRef} onSubmit={handleSubmit}>
@@ -467,7 +494,11 @@ export default function DepartementMemoriesBtn(props) {
                       type="number"
                       min="1"
                       value={exemplaire}
-                      onChange={(e) => setExemplaire(e.target.value)}
+                      onChange={(e) => {
+                        const value = parseInt(e.target.value);
+                        setExemplaire(value);
+                        setInitialExemplaire(value);
+                      }}
                     />
                   </FormGroup>
                 </FormSection>
@@ -519,13 +550,22 @@ export default function DepartementMemoriesBtn(props) {
                 <SectionTitle>
                   <SectionIcon><FaBook /></SectionIcon>
                   {translations.document_description}
+                  <RequiredDot />
                 </SectionTitle>
+                <p  style={{ 
+                        fontSize: '0.8rem', 
+                        color: 'red', 
+                        marginTop: '0.25rem',
+                        lineHeight: 1
+                    }}>{translations.descriptionIndication}</p>
                 <TextArea
                   rows="3"
                   placeholder={translations.document_description}
                   value={desc}
                   onChange={(e) => setDesc(e.target.value)}
+                  hasError={formErrors.desc}
                 />
+                {formErrors.desc && <ErrorMessage>{translations.error_desc}</ErrorMessage>}
               </DescriptionSection>
 
               {/* Boutons d'action */}

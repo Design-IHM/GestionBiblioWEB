@@ -38,6 +38,7 @@ export default function Catalogue() {
         modify: language === "FR" ? "Modifier" : "Modify",
         delete: language === "FR" ? "Supprimer" : "Delete",
         document_added: language === "FR" ? "Document ajouté avec succès" : "Document added successfully",
+        quantité:language==="FR"?"Stock courant":"Current stock",
     };
 
     // Modal
@@ -254,13 +255,21 @@ export default function Catalogue() {
                                     </CardHeader>
                                     <CardBody>
                                         <CardInfo>
-                                            <InfoItem>
-                                                <FiUser className="icon" />
-                                                <span>{doc.cathegorie}</span>
-                                            </InfoItem>
+                                            
                                             <InfoItem>
                                                 <FiGrid className="icon" />
-                                                <span>{doc.exemplaire}</span>
+                                                <span>
+                                                        {translations.quantité}: {/* Libellé sans style spécifique */}
+                                                        <span
+                                                            style={{
+                                                            color: doc.exemplaire > 0 ? 'green' : 'red',
+                                                            fontWeight: doc.exemplaire > 0 ? 'normal' : 'bold',
+                                                            }}
+                                                        >
+                                                            {doc.exemplaire} {/* Valeur avec style conditionnel */}
+                                                        </span>
+                                                        </span>
+                                                
                                             </InfoItem>
                                         </CardInfo>
                                         <CardImage>
