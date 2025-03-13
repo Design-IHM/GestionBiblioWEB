@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import styled from "styled-components";
 import { UserContext } from "../App";
 import { useLocation, useNavigate } from 'react-router-dom'; // Ajout de useNavigate pour la redirection
-import { FiBook, FiUser, FiCalendar, FiGrid, FiBookmark, FiHardDrive } from 'react-icons/fi';
+import { FiBook, FiUser, FiCalendar, FiBookmark, FiHardDrive } from 'react-icons/fi';
 import Sidebar from "../components1/Sidebar";
 import Navbar from "../components1/Navbar";
 import Loading from "./Loading";
@@ -147,7 +147,7 @@ export default function MemoireParDepartement() {
                                             <FiUser className="icon" />
                                             <span>{doc.name}</span>
                                         </InfoItem>
-                                     
+
                                         <InfoItem>
                                             <FiCalendar className="icon" />
                                             <span>{doc.annee}</span>
