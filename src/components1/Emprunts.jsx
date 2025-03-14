@@ -474,7 +474,7 @@ const AppContainer = styled.div`
   display: flex;
   min-height: 100vh;
   width: 100%;
-  background-color: ${props => props.darkMode ? '#2D3748' : '#f8f9fa'};
+  background-color: ${props => props.darkMode ? '#2D3748' : 'white'};
   color: ${props => props.darkMode ? '#E2E8F0' : '#1A202C'};
   position: relative;
   overflow: hidden;

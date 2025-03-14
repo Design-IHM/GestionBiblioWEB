@@ -5,6 +5,7 @@ import login from "../assets/img/login.jpg";
 import { BookHalf } from "react-bootstrap-icons";
 import firebase from '../metro.config';
 import bcrypt from 'bcryptjs';
+import styled from "styled-components";
 
 const validateEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -19,6 +20,7 @@ const Login = () => {
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState({});
   const [showFeedback, setShowFeedback] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -34,27 +36,36 @@ const Login = () => {
     e.preventDefault();
     if (email && password && validateEmail(email)) {
       setValidationError("");
-      const adminSnapshot = await firebase.firestore().collection('BiblioAdmin').doc(email).get();
-      if (adminSnapshot.exists) {
-        const adminData = adminSnapshot.data();
-        const isPasswordValid = await bcrypt.compare(password, adminData.password);
-        if (isPasswordValid) {
-          const token = "fake-jwt-token";
-          localStorage.setItem("token", token);
-          localStorage.setItem("user_id", email); // Store the email as user_id
-          
-          // Afficher le message de succès avant de rediriger
-          setShowFeedback(true);
-          
-          // Rediriger après un délai
-          setTimeout(() => {
-            navigate("/accueil");
-          }, 2000);
+      // Activer l'état de chargement
+      setIsLoggingIn(true);
+      
+      try {
+        const adminSnapshot = await firebase.firestore().collection('BiblioAdmin').doc(email).get();
+        if (adminSnapshot.exists) {
+          const adminData = adminSnapshot.data();
+          const isPasswordValid = await bcrypt.compare(password, adminData.password);
+          if (isPasswordValid) {
+            const token = "fake-jwt-token";
+            localStorage.setItem("token", token);
+            localStorage.setItem("user_id", email);
+            
+            setShowFeedback(true);
+            
+            setTimeout(() => {
+              navigate("/accueil");
+            }, 2000);
+          } else {
+            setValidationError("Oops! Email and/or password incorrect");
+            setIsLoggingIn(false); // Désactiver l'état de chargement
+          }
         } else {
           setValidationError("Oops! Email and/or password incorrect");
+          setIsLoggingIn(false); // Désactiver l'état de chargement
         }
-      } else {
-        setValidationError("Oops! Email and/or password incorrect");
+      } catch (error) {
+        console.error("Login error:", error);
+        setValidationError("An error occurred during login");
+        setIsLoggingIn(false); // Désactiver l'état de chargement
       }
     } else if (!validateEmail(email)) {
       setValidationError("Please enter a valid email address");
@@ -136,6 +147,40 @@ const Login = () => {
     }
   };
 
+  // Ajoutez ce composant en haut ou en bas de votre fichier Login.js
+const LoadingDots = () => {
+  return (
+    <DotsContainer>
+      <Dot delay="0s" />
+      <Dot delay="0.2s" />
+      <Dot delay="0.4s" />
+    </DotsContainer>
+  );
+};
+
+// Ajoutez ces styles avec vos autres styled components
+const DotsContainer = styled.div`
+  display: inline-flex;
+  align-items: center;
+  margin-left: 5px;
+`;
+
+const Dot = styled.span`
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: white;
+  margin: 0 2px;
+  opacity: 0;
+  animation: fadeInOut 1.4s infinite;
+  animation-delay: ${props => props.delay || "0s"};
+  
+  @keyframes fadeInOut {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+  }
+`;
+
   return (
     <div className="login-wrapper">
       <div className="login-background">
@@ -193,8 +238,18 @@ const Login = () => {
                         />
                       </div>
                     </div>
-                    <button type="submit" className="login-button">
-                      Log In
+                    <button 
+                          type="submit" 
+                          className="login-button"
+                          disabled={isLoggingIn}
+                        >
+                          {isLoggingIn ? (
+                            <>
+                              Logging in<LoadingDots />
+                            </>
+                          ) : (
+                            "Log In"
+                          )}
                     </button>
                   </form>
                 ) : (

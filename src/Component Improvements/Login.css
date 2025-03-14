@@ -47,6 +47,10 @@
   min-height: 100vh;
  
 }
+.login-button:disabled {
+  opacity: 0.8;
+  cursor: default;
+}
 
 .login-container {
   width: 100%;
