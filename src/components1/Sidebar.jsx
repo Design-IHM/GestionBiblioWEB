@@ -81,6 +81,13 @@ export default function Sidebar() {
       onClick: changerAc
     },
     {
+      id: 16,
+      path: "/dashboard",
+      icon: <MdRuleFolder />,
+      text: translations.statistics,
+      onClick: changer
+    },
+    {
       id: 6,
       path: "/departement",
       icon: <GrCatalog />,
@@ -122,13 +129,7 @@ export default function Sidebar() {
       text: translations.borrowed_documents,
       onClick: changerEmprunt
     },
-    {
-      id: 7,
-      path: "/messages",
-      icon: <AiFillMessage />,
-      text: translations.messages,
-      onClick: changerMsg
-    },
+   
     {
       id: 8,
       path: "/archives",
@@ -136,13 +137,7 @@ export default function Sidebar() {
       text: translations.archives,
       onClick: changerArch
     },
-    {
-      id: 16,
-      path: "/dashboard",
-      icon: <MdRuleFolder />,
-      text: translations.statistics,
-      onClick: changer
-    }
+    
   ];
 
   // Helper function to render navigation items

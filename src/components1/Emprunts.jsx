@@ -190,6 +190,7 @@ function Emprunts() {
         no_loans_message: language === "FR" ? "Lorsque des étudiants emprunteront des documents, ils apparaîtront ici" : "When students borrow documents, they will appear here",
         email: language === "FR" ? "Email" : "Email",
         level: language === "FR" ? "Niveau" : "Level",
+        emp: language ==="FR"?"Documments empruntés":"Borrowed documents",
     };
 
     // Filtrer les données pour n'afficher que les emprunts en cours
@@ -226,10 +227,10 @@ function Emprunts() {
                             <FaBook size={20} style={{ marginRight: '10px' }} />
                             {translations.loans}
                         </HeaderTitle>
-                        <NewLoanButton>
+                        {/* <NewLoanButton>
                             <FaPlus size={14} style={{ marginRight: '8px' }} />
                             {translations.new_loan}
-                        </NewLoanButton>
+                        </NewLoanButton> */}
                     </PageHeader>
 
                     {loader ? (
@@ -265,7 +266,7 @@ function Emprunts() {
 
                                             <DocumentsSection>
                                                 <DocsHeader>
-                                                    <DocsTitle>Documents empruntés</DocsTitle>
+                                                    <DocsTitle>{translations.emp}</DocsTitle>
                                                 </DocsHeader>
                                                 <DocsList>
                                                     {user.etat1 === 'emprunt' && (
